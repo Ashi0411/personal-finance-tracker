@@ -11,6 +11,11 @@ class UserController
         $this->user = new User($db);
     }
 
+
+    // ========================================================
+    // REGISTER
+    // ========================================================
+
     public function register(): void
     {
         $data = json_decode(
@@ -22,6 +27,8 @@ class UserController
         $email = trim($data['email'] ?? '');
         $password = $data['password'] ?? '';
 
+
+        // Required fields
         if (
             $name === '' ||
             $email === '' ||
@@ -38,6 +45,8 @@ class UserController
             return;
         }
 
+
+        // Validate email
         if (!filter_var(
             $email,
             FILTER_VALIDATE_EMAIL
@@ -53,6 +62,8 @@ class UserController
             return;
         }
 
+
+        // Validate password
         if (strlen($password) < 8) {
             http_response_code(400);
 
@@ -65,7 +76,10 @@ class UserController
             return;
         }
 
+
+        // Check existing email
         if ($this->user->findByEmail($email)) {
+
             http_response_code(409);
 
             echo json_encode([
@@ -77,6 +91,8 @@ class UserController
             return;
         }
 
+
+        // Create user
         try {
 
             $this->user->create(
@@ -124,6 +140,7 @@ class UserController
             $data['password'] ?? '';
 
 
+        // Required fields
         if (
             $email === '' ||
             $password === ''
@@ -140,6 +157,7 @@ class UserController
         }
 
 
+        // Validate email
         if (!filter_var(
             $email,
             FILTER_VALIDATE_EMAIL
@@ -156,6 +174,7 @@ class UserController
         }
 
 
+        // Find user
         $user =
             $this->user->findByEmail($email);
 
@@ -174,6 +193,7 @@ class UserController
         }
 
 
+        // Verify password
         if (!password_verify(
             $password,
             $user['password_hash']
@@ -190,31 +210,25 @@ class UserController
             return;
         }
 
-        if (!password_verify(
-    $password,
-    $user['password_hash']
-)) {
 
-    http_response_code(401);
-
-    echo json_encode([
-        'success' => false,
-        'message' =>
-            'Invalid email or password.'
-    ]);
-
-    return;
-}
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-$_SESSION['user_id'] = $user['user_id'];
-$_SESSION['user_name'] = $user['name'];
-$_SESSION['user_email'] = $user['email'];
+        // Start session
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
 
 
+        // Store logged-in user
+        $_SESSION['user_id'] =
+            $user['user_id'];
+
+        $_SESSION['user_name'] =
+            $user['name'];
+
+        $_SESSION['user_email'] =
+            $user['email'];
+
+
+        // Login success
         echo json_encode([
             'success' => true,
             'message' =>

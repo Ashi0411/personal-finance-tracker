@@ -1,3 +1,8 @@
+// ============================================================
+// API URLS
+// ============================================================
+
+const REGISTER_API_URL = "../backend/api/register.php";
 const LOGIN_API_URL = "../backend/api/login.php";
 const LOGOUT_API_URL = "../backend/api/logout.php";
 
@@ -12,38 +17,102 @@ const TRANSACTION_API_URL = "../backend/api/transactions.php";
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    // Finance section hidden before login
-    document.getElementById("financeSection").style.display = "none";
+    // --------------------------------------------------------
+    // Initial Authentication State
+    // --------------------------------------------------------
+
+    showLogin();
 
 
-    // ========================================================
+    // --------------------------------------------------------
     // LOGIN FORM
-    // ========================================================
+    // --------------------------------------------------------
 
-    document
-        .getElementById("loginForm")
-        .addEventListener("submit", async (event) => {
+    const loginForm = document.getElementById("loginForm");
+
+    if (loginForm) {
+
+        loginForm.addEventListener("submit", async (event) => {
 
             event.preventDefault();
 
             await login();
+
         });
+    }
 
 
-    // ========================================================
-    // CATEGORY FORM
-    // ========================================================
+    // --------------------------------------------------------
+    // REGISTER FORM
+    // --------------------------------------------------------
 
-    document
-        .getElementById("categoryForm")
-        .addEventListener("submit", async (event) => {
+    const registerForm = document.getElementById("registerForm");
+
+    if (registerForm) {
+
+        registerForm.addEventListener("submit", async (event) => {
 
             event.preventDefault();
 
-            const name = document
-                .getElementById("categoryName")
-                .value
-                .trim();
+            await register();
+
+        });
+    }
+
+
+    // --------------------------------------------------------
+    // SHOW REGISTER BUTTON
+    // --------------------------------------------------------
+
+    const showRegisterButton =
+        document.getElementById("showRegisterButton");
+
+    if (showRegisterButton) {
+
+        showRegisterButton.addEventListener("click", () => {
+
+            showRegister();
+
+        });
+    }
+
+
+    // --------------------------------------------------------
+    // SHOW LOGIN BUTTON
+    // --------------------------------------------------------
+
+    const showLoginButton =
+        document.getElementById("showLoginButton");
+
+    if (showLoginButton) {
+
+        showLoginButton.addEventListener("click", () => {
+
+            showLogin();
+
+        });
+    }
+
+
+    // --------------------------------------------------------
+    // CATEGORY FORM
+    // --------------------------------------------------------
+
+    const categoryForm =
+        document.getElementById("categoryForm");
+
+    if (categoryForm) {
+
+        categoryForm.addEventListener("submit", async (event) => {
+
+            event.preventDefault();
+
+            const categoryInput =
+                document.getElementById("categoryName");
+
+            const name =
+                categoryInput.value.trim();
+
 
             if (!name) {
 
@@ -54,37 +123,332 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
+
             await createCategory(name);
+
         });
+    }
 
 
-    // ========================================================
+    // --------------------------------------------------------
     // TRANSACTION FORM
-    // ========================================================
+    // --------------------------------------------------------
 
-    document
-        .getElementById("transactionForm")
-        .addEventListener("submit", async (event) => {
+    const transactionForm =
+        document.getElementById("transactionForm");
+
+    if (transactionForm) {
+
+        transactionForm.addEventListener("submit", async (event) => {
 
             event.preventDefault();
 
             await createTransaction();
+
         });
+    }
 
 
-    // ========================================================
+    // --------------------------------------------------------
     // LOGOUT BUTTON
-    // ========================================================
+    // --------------------------------------------------------
 
-    document
-        .getElementById("logoutButton")
-        .addEventListener("click", async () => {
+    const logoutButton =
+        document.getElementById("logoutButton");
+
+    if (logoutButton) {
+
+        logoutButton.addEventListener("click", async () => {
 
             await logout();
 
         });
+    }
 
 });
+
+
+// ============================================================
+// SHOW LOGIN
+// ============================================================
+
+function showLogin() {
+
+    const loginSection =
+        document.getElementById("loginSection");
+
+    const registerSection =
+        document.getElementById("registerSection");
+
+    const financeSection =
+        document.getElementById("financeSection");
+
+
+    if (loginSection) {
+
+        loginSection.style.display = "block";
+
+    }
+
+
+    if (registerSection) {
+
+        registerSection.style.display = "none";
+
+    }
+
+
+    if (financeSection) {
+
+        financeSection.style.display = "none";
+
+    }
+
+
+    // Clear messages
+
+    const loginMessage =
+        document.getElementById("loginMessage");
+
+    if (loginMessage) {
+
+        loginMessage.textContent = "";
+
+    }
+
+
+    const registerMessage =
+        document.getElementById("registerMessage");
+
+    if (registerMessage) {
+
+        registerMessage.textContent = "";
+
+    }
+}
+
+
+// ============================================================
+// SHOW REGISTER
+// ============================================================
+
+function showRegister() {
+
+    const loginSection =
+        document.getElementById("loginSection");
+
+    const registerSection =
+        document.getElementById("registerSection");
+
+    const financeSection =
+        document.getElementById("financeSection");
+
+
+    if (loginSection) {
+
+        loginSection.style.display = "none";
+
+    }
+
+
+    if (registerSection) {
+
+        registerSection.style.display = "block";
+
+    }
+
+
+    if (financeSection) {
+
+        financeSection.style.display = "none";
+
+    }
+
+
+    // Clear messages
+
+    const loginMessage =
+        document.getElementById("loginMessage");
+
+    if (loginMessage) {
+
+        loginMessage.textContent = "";
+
+    }
+
+
+    const registerMessage =
+        document.getElementById("registerMessage");
+
+    if (registerMessage) {
+
+        registerMessage.textContent = "";
+
+    }
+}
+
+
+// ============================================================
+// REGISTER
+// ============================================================
+
+async function register() {
+
+    const name =
+        document
+            .getElementById("registerName")
+            .value
+            .trim();
+
+
+    const email =
+        document
+            .getElementById("registerEmail")
+            .value
+            .trim();
+
+
+    const password =
+        document
+            .getElementById("registerPassword")
+            .value;
+
+
+    const confirmPassword =
+        document
+            .getElementById("registerConfirmPassword")
+            .value;
+
+
+    const message =
+        document.getElementById("registerMessage");
+
+
+    // --------------------------------------------------------
+    // Validation
+    // --------------------------------------------------------
+
+    if (
+        !name ||
+        !email ||
+        !password ||
+        !confirmPassword
+    ) {
+
+        message.textContent =
+            "Please fill in all fields.";
+
+        return;
+    }
+
+
+    if (password.length < 8) {
+
+        message.textContent =
+            "Password must be at least 8 characters.";
+
+        return;
+    }
+
+
+    if (password !== confirmPassword) {
+
+        message.textContent =
+            "Passwords do not match.";
+
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // API REQUEST
+    // --------------------------------------------------------
+
+    try {
+
+        const response =
+            await fetch(
+                REGISTER_API_URL,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        name: name,
+                        email: email,
+                        password: password
+                    })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        // ----------------------------------------------------
+        // Registration Failed
+        // ----------------------------------------------------
+
+        if (!data.success) {
+
+            message.textContent =
+                data.message ||
+                "Registration failed.";
+
+            return;
+        }
+
+
+        // ----------------------------------------------------
+        // Registration Successful
+        // ----------------------------------------------------
+
+        message.textContent =
+            "Registration successful! Please login.";
+
+
+        // Clear register form
+
+        document
+            .getElementById("registerForm")
+            .reset();
+
+
+        // Wait a little so user can see success message
+
+        setTimeout(() => {
+
+            showLogin();
+
+            const loginEmail =
+                document.getElementById("loginEmail");
+
+            if (loginEmail) {
+
+                loginEmail.value = email;
+
+            }
+
+        }, 1000);
+
+
+    } catch (error) {
+
+        console.error(
+            "Registration error:",
+            error
+        );
+
+
+        message.textContent =
+            "Something went wrong during registration.";
+
+    }
+}
 
 
 // ============================================================
@@ -99,16 +463,21 @@ async function login() {
             .value
             .trim();
 
+
     const password =
         document
             .getElementById("loginPassword")
             .value;
 
+
     const message =
         document.getElementById("loginMessage");
 
 
+    // --------------------------------------------------------
     // Validation
+    // --------------------------------------------------------
+
     if (!email || !password) {
 
         message.textContent =
@@ -118,29 +487,38 @@ async function login() {
     }
 
 
+    // --------------------------------------------------------
+    // API REQUEST
+    // --------------------------------------------------------
+
     try {
 
         const response =
-            await fetch(LOGIN_API_URL, {
+            await fetch(
+                LOGIN_API_URL,
+                {
+                    method: "POST",
 
-                method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    email: email,
-                    password: password
-                })
-            });
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                }
+            );
 
 
         const data =
             await response.json();
 
 
-        // Login failed
+        // ----------------------------------------------------
+        // Login Failed
+        // ----------------------------------------------------
+
         if (!data.success) {
 
             message.textContent =
@@ -151,33 +529,39 @@ async function login() {
         }
 
 
-        // ====================================================
-        // LOGIN SUCCESS
-        // ====================================================
+        // ----------------------------------------------------
+        // Login Successful
+        // ----------------------------------------------------
 
         message.textContent =
             "Login successful.";
 
 
-        // Hide login
+        // Hide authentication
+
         document
-            .getElementById("loginSection")
+            .getElementById("authSection")
             .style.display = "none";
 
 
-        // Show finance dashboard
+        // Show finance application
+
         document
             .getElementById("financeSection")
             .style.display = "block";
 
 
         // Clear login form
+
         document
             .getElementById("loginForm")
             .reset();
 
 
-        // Load user data
+        // ----------------------------------------------------
+        // Load User Data
+        // ----------------------------------------------------
+
         await loadCategories();
 
         await loadTransactions();
@@ -187,10 +571,15 @@ async function login() {
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Login error:",
+            error
+        );
+
 
         message.textContent =
             "Something went wrong during login.";
+
     }
 }
 
@@ -208,15 +597,21 @@ async function logout() {
     try {
 
         const response =
-            await fetch(LOGOUT_API_URL, {
-
-                method: "POST"
-            });
+            await fetch(
+                LOGOUT_API_URL,
+                {
+                    method: "POST"
+                }
+            );
 
 
         const data =
             await response.json();
 
+
+        // ----------------------------------------------------
+        // Logout Failed
+        // ----------------------------------------------------
 
         if (!data.success) {
 
@@ -228,38 +623,63 @@ async function logout() {
         }
 
 
-        // Hide finance section
+        // ----------------------------------------------------
+        // Hide Finance Section
+        // ----------------------------------------------------
+
         document
             .getElementById("financeSection")
             .style.display = "none";
 
 
-        // Show login section
+        // ----------------------------------------------------
+        // Show Authentication Section
+        // ----------------------------------------------------
+
         document
-            .getElementById("loginSection")
+            .getElementById("authSection")
             .style.display = "block";
 
 
-        // Clear login fields
+        // ----------------------------------------------------
+        // Show Login
+        // ----------------------------------------------------
+
+        showLogin();
+
+
+        // ----------------------------------------------------
+        // Clear Forms
+        // ----------------------------------------------------
+
         document
             .getElementById("loginForm")
             .reset();
 
 
-        // Clear messages
         document
-            .getElementById("loginMessage")
-            .textContent =
-            "Logged out successfully.";
+            .getElementById("registerForm")
+            .reset();
 
 
-        logoutMessage.textContent = "";
+        // ----------------------------------------------------
+        // Clear Categories
+        // ----------------------------------------------------
 
-
-        // Clear displayed data
         document
             .getElementById("categoryList")
             .innerHTML = "";
+
+
+        document
+            .getElementById("categoryMessage")
+            .textContent =
+            "No categories found.";
+
+
+        // ----------------------------------------------------
+        // Clear Transactions
+        // ----------------------------------------------------
 
         document
             .getElementById("transactionList")
@@ -267,36 +687,56 @@ async function logout() {
 
 
         document
+            .getElementById("transactionMessage")
+            .textContent = "";
+
+
+        // ----------------------------------------------------
+        // Reset Dashboard
+        // ----------------------------------------------------
+
+        document
             .getElementById("totalIncome")
-            .textContent = "Rs. 0.00";
+            .textContent =
+            "Rs. 0.00";
+
 
         document
             .getElementById("totalExpenses")
-            .textContent = "Rs. 0.00";
+            .textContent =
+            "Rs. 0.00";
+
 
         document
             .getElementById("balance")
-            .textContent = "Rs. 0.00";
+            .textContent =
+            "Rs. 0.00";
 
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Logout error:",
+            error
+        );
+
 
         logoutMessage.textContent =
             "Something went wrong during logout.";
+
     }
 }
 
 
 // ============================================================
-// CATEGORY
+// LOAD CATEGORIES
 // ============================================================
 
 async function loadCategories() {
 
     const categoryList =
         document.getElementById("categoryList");
+
 
     const categorySelect =
         document.getElementById("transactionCategory");
@@ -305,7 +745,9 @@ async function loadCategories() {
     try {
 
         const response =
-            await fetch(CATEGORY_API_URL);
+            await fetch(
+                CATEGORY_API_URL
+            );
 
 
         const data =
@@ -316,7 +758,9 @@ async function loadCategories() {
 
 
         categorySelect.innerHTML = `
-            <option value="">Select Category</option>
+            <option value="">
+                Select Category
+            </option>
         `;
 
 
@@ -331,7 +775,10 @@ async function loadCategories() {
         }
 
 
-        if (data.categories.length === 0) {
+        if (
+            !data.categories ||
+            data.categories.length === 0
+        ) {
 
             showCategoryMessage(
                 "No categories found."
@@ -341,12 +788,12 @@ async function loadCategories() {
         }
 
 
-        document.getElementById(
-            "categoryMessage"
-        ).textContent = "";
+        document
+            .getElementById("categoryMessage")
+            .textContent = "";
 
 
-        data.categories.forEach(category => {
+        data.categories.forEach((category) => {
 
             const li =
                 document.createElement("li");
@@ -360,7 +807,10 @@ async function loadCategories() {
                 category.name;
 
 
-            // Edit button
+            // ------------------------------------------------
+            // EDIT
+            // ------------------------------------------------
+
             const editButton =
                 document.createElement("button");
 
@@ -369,16 +819,27 @@ async function loadCategories() {
                 "Edit";
 
 
+            editButton.type =
+                "button";
+
+
             editButton.addEventListener(
                 "click",
-                () => editCategory(
-                    category.category_id,
-                    category.name
-                )
+                () => {
+
+                    editCategory(
+                        category.category_id,
+                        category.name
+                    );
+
+                }
             );
 
 
-            // Delete button
+            // ------------------------------------------------
+            // DELETE
+            // ------------------------------------------------
+
             const deleteButton =
                 document.createElement("button");
 
@@ -387,11 +848,19 @@ async function loadCategories() {
                 "Delete";
 
 
+            deleteButton.type =
+                "button";
+
+
             deleteButton.addEventListener(
                 "click",
-                () => deleteCategory(
-                    category.category_id
-                )
+                () => {
+
+                    deleteCategory(
+                        category.category_id
+                    );
+
+                }
             );
 
 
@@ -401,11 +870,13 @@ async function loadCategories() {
 
             li.appendChild(deleteButton);
 
-
             categoryList.appendChild(li);
 
 
-            // Dropdown option
+            // ------------------------------------------------
+            // CATEGORY DROPDOWN
+            // ------------------------------------------------
+
             const option =
                 document.createElement("option");
 
@@ -425,11 +896,16 @@ async function loadCategories() {
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Category loading error:",
+            error
+        );
+
 
         showCategoryMessage(
             "Something went wrong while loading categories."
         );
+
     }
 }
 
@@ -443,18 +919,20 @@ async function createCategory(name) {
     try {
 
         const response =
-            await fetch(CATEGORY_API_URL, {
+            await fetch(
+                CATEGORY_API_URL,
+                {
+                    method: "POST",
 
-                method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    name: name
-                })
-            });
+                    body: JSON.stringify({
+                        name: name
+                    })
+                }
+            );
 
 
         const data =
@@ -472,9 +950,9 @@ async function createCategory(name) {
         }
 
 
-        document.getElementById(
-            "categoryName"
-        ).value = "";
+        document
+            .getElementById("categoryName")
+            .value = "";
 
 
         showCategoryMessage(
@@ -487,11 +965,16 @@ async function createCategory(name) {
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Create category error:",
+            error
+        );
+
 
         showCategoryMessage(
             "Something went wrong while creating the category."
         );
+
     }
 }
 
@@ -513,7 +996,9 @@ async function editCategory(
 
 
     if (newName === null) {
+
         return;
+
     }
 
 
@@ -534,19 +1019,21 @@ async function editCategory(
     try {
 
         const response =
-            await fetch(CATEGORY_API_URL, {
+            await fetch(
+                CATEGORY_API_URL,
+                {
+                    method: "PUT",
 
-                method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    category_id: categoryId,
-                    name: name
-                })
-            });
+                    body: JSON.stringify({
+                        category_id: categoryId,
+                        name: name
+                    })
+                }
+            );
 
 
         const data =
@@ -576,11 +1063,16 @@ async function editCategory(
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Edit category error:",
+            error
+        );
+
 
         showCategoryMessage(
             "Something went wrong while updating the category."
         );
+
     }
 }
 
@@ -591,29 +1083,36 @@ async function editCategory(
 
 async function deleteCategory(categoryId) {
 
-    if (!confirm(
-        "Are you sure you want to delete this category?"
-    )) {
+    const confirmed =
+        confirm(
+            "Are you sure you want to delete this category?"
+        );
+
+
+    if (!confirmed) {
 
         return;
+
     }
 
 
     try {
 
         const response =
-            await fetch(CATEGORY_API_URL, {
+            await fetch(
+                CATEGORY_API_URL,
+                {
+                    method: "DELETE",
 
-                method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    category_id: categoryId
-                })
-            });
+                    body: JSON.stringify({
+                        category_id: categoryId
+                    })
+                }
+            );
 
 
         const data =
@@ -643,11 +1142,16 @@ async function deleteCategory(categoryId) {
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Delete category error:",
+            error
+        );
+
 
         showCategoryMessage(
             "Something went wrong while deleting the category."
         );
+
     }
 }
 
@@ -658,14 +1162,20 @@ async function deleteCategory(categoryId) {
 
 function showCategoryMessage(message) {
 
-    document.getElementById(
-        "categoryMessage"
-    ).textContent = message;
+    const element =
+        document.getElementById("categoryMessage");
+
+
+    if (element) {
+
+        element.textContent = message;
+
+    }
 }
 
 
 // ============================================================
-// TRANSACTIONS
+// LOAD TRANSACTIONS
 // ============================================================
 
 async function loadTransactions() {
@@ -681,7 +1191,9 @@ async function loadTransactions() {
     try {
 
         const response =
-            await fetch(TRANSACTION_API_URL);
+            await fetch(
+                TRANSACTION_API_URL
+            );
 
 
         const data =
@@ -701,7 +1213,10 @@ async function loadTransactions() {
         }
 
 
-        if (data.transactions.length === 0) {
+        if (
+            !data.transactions ||
+            data.transactions.length === 0
+        ) {
 
             transactionMessage.textContent =
                 "No transactions found.";
@@ -713,7 +1228,7 @@ async function loadTransactions() {
         transactionMessage.textContent = "";
 
 
-        data.transactions.forEach(transaction => {
+        data.transactions.forEach((transaction) => {
 
             const li =
                 document.createElement("li");
@@ -728,10 +1243,13 @@ async function loadTransactions() {
                 `${transaction.category_name} - ` +
                 `${transaction.type} - ` +
                 `Rs. ${transaction.amount} - ` +
-                `${transaction.description}`;
+                `${transaction.description || ""}`;
 
 
-            // Edit button
+            // ------------------------------------------------
+            // EDIT
+            // ------------------------------------------------
+
             const editButton =
                 document.createElement("button");
 
@@ -740,13 +1258,24 @@ async function loadTransactions() {
                 "Edit";
 
 
+            editButton.type =
+                "button";
+
+
             editButton.addEventListener(
                 "click",
-                () => editTransaction(transaction)
+                () => {
+
+                    editTransaction(transaction);
+
+                }
             );
 
 
-            // Delete button
+            // ------------------------------------------------
+            // DELETE
+            // ------------------------------------------------
+
             const deleteButton =
                 document.createElement("button");
 
@@ -755,11 +1284,19 @@ async function loadTransactions() {
                 "Delete";
 
 
+            deleteButton.type =
+                "button";
+
+
             deleteButton.addEventListener(
                 "click",
-                () => deleteTransaction(
-                    transaction.transaction_id
-                )
+                () => {
+
+                    deleteTransaction(
+                        transaction.transaction_id
+                    );
+
+                }
             );
 
 
@@ -769,7 +1306,6 @@ async function loadTransactions() {
 
             li.appendChild(deleteButton);
 
-
             transactionList.appendChild(li);
 
         });
@@ -777,10 +1313,15 @@ async function loadTransactions() {
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Transaction loading error:",
+            error
+        );
+
 
         transactionMessage.textContent =
             "Something went wrong while loading transactions.";
+
     }
 }
 
@@ -793,43 +1334,41 @@ async function createTransaction() {
 
     const amount =
         parseFloat(
-            document.getElementById(
-                "transactionAmount"
-            ).value
+            document
+                .getElementById("transactionAmount")
+                .value
         );
 
 
     const type =
-        document.getElementById(
-            "transactionType"
-        ).value;
+        document
+            .getElementById("transactionType")
+            .value;
 
 
     const categoryId =
         parseInt(
-            document.getElementById(
-                "transactionCategory"
-            ).value
+            document
+                .getElementById("transactionCategory")
+                .value
         );
 
 
     const description =
-        document.getElementById(
-            "transactionDescription"
-        ).value
-        .trim();
+        document
+            .getElementById("transactionDescription")
+            .value
+            .trim();
 
 
     const transactionDate =
-        document.getElementById(
-            "transactionDate"
-        ).value;
+        document
+            .getElementById("transactionDate")
+            .value;
 
 
     const message =
-        document.getElementById(
-            "transactionMessage"
-        );
+        document.getElementById("transactionMessage");
 
 
     if (
@@ -850,32 +1389,30 @@ async function createTransaction() {
     try {
 
         const response =
-            await fetch(TRANSACTION_API_URL, {
+            await fetch(
+                TRANSACTION_API_URL,
+                {
+                    method: "POST",
 
-                method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                    body: JSON.stringify({
 
-                body: JSON.stringify({
+                        category_id: categoryId,
 
-                    category_id:
-                        categoryId,
+                        amount: amount,
 
-                    amount:
-                        amount,
+                        type: type,
 
-                    type:
-                        type,
+                        description: description,
 
-                    description:
-                        description,
+                        transaction_date: transactionDate
 
-                    transaction_date:
-                        transactionDate
-                })
-            });
+                    })
+                }
+            );
 
 
         const data =
@@ -908,10 +1445,15 @@ async function createTransaction() {
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Create transaction error:",
+            error
+        );
+
 
         message.textContent =
             "Something went wrong while creating the transaction.";
+
     }
 }
 
@@ -930,7 +1472,9 @@ async function editTransaction(transaction) {
 
 
     if (newAmount === null) {
+
         return;
+
     }
 
 
@@ -956,42 +1500,47 @@ async function editTransaction(transaction) {
 
 
     if (newDescription === null) {
+
         return;
+
     }
 
 
     try {
 
         const response =
-            await fetch(TRANSACTION_API_URL, {
+            await fetch(
+                TRANSACTION_API_URL,
+                {
+                    method: "PUT",
 
-                method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                    body: JSON.stringify({
 
-                body: JSON.stringify({
+                        transaction_id:
+                            transaction.transaction_id,
 
-                    transaction_id:
-                        transaction.transaction_id,
+                        category_id:
+                            transaction.category_id,
 
-                    category_id:
-                        transaction.category_id,
+                        amount:
+                            amount,
 
-                    amount:
-                        amount,
+                        type:
+                            transaction.type,
 
-                    type:
-                        transaction.type,
+                        description:
+                            newDescription.trim(),
 
-                    description:
-                        newDescription.trim(),
+                        transaction_date:
+                            transaction.transaction_date
 
-                    transaction_date:
-                        transaction.transaction_date
-                })
-            });
+                    })
+                }
+            );
 
 
         const data =
@@ -1021,11 +1570,16 @@ async function editTransaction(transaction) {
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Edit transaction error:",
+            error
+        );
+
 
         showTransactionMessage(
             "Something went wrong while updating the transaction."
         );
+
     }
 }
 
@@ -1036,29 +1590,37 @@ async function editTransaction(transaction) {
 
 async function deleteTransaction(transactionId) {
 
-    if (!confirm(
-        "Are you sure you want to delete this transaction?"
-    )) {
+    const confirmed =
+        confirm(
+            "Are you sure you want to delete this transaction?"
+        );
+
+
+    if (!confirmed) {
 
         return;
+
     }
 
 
     try {
 
         const response =
-            await fetch(TRANSACTION_API_URL, {
+            await fetch(
+                TRANSACTION_API_URL,
+                {
+                    method: "DELETE",
 
-                method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    transaction_id: transactionId
-                })
-            });
+                    body: JSON.stringify({
+                        transaction_id:
+                            transactionId
+                    })
+                }
+            );
 
 
         const data =
@@ -1088,11 +1650,16 @@ async function deleteTransaction(transactionId) {
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Delete transaction error:",
+            error
+        );
+
 
         showTransactionMessage(
             "Something went wrong while deleting the transaction."
         );
+
     }
 }
 
@@ -1103,28 +1670,34 @@ async function deleteTransaction(transactionId) {
 
 function showTransactionMessage(message) {
 
-    document.getElementById(
-        "transactionMessage"
-    ).textContent = message;
+    const element =
+        document.getElementById("transactionMessage");
+
+
+    if (element) {
+
+        element.textContent = message;
+
+    }
 }
 
 
 // ============================================================
-// DASHBOARD
+// LOAD DASHBOARD
 // ============================================================
 
 async function loadDashboard() {
 
     const dashboardMessage =
-        document.getElementById(
-            "dashboardMessage"
-        );
+        document.getElementById("dashboardMessage");
 
 
     try {
 
         const response =
-            await fetch(DASHBOARD_API_URL);
+            await fetch(
+                DASHBOARD_API_URL
+            );
 
 
         const data =
@@ -1145,27 +1718,27 @@ async function loadDashboard() {
             data.summary;
 
 
-        document.getElementById(
-            "totalIncome"
-        ).textContent =
+        document
+            .getElementById("totalIncome")
+            .textContent =
             `Rs. ${parseFloat(
-                summary.total_income
+                summary.total_income || 0
             ).toFixed(2)}`;
 
 
-        document.getElementById(
-            "totalExpenses"
-        ).textContent =
+        document
+            .getElementById("totalExpenses")
+            .textContent =
             `Rs. ${parseFloat(
-                summary.total_expenses
+                summary.total_expenses || 0
             ).toFixed(2)}`;
 
 
-        document.getElementById(
-            "balance"
-        ).textContent =
+        document
+            .getElementById("balance")
+            .textContent =
             `Rs. ${parseFloat(
-                summary.balance
+                summary.balance || 0
             ).toFixed(2)}`;
 
 
@@ -1174,9 +1747,14 @@ async function loadDashboard() {
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Dashboard loading error:",
+            error
+        );
+
 
         dashboardMessage.textContent =
             "Something went wrong while loading dashboard.";
+
     }
 }

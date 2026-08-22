@@ -12,9 +12,18 @@
 
     <title>Personal Finance Tracker</title>
 
+
+    <!-- Main CSS -->
     <link
         rel="stylesheet"
         href="css/style.css"
+    >
+
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     >
 
 </head>
@@ -29,12 +38,16 @@
 
     <header>
 
+        <div class="header-icon">
+            <i class="fa-solid fa-wallet"></i>
+        </div>
+
         <h1>
             Personal Finance Tracker
         </h1>
 
         <p>
-            Manage your personal finances easily.
+            Manage your money. Track your future.
         </p>
 
     </header>
@@ -49,54 +62,260 @@
 
 
         <!-- ==================================================
-             LOGIN SECTION
+             AUTHENTICATION
         =================================================== -->
 
-        <section id="loginSection">
-
-            <h2>
-                Login
-            </h2>
+        <div id="authSection">
 
 
-            <form id="loginForm">
+            <!-- =================================================
+                 LOGIN
+            ================================================== -->
+
+            <section
+                id="loginSection"
+                class="auth-section"
+            >
+
+                <div class="auth-icon">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                </div>
 
 
-                <input
-                    type="email"
-                    id="loginEmail"
-                    placeholder="Email"
-                    required
+                <h2>
+                    Welcome Back
+                </h2>
+
+
+                <p class="auth-subtitle">
+                    Login to manage your personal finances
+                </p>
+
+
+                <!-- LOGIN FORM -->
+
+                <form id="loginForm">
+
+                    <div class="input-group">
+
+                        <i class="fa-solid fa-envelope"></i>
+
+                        <input
+                            type="email"
+                            id="loginEmail"
+                            placeholder="Email address"
+                            autocomplete="email"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="input-group">
+
+                        <i class="fa-solid fa-lock"></i>
+
+                        <input
+                            type="password"
+                            id="loginPassword"
+                            placeholder="Password"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="primary-button"
+                    >
+
+                        <i class="fa-solid fa-right-to-bracket"></i>
+
+                        Login
+
+                    </button>
+
+                </form>
+
+
+                <p id="loginMessage"></p>
+
+
+                <!-- REGISTER OPTION -->
+
+                <div class="auth-divider">
+
+                    <span>
+                        Don't have an account?
+                    </span>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="showRegisterButton"
+                    class="secondary-button"
                 >
 
+                    <i class="fa-solid fa-user-plus"></i>
 
-                <input
-                    type="password"
-                    id="loginPassword"
-                    placeholder="Password"
-                    required
-                >
+                    Create an Account
 
-
-                <button type="submit">
-                    Login
                 </button>
 
 
-            </form>
+            </section>
 
 
-            <p id="loginMessage"></p>
+
+            <!-- =================================================
+                 REGISTER
+            ================================================== -->
+
+            <section
+                id="registerSection"
+                class="auth-section"
+                style="display: none;"
+            >
+
+                <div class="auth-icon register-icon">
+
+                    <i class="fa-solid fa-user-plus"></i>
+
+                </div>
 
 
-        </section>
+                <h2>
+                    Create Account
+                </h2>
+
+
+                <p class="auth-subtitle">
+                    Start managing your personal finances
+                </p>
+
+
+                <!-- REGISTER FORM -->
+
+                <form id="registerForm">
+
+
+                    <!-- NAME -->
+
+                    <div class="input-group">
+
+                        <i class="fa-solid fa-user"></i>
+
+                        <input
+                            type="text"
+                            id="registerName"
+                            placeholder="Full Name"
+                            autocomplete="name"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- EMAIL -->
+
+                    <div class="input-group">
+
+                        <i class="fa-solid fa-envelope"></i>
+
+                        <input
+                            type="email"
+                            id="registerEmail"
+                            placeholder="Email address"
+                            autocomplete="email"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- PASSWORD -->
+
+                    <div class="input-group">
+
+                        <i class="fa-solid fa-lock"></i>
+
+                        <input
+                            type="password"
+                            id="registerPassword"
+                            placeholder="Password"
+                            minlength="8"
+                            autocomplete="new-password"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- CONFIRM PASSWORD -->
+
+                    <div class="input-group">
+
+                        <i class="fa-solid fa-shield-halved"></i>
+
+                        <input
+                            type="password"
+                            id="registerConfirmPassword"
+                            placeholder="Confirm Password"
+                            minlength="8"
+                            autocomplete="new-password"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- REGISTER BUTTON -->
+
+                    <button
+                        type="submit"
+                        class="primary-button register-button"
+                    >
+
+                        <i class="fa-solid fa-user-plus"></i>
+
+                        Register
+
+                    </button>
+
+                </form>
+
+
+                <p id="registerMessage"></p>
+
+
+                <!-- BACK TO LOGIN -->
+
+                <button
+                    type="button"
+                    id="showLoginButton"
+                    class="back-button"
+                >
+
+                    <i class="fa-solid fa-arrow-left"></i>
+
+                    Back to Login
+
+                </button>
+
+
+            </section>
+
+
+        </div>
 
 
 
         <!-- ==================================================
              FINANCE SECTION
-
-             Hidden until successful login
         =================================================== -->
 
         <section
@@ -105,26 +324,27 @@
         >
 
 
-            <!-- ==============================================
-                 DASHBOARD / CATEGORIES
-            =============================================== -->
+            <!-- =================================================
+                 CATEGORIES
+            ================================================== -->
 
             <section id="categorySection">
 
-
                 <h2>
-                    Dashboard
+
+                    <i class="fa-solid fa-layer-group"></i>
+
+                    Categories
+
                 </h2>
 
 
                 <h3>
-                    Categories
+                    Manage Categories
                 </h3>
 
 
-
                 <form id="categoryForm">
-
 
                     <input
                         type="text"
@@ -135,12 +355,14 @@
 
 
                     <button type="submit">
+
+                        <i class="fa-solid fa-plus"></i>
+
                         Add Category
+
                     </button>
 
-
                 </form>
-
 
 
                 <p id="categoryMessage">
@@ -150,34 +372,43 @@
 
                 <ul id="categoryList"></ul>
 
-
             </section>
 
 
 
-            <!-- ==============================================
+            <!-- =================================================
                  FINANCIAL SUMMARY
-            =============================================== -->
+            ================================================== -->
 
             <section id="dashboardSection">
 
-
                 <h2>
-                    Financial Summary
-                </h2>
 
+                    <i class="fa-solid fa-chart-pie"></i>
+
+                    Financial Summary
+
+                </h2>
 
 
                 <div class="summary-container">
 
 
-                    <!-- TOTAL INCOME -->
+                    <!-- INCOME -->
 
-                    <div class="summary-card">
+                    <div class="summary-card income-card">
+
+                        <div class="summary-icon">
+
+                            <i class="fa-solid fa-arrow-trend-up"></i>
+
+                        </div>
+
 
                         <h3>
                             Total Income
                         </h3>
+
 
                         <p id="totalIncome">
                             Rs. 0.00
@@ -187,13 +418,21 @@
 
 
 
-                    <!-- TOTAL EXPENSES -->
+                    <!-- EXPENSE -->
 
-                    <div class="summary-card">
+                    <div class="summary-card expense-card">
+
+                        <div class="summary-icon">
+
+                            <i class="fa-solid fa-arrow-trend-down"></i>
+
+                        </div>
+
 
                         <h3>
                             Total Expenses
                         </h3>
+
 
                         <p id="totalExpenses">
                             Rs. 0.00
@@ -205,11 +444,19 @@
 
                     <!-- BALANCE -->
 
-                    <div class="summary-card">
+                    <div class="summary-card balance-card">
+
+                        <div class="summary-icon">
+
+                            <i class="fa-solid fa-wallet"></i>
+
+                        </div>
+
 
                         <h3>
                             Balance
                         </h3>
+
 
                         <p id="balance">
                             Rs. 0.00
@@ -221,25 +468,25 @@
                 </div>
 
 
-
                 <p id="dashboardMessage"></p>
-
 
             </section>
 
 
 
-            <!-- ==============================================
+            <!-- =================================================
                  TRANSACTIONS
-            =============================================== -->
+            ================================================== -->
 
             <section id="transactionSection">
 
-
                 <h2>
-                    Transactions
-                </h2>
 
+                    <i class="fa-solid fa-money-bill-transfer"></i>
+
+                    Transactions
+
+                </h2>
 
 
                 <form id="transactionForm">
@@ -255,7 +502,6 @@
                         step="0.01"
                         required
                     >
-
 
 
                     <!-- TYPE -->
@@ -280,7 +526,6 @@
                     </select>
 
 
-
                     <!-- CATEGORY -->
 
                     <select
@@ -295,7 +540,6 @@
                     </select>
 
 
-
                     <!-- DESCRIPTION -->
 
                     <input
@@ -303,7 +547,6 @@
                         id="transactionDescription"
                         placeholder="Description"
                     >
-
 
 
                     <!-- DATE -->
@@ -315,16 +558,17 @@
                     >
 
 
-
-                    <!-- SUBMIT -->
+                    <!-- BUTTON -->
 
                     <button type="submit">
+
+                        <i class="fa-solid fa-plus"></i>
+
                         Add Transaction
+
                     </button>
 
-
                 </form>
-
 
 
                 <p id="transactionMessage"></p>
@@ -332,14 +576,13 @@
 
                 <ul id="transactionList"></ul>
 
-
             </section>
 
 
 
-            <!-- ==============================================
+            <!-- =================================================
                  LOGOUT
-            =============================================== -->
+            ================================================== -->
 
             <section id="logoutSection">
 
@@ -347,8 +590,13 @@
                     type="button"
                     id="logoutButton"
                 >
+
+                    <i class="fa-solid fa-right-from-bracket"></i>
+
                     Logout
+
                 </button>
+
 
                 <p id="logoutMessage"></p>
 

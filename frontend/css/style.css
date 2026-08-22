@@ -1,6 +1,12 @@
 /* ============================================================
-   GLOBAL
+   PERSONAL FINANCE TRACKER
+   Modern Purple / Pink / Blue Theme
    ============================================================ */
+
+
+/* ============================================================
+   GLOBAL
+============================================================ */
 
 * {
     box-sizing: border-box;
@@ -8,130 +14,452 @@
     padding: 0;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: Arial, Helvetica, sans-serif;
-    background: #f4f7fb;
-    color: #1f2937;
+    background:
+        radial-gradient(circle at 10% 10%, #ddd6fe 0, transparent 28%),
+        radial-gradient(circle at 90% 15%, #fbcfe8 0, transparent 25%),
+        radial-gradient(circle at 80% 90%, #bfdbfe 0, transparent 28%),
+        linear-gradient(135deg, #f8f7ff, #eef5ff);
+
+    color: #172554;
     line-height: 1.6;
+    min-height: 100vh;
+    position: relative;
+}
+
+
+/* ============================================================
+   DECORATIVE BACKGROUND
+============================================================ */
+
+body::before {
+    content: "";
+    position: fixed;
+
+    width: 220px;
+    height: 220px;
+
+    border-radius: 50%;
+
+    background: rgba(139, 92, 246, 0.12);
+
+    top: 120px;
+    left: -80px;
+
+    filter: blur(2px);
+
+    z-index: -1;
+}
+
+body::after {
+    content: "";
+
+    position: fixed;
+
+    width: 260px;
+    height: 260px;
+
+    border-radius: 50%;
+
+    background: rgba(244, 114, 182, 0.12);
+
+    bottom: -100px;
+    right: -80px;
+
+    z-index: -1;
 }
 
 
 /* ============================================================
    HEADER
-   ============================================================ */
+============================================================ */
 
 header {
-    background: #1f2937;
+    position: relative;
+
+    background:
+        linear-gradient(
+            135deg,
+            #172554 0%,
+            #312e81 45%,
+            #7c3aed 100%
+        );
+
     color: white;
-    padding: 30px 20px;
+
+    padding: 42px 20px;
+
     text-align: center;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 10px 35px rgba(30, 27, 75, 0.25);
 }
 
+
+/* Header decorative circle */
+
+header::before {
+    content: "";
+
+    position: absolute;
+
+    width: 180px;
+    height: 180px;
+
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.08);
+
+    top: -100px;
+    left: 8%;
+}
+
+header::after {
+    content: "";
+
+    position: absolute;
+
+    width: 240px;
+    height: 240px;
+
+    border-radius: 50%;
+
+    background: rgba(244, 114, 182, 0.12);
+
+    right: -70px;
+    bottom: -150px;
+}
+
+
 header h1 {
-    font-size: 30px;
-    margin-bottom: 6px;
+    position: relative;
+    z-index: 2;
+
+    font-size: 32px;
+
+    margin-bottom: 8px;
+
+    letter-spacing: 0.3px;
+}
+
+header h1::before {
+    content: "💰 ";
 }
 
 header p {
-    color: #d1d5db;
+    position: relative;
+    z-index: 2;
+
+    color: #dbeafe;
+
     font-size: 15px;
 }
 
 
 /* ============================================================
    MAIN
-   ============================================================ */
+============================================================ */
 
 main {
     width: 92%;
-    max-width: 1000px;
-    margin: 30px auto;
+    max-width: 1050px;
+
+    margin: 38px auto;
 }
 
 
 /* ============================================================
-   SECTIONS
-   ============================================================ */
+   GENERAL SECTIONS
+============================================================ */
 
 section {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.88);
+
+    padding: 28px;
+
+    border-radius: 20px;
+
+    border: 1px solid rgba(255, 255, 255, 0.9);
+
+    box-shadow:
+        0 15px 40px rgba(30, 41, 59, 0.08);
+
     margin-bottom: 25px;
+
+    backdrop-filter: blur(12px);
 }
 
 section h2 {
-    color: #111827;
+    color: #172554;
+
     margin-bottom: 20px;
+
+    font-size: 24px;
 }
 
 section h3 {
-    color: #374151;
+    color: #3730a3;
+
     margin-bottom: 15px;
 }
 
 
 /* ============================================================
    LOGIN
-   ============================================================ */
+============================================================ */
 
 #loginSection {
-    max-width: 450px;
-    margin: 30px auto;
+    max-width: 460px;
+
+    margin: 35px auto;
+
+    border-top: 5px solid #7c3aed;
 }
 
 #loginSection h2 {
     text-align: center;
+
+    font-size: 27px;
+
+    color: #312e81;
 }
 
-#loginForm {
+#loginSection h2::before {
+    content: "🔐 ";
+}
+
+
+/* ============================================================
+   REGISTER
+============================================================ */
+
+#registerSection {
+    max-width: 460px;
+
+    margin: 35px auto;
+
+    border-top: 5px solid #ec4899;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.96),
+            rgba(253, 242, 248, 0.94)
+        );
+}
+
+#registerSection h2 {
+    text-align: center;
+
+    font-size: 27px;
+
+    color: #831843;
+}
+
+#registerSection h2::before {
+    content: "✨ ";
+}
+
+
+/* ============================================================
+   LOGIN + REGISTER FORMS
+============================================================ */
+
+#loginForm,
+#registerForm {
     display: flex;
+
     flex-direction: column;
-    gap: 12px;
+
+    gap: 14px;
 }
 
-#loginForm input {
+
+/* ============================================================
+   INPUTS
+============================================================ */
+
+#loginForm input,
+#registerForm input,
+#categoryName,
+#transactionForm input,
+#transactionForm select {
+
     width: 100%;
-    padding: 12px 14px;
-    border: 1px solid #d1d5db;
-    border-radius: 7px;
+
+    padding: 14px 15px;
+
+    border: 1px solid #c7d2fe;
+
+    border-radius: 12px;
+
     font-size: 15px;
+
     outline: none;
-    transition: 0.2s;
+
+    background: #f8faff;
+
+    color: #172554;
+
+    transition:
+        border 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
 }
 
-#loginForm input:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+
+#loginForm input::placeholder,
+#registerForm input::placeholder,
+#categoryName::placeholder,
+#transactionForm input::placeholder {
+    color: #94a3b8;
 }
+
+
+#loginForm input:focus,
+#registerForm input:focus,
+#categoryName:focus,
+#transactionForm input:focus,
+#transactionForm select:focus {
+
+    border-color: #8b5cf6;
+
+    background: white;
+
+    box-shadow:
+        0 0 0 4px rgba(139, 92, 246, 0.12);
+
+    transform: translateY(-1px);
+}
+
+
+/* ============================================================
+   LOGIN BUTTON
+============================================================ */
 
 #loginForm button {
-    padding: 12px;
+
+    padding: 14px;
+
     border: none;
-    border-radius: 7px;
-    background: #2563eb;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #4f46e5,
+            #7c3aed
+        );
+
     color: white;
+
     font-size: 15px;
+
     font-weight: bold;
+
     cursor: pointer;
-    transition: 0.2s;
+
+    box-shadow:
+        0 8px 18px rgba(79, 70, 229, 0.25);
+
+    transition: all 0.2s ease;
+}
+
+#loginForm button::before {
+    content: "🔑 ";
 }
 
 #loginForm button:hover {
-    background: #1d4ed8;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 12px 25px rgba(79, 70, 229, 0.35);
 }
 
-#loginMessage {
-    text-align: center;
+
+/* ============================================================
+   REGISTER BUTTON
+============================================================ */
+
+#registerForm button {
+
+    padding: 14px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #db2777,
+            #ec4899,
+            #8b5cf6
+        );
+
+    color: white;
+
+    font-size: 15px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 8px 18px rgba(236, 72, 153, 0.25);
+
+    transition: all 0.2s ease;
+}
+
+#registerForm button::before {
+    content: "🚀 ";
+}
+
+#registerForm button:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 12px 25px rgba(236, 72, 153, 0.35);
+}
+
+
+/* ============================================================
+   MESSAGES
+============================================================ */
+
+#loginMessage,
+#registerMessage,
+#categoryMessage,
+#dashboardMessage,
+#transactionMessage,
+#logoutMessage {
+
     margin-top: 15px;
+
+    text-align: center;
+
+    font-size: 14px;
+
+    color: #64748b;
+
     font-weight: 600;
 }
 
 
 /* ============================================================
    FINANCE SECTION
-   ============================================================ */
+============================================================ */
 
 #financeSection {
     display: none;
@@ -140,278 +468,630 @@ section h3 {
 
 /* ============================================================
    CATEGORY
-   ============================================================ */
+============================================================ */
+
+#categorySection {
+    border-top: 5px solid #6366f1;
+}
+
+#categorySection h2::before {
+    content: "📊 ";
+}
+
 
 #categoryForm {
+
     display: flex;
+
     gap: 10px;
+
     margin-bottom: 18px;
 }
 
+
 #categoryName {
     flex: 1;
-    padding: 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 7px;
-    font-size: 15px;
-    outline: none;
 }
 
-#categoryName:focus {
-    border-color: #2563eb;
-}
 
 #categoryForm button {
-    padding: 12px 18px;
+
+    padding: 12px 19px;
+
     border: none;
-    border-radius: 7px;
-    background: #2563eb;
+
+    border-radius: 11px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #4f46e5
+        );
+
     color: white;
+
     font-size: 14px;
+
     font-weight: bold;
+
     cursor: pointer;
+
+    transition: 0.2s;
+}
+
+#categoryForm button::before {
+    content: "➕ ";
 }
 
 #categoryForm button:hover {
-    background: #1d4ed8;
-}
 
-#categoryMessage {
-    color: #6b7280;
-    margin-bottom: 15px;
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 18px rgba(37, 99, 235, 0.25);
 }
 
 
 /* ============================================================
    CATEGORY LIST
-   ============================================================ */
+============================================================ */
 
 #categoryList {
     list-style: none;
 }
 
 #categoryList li {
+
     display: flex;
+
     align-items: center;
-    gap: 8px;
-    background: #f8fafc;
-    border: 1px solid #e5e7eb;
-    padding: 12px 15px;
-    margin-bottom: 8px;
-    border-radius: 8px;
+
+    gap: 10px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f8faff,
+            #eef2ff
+        );
+
+    border: 1px solid #dbeafe;
+
+    padding: 13px 15px;
+
+    margin-bottom: 9px;
+
+    border-radius: 12px;
+
+    transition: 0.2s;
 }
+
+#categoryList li:hover {
+
+    transform: translateX(3px);
+
+    box-shadow:
+        0 5px 15px rgba(59, 130, 246, 0.08);
+}
+
 
 #categoryList li span {
+
     flex: 1;
-    font-weight: 500;
+
+    font-weight: 600;
+
+    color: #1e3a8a;
 }
 
-#categoryList li button {
-    border: none;
-    padding: 7px 12px;
-    border-radius: 6px;
-    color: white;
-    cursor: pointer;
-    font-size: 13px;
-}
+
+/* Edit */
 
 #categoryList li button:first-of-type {
-    background: #f59e0b;
+
+    border: none;
+
+    padding: 8px 13px;
+
+    border-radius: 8px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f59e0b,
+            #f97316
+        );
+
+    color: white;
+
+    cursor: pointer;
+
+    font-weight: bold;
 }
 
-#categoryList li button:first-of-type:hover {
-    background: #d97706;
+#categoryList li button:first-of-type::before {
+    content: "✏️ ";
 }
+
+
+/* Delete */
 
 #categoryList li button:last-of-type {
-    background: #dc2626;
+
+    border: none;
+
+    padding: 8px 13px;
+
+    border-radius: 8px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ef4444,
+            #be123c
+        );
+
+    color: white;
+
+    cursor: pointer;
+
+    font-weight: bold;
 }
 
-#categoryList li button:last-of-type:hover {
-    background: #b91c1c;
+#categoryList li button:last-of-type::before {
+    content: "🗑️ ";
 }
 
 
 /* ============================================================
    DASHBOARD
-   ============================================================ */
+============================================================ */
 
 #dashboardSection {
+
+    border-top: 5px solid #3b82f6;
+
     margin-bottom: 25px;
 }
 
+#dashboardSection h2::before {
+    content: "💎 ";
+}
+
+
 .summary-container {
+
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
     gap: 18px;
+
     margin-top: 20px;
 }
 
+
+/* ============================================================
+   SUMMARY CARDS
+============================================================ */
+
 .summary-card {
-    background: #f8fafc;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    padding: 22px;
+
+    position: relative;
+
+    overflow: hidden;
+
+    border-radius: 18px;
+
+    padding: 25px 18px;
+
     text-align: center;
-    transition: 0.2s;
+
+    border: 1px solid #dbeafe;
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
 }
+
+
+/* Card decorative shape */
+
+.summary-card::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 90px;
+    height: 90px;
+
+    border-radius: 50%;
+
+    right: -35px;
+    bottom: -35px;
+
+    background: rgba(255, 255, 255, 0.35);
+}
+
+
+/* Income */
+
+.summary-card:nth-child(1) {
+
+    background:
+        linear-gradient(
+            135deg,
+            #dbeafe,
+            #bfdbfe
+        );
+}
+
+.summary-card:nth-child(1)::before {
+    content: "💰";
+}
+
+
+/* Expenses */
+
+.summary-card:nth-child(2) {
+
+    background:
+        linear-gradient(
+            135deg,
+            #fce7f3,
+            #fbcfe8
+        );
+}
+
+.summary-card:nth-child(2)::before {
+    content: "💸";
+}
+
+
+/* Balance */
+
+.summary-card:nth-child(3) {
+
+    background:
+        linear-gradient(
+            135deg,
+            #ede9fe,
+            #ddd6fe
+        );
+}
+
+.summary-card:nth-child(3)::before {
+    content: "💎";
+}
+
+
+.summary-card::before {
+
+    display: block;
+
+    font-size: 27px;
+
+    margin-bottom: 7px;
+}
+
 
 .summary-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+
+    transform: translateY(-6px);
+
+    box-shadow:
+        0 15px 30px rgba(79, 70, 229, 0.15);
 }
 
+
 .summary-card h3 {
+
     font-size: 15px;
-    color: #6b7280;
+
+    color: #475569;
+
     margin-bottom: 8px;
 }
 
-.summary-card p {
-    font-size: 25px;
-    font-weight: bold;
-    color: #111827;
-}
 
-#dashboardMessage {
-    margin-top: 15px;
-    color: #6b7280;
+.summary-card p {
+
+    font-size: 25px;
+
+    font-weight: bold;
+
+    color: #172554;
 }
 
 
 /* ============================================================
    TRANSACTIONS
-   ============================================================ */
+============================================================ */
+
+#transactionSection {
+
+    border-top: 5px solid #38bdf8;
+}
+
+#transactionSection h2::before {
+    content: "💳 ";
+}
+
 
 #transactionForm {
+
     display: grid;
+
     gap: 12px;
+
     margin-bottom: 20px;
 }
 
-#transactionForm input,
-#transactionForm select {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 7px;
-    font-size: 15px;
-    outline: none;
-    background: white;
-}
-
-#transactionForm input:focus,
-#transactionForm select:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
-}
 
 #transactionForm button {
-    padding: 12px;
+
+    padding: 13px;
+
     border: none;
-    border-radius: 7px;
-    background: #2563eb;
+
+    border-radius: 11px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0284c7,
+            #2563eb,
+            #4f46e5
+        );
+
     color: white;
+
     font-size: 14px;
+
     font-weight: bold;
+
     cursor: pointer;
+
+    transition: 0.2s;
+}
+
+#transactionForm button::before {
+    content: "💳 ";
 }
 
 #transactionForm button:hover {
-    background: #1d4ed8;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 10px 20px rgba(37, 99, 235, 0.25);
 }
 
 
 /* ============================================================
    TRANSACTION LIST
-   ============================================================ */
+============================================================ */
 
 #transactionList {
     list-style: none;
 }
 
+
 #transactionList li {
+
     display: flex;
+
     align-items: center;
-    gap: 8px;
-    background: #f8fafc;
-    border: 1px solid #e5e7eb;
-    padding: 13px 15px;
-    margin-bottom: 8px;
-    border-radius: 8px;
+
+    gap: 10px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f8fafc,
+            #eff6ff
+        );
+
+    border: 1px solid #dbeafe;
+
+    padding: 14px 15px;
+
+    margin-bottom: 9px;
+
+    border-radius: 12px;
+
+    transition: 0.2s;
 }
+
+
+#transactionList li:hover {
+
+    transform: translateX(3px);
+
+    box-shadow:
+        0 5px 15px rgba(59, 130, 246, 0.08);
+}
+
 
 #transactionList li span {
+
     flex: 1;
+
     font-size: 14px;
+
+    color: #334155;
 }
 
-#transactionList li button {
-    border: none;
-    padding: 7px 12px;
-    border-radius: 6px;
-    color: white;
-    cursor: pointer;
-    font-size: 13px;
-}
+
+/* Edit */
 
 #transactionList li button:first-of-type {
-    background: #f59e0b;
+
+    border: none;
+
+    padding: 8px 13px;
+
+    border-radius: 8px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f59e0b,
+            #f97316
+        );
+
+    color: white;
+
+    cursor: pointer;
+
+    font-weight: bold;
 }
 
-#transactionList li button:first-of-type:hover {
-    background: #d97706;
+#transactionList li button:first-of-type::before {
+    content: "✏️ ";
 }
+
+
+/* Delete */
 
 #transactionList li button:last-of-type {
-    background: #dc2626;
+
+    border: none;
+
+    padding: 8px 13px;
+
+    border-radius: 8px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ef4444,
+            #be123c
+        );
+
+    color: white;
+
+    cursor: pointer;
+
+    font-weight: bold;
 }
 
-#transactionList li button:last-of-type:hover {
-    background: #b91c1c;
+#transactionList li button:last-of-type::before {
+    content: "🗑️ ";
 }
 
 
 /* ============================================================
    LOGOUT
-   ============================================================ */
+============================================================ */
+
+#logoutSection {
+
+    text-align: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #eef2ff,
+            #fce7f3
+        );
+}
+
 
 #logoutButton {
-    padding: 10px 18px;
+
+    padding: 12px 24px;
+
     border: none;
-    border-radius: 7px;
-    background: #dc2626;
+
+    border-radius: 11px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #be123c,
+            #e11d48,
+            #db2777
+        );
+
     color: white;
+
     font-size: 14px;
+
     font-weight: bold;
+
     cursor: pointer;
-    margin-bottom: 20px;
+
+    transition: 0.2s;
 }
+
+#logoutButton::before {
+    content: "🚪 ";
+}
+
 
 #logoutButton:hover {
-    background: #b91c1c;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 10px 20px rgba(225, 29, 72, 0.25);
 }
 
-#logoutMessage {
-    display: inline-block;
-    margin-left: 10px;
-    color: #6b7280;
+
+/* ============================================================
+   SCROLLBAR
+============================================================ */
+
+::-webkit-scrollbar {
+    width: 9px;
+}
+
+::-webkit-scrollbar-track {
+    background: #eef2ff;
+}
+
+::-webkit-scrollbar-thumb {
+
+    background:
+        linear-gradient(
+            #7c3aed,
+            #ec4899
+        );
+
+    border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #4f46e5;
 }
 
 
 /* ============================================================
    MOBILE
-   ============================================================ */
+============================================================ */
 
 @media (max-width: 700px) {
 
     main {
         width: 94%;
-        margin: 20px auto;
+        margin: 22px auto;
     }
 
     section {
-        padding: 20px;
+        padding: 21px;
+        border-radius: 16px;
+    }
+
+    header {
+        padding: 32px 15px;
+    }
+
+    header h1 {
+        font-size: 25px;
     }
 
     .summary-container {
@@ -426,32 +1106,28 @@ section h3 {
         width: 100%;
     }
 
-    #categoryList li {
-        flex-wrap: wrap;
-    }
-
+    #categoryList li,
     #transactionList li {
         flex-wrap: wrap;
     }
 
+    #categoryList li span,
     #transactionList li span {
         width: 100%;
+        flex-basis: 100%;
         margin-bottom: 5px;
     }
 
+    #categoryList li button,
     #transactionList li button {
         flex: 1;
-    }
-
-    header h1 {
-        font-size: 24px;
     }
 }
 
 
 /* ============================================================
    SMALL MOBILE
-   ============================================================ */
+============================================================ */
 
 @media (max-width: 450px) {
 
@@ -460,14 +1136,342 @@ section h3 {
     }
 
     section {
-        padding: 16px;
+        padding: 17px;
+    }
+
+    header h1 {
+        font-size: 22px;
     }
 
     .summary-card p {
         font-size: 22px;
     }
 
-    #categoryList li button {
-        flex: 1;
+    #categoryList li button,
+    #transactionList li button {
+        font-size: 12px;
+        padding: 8px 9px;
     }
+}
+/* ============================================================
+   AUTH NAVIGATION BUTTONS
+   Create Account + Back to Login
+============================================================ */
+
+/* Create an Account button */
+
+#showRegisterButton {
+
+    width: 100%;
+
+    margin-top: 18px;
+
+    padding: 14px 20px;
+
+    border: 2px solid #8b5cf6;
+
+    border-radius: 13px;
+
+    background: linear-gradient(
+        135deg,
+        #ffffff,
+        #f5f3ff
+    );
+
+    color: #6d28d9;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.2px;
+
+    cursor: pointer;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 9px;
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        background 0.25s ease,
+        color 0.25s ease;
+}
+
+
+/* Icon */
+
+#showRegisterButton i {
+
+    font-size: 16px;
+
+    transition:
+        transform 0.25s ease;
+}
+
+
+/* Hover */
+
+#showRegisterButton:hover {
+
+    background: linear-gradient(
+        135deg,
+        #7c3aed,
+        #8b5cf6,
+        #a855f7
+    );
+
+    color: white;
+
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 10px 25px rgba(124, 58, 237, 0.28);
+}
+
+
+#showRegisterButton:hover i {
+
+    transform: scale(1.15) rotate(-5deg);
+}
+
+
+/* Click */
+
+#showRegisterButton:active {
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 5px 12px rgba(124, 58, 237, 0.2);
+}
+
+
+/* ============================================================
+   BACK TO LOGIN BUTTON
+============================================================ */
+
+#showLoginButton {
+
+    width: 100%;
+
+    margin-top: 18px;
+
+    padding: 12px 20px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background: transparent;
+
+    color: #64748b;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    transition:
+        color 0.2s ease,
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+/* Back arrow */
+
+#showLoginButton i {
+
+    font-size: 14px;
+
+    transition:
+        transform 0.2s ease;
+}
+
+
+/* Hover */
+
+#showLoginButton:hover {
+
+    color: #7c3aed;
+
+    background: #f5f3ff;
+
+    transform: translateX(-2px);
+}
+
+
+#showLoginButton:hover i {
+
+    transform: translateX(-5px);
+}
+
+
+/* ============================================================
+   AUTH DIVIDER
+============================================================ */
+
+.auth-divider {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin: 22px 0 5px;
+
+    color: #94a3b8;
+
+    font-size: 13px;
+
+    text-align: center;
+}
+
+
+.auth-divider::before,
+.auth-divider::after {
+
+    content: "";
+
+    height: 1px;
+
+    flex: 1;
+
+    background:
+        linear-gradient(
+            to right,
+            transparent,
+            #cbd5e1
+        );
+}
+
+
+.auth-divider::after {
+
+    background:
+        linear-gradient(
+            to left,
+            transparent,
+            #cbd5e1
+        );
+}
+
+
+/* ============================================================
+   AUTH ICON
+============================================================ */
+
+.auth-icon {
+
+    width: 68px;
+
+    height: 68px;
+
+    margin: 0 auto 15px;
+
+    border-radius: 20px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #dbeafe,
+            #ede9fe
+        );
+
+    color: #6d28d9;
+
+    font-size: 27px;
+
+    box-shadow:
+        0 8px 20px rgba(99, 102, 241, 0.15);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+
+.auth-icon:hover {
+
+    transform: translateY(-4px) rotate(-2deg);
+
+    box-shadow:
+        0 12px 25px rgba(99, 102, 241, 0.22);
+}
+
+
+/* Register icon */
+
+.register-icon {
+
+    background:
+        linear-gradient(
+            135deg,
+            #fce7f3,
+            #ede9fe
+        );
+
+    color: #db2777;
+
+    box-shadow:
+        0 8px 20px rgba(236, 72, 153, 0.15);
+}
+
+
+/* ============================================================
+   AUTH SUBTITLE
+============================================================ */
+
+.auth-subtitle {
+
+    text-align: center;
+
+    color: #64748b;
+
+    font-size: 14px;
+
+    margin-bottom: 22px;
+}
+
+
+/* ============================================================
+   AUTH BUTTON RESPONSIVE
+============================================================ */
+
+@media (max-width: 450px) {
+
+    #showRegisterButton {
+
+        padding: 13px 15px;
+
+        font-size: 14px;
+    }
+
+    #showLoginButton {
+
+        font-size: 13px;
+    }
+
 }
