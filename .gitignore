@@ -1,21 +1,60 @@
-# IDE
-.idea/
-.vscode/
+# ==============================
+# Personal Finance Tracker
+# ==============================
 
-# Java
-*.class
-target/
+# XAMPP / Local environment
+xampp/
+htdocs/
 
-# Node
-node_modules/
-dist/
-
-# Environment
+# Environment files
 .env
+.env.local
+.env.*.local
+
+# PHP dependencies
+/vendor/
+
+# Node.js dependencies
+node_modules/
+
+# Build files
+dist/
+build/
 
 # Logs
 *.log
+logs/
 
-# OS
+# Temporary files
+*.tmp
+*.temp
+
+# OS generated files
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.code-workspace
+
+# PHPStorm
+*.iml
+
+# Database dumps / local database files
+*.sql
+*.sqlite
+*.sqlite3
+
+# PHP cache
+.phpunit.result.cache
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Local configuration
+config.local.php
+database.local.php
