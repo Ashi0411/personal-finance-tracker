@@ -1475,3 +1475,125 @@ section h3 {
     }
 
 }
+
+/* ============================================================
+   RECENT TRANSACTIONS
+============================================================ */
+
+#recentTransactionsSection {
+
+    border-top: 5px solid #8b5cf6;
+
+    margin-bottom: 25px;
+}
+
+#recentTransactionsSection h2 {
+
+    color: #312e81;
+
+    margin-bottom: 18px;
+}
+
+#recentTransactionsList {
+
+    list-style: none;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+}
+
+#recentTransactionsList li {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 15px 17px;
+
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f8fafc,
+            #eef2ff
+        );
+
+    border: 1px solid #e0e7ff;
+
+    transition: 0.2s ease;
+}
+
+#recentTransactionsList li:hover {
+
+    transform: translateX(4px);
+
+    box-shadow:
+        0 7px 18px rgba(79, 70, 229, 0.10);
+}
+
+.recent-transaction-info {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 3px;
+
+    flex: 1;
+}
+
+.recent-transaction-description {
+
+    font-weight: 700;
+
+    color: #1e293b;
+}
+
+.recent-transaction-details {
+
+    font-size: 13px;
+
+    color: #64748b;
+}
+
+.recent-transaction-amount {
+
+    font-size: 16px;
+
+    font-weight: 800;
+
+    white-space: nowrap;
+}
+
+.recent-income {
+
+    color: #16a34a;
+}
+
+.recent-expense {
+
+    color: #dc2626;
+}
+
+@media (max-width: 600px) {
+
+    #recentTransactionsList li {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .recent-transaction-amount {
+
+        align-self: flex-end;
+    }
+}

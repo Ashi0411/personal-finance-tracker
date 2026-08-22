@@ -17,155 +17,164 @@ const TRANSACTION_API_URL = "../backend/api/transactions.php";
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    // --------------------------------------------------------
-    // Initial Authentication State
-    // --------------------------------------------------------
-
     showLogin();
 
+    setupEventListeners();
 
-    // --------------------------------------------------------
-    // LOGIN FORM
-    // --------------------------------------------------------
+});
 
-    const loginForm = document.getElementById("loginForm");
+
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
+
+function setupEventListeners() {
+
+    // LOGIN
+
+    const loginForm =
+        document.getElementById("loginForm");
 
     if (loginForm) {
 
-        loginForm.addEventListener("submit", async (event) => {
+        loginForm.addEventListener(
+            "submit",
+            async (event) => {
 
-            event.preventDefault();
+                event.preventDefault();
 
-            await login();
+                await login();
 
-        });
+            }
+        );
     }
 
 
-    // --------------------------------------------------------
-    // REGISTER FORM
-    // --------------------------------------------------------
+    // REGISTER
 
-    const registerForm = document.getElementById("registerForm");
+    const registerForm =
+        document.getElementById("registerForm");
 
     if (registerForm) {
 
-        registerForm.addEventListener("submit", async (event) => {
+        registerForm.addEventListener(
+            "submit",
+            async (event) => {
 
-            event.preventDefault();
+                event.preventDefault();
 
-            await register();
+                await register();
 
-        });
+            }
+        );
     }
 
 
-    // --------------------------------------------------------
-    // SHOW REGISTER BUTTON
-    // --------------------------------------------------------
+    // SHOW REGISTER
 
     const showRegisterButton =
         document.getElementById("showRegisterButton");
 
     if (showRegisterButton) {
 
-        showRegisterButton.addEventListener("click", () => {
+        showRegisterButton.addEventListener(
+            "click",
+            showRegister
+        );
 
-            showRegister();
-
-        });
     }
 
 
-    // --------------------------------------------------------
-    // SHOW LOGIN BUTTON
-    // --------------------------------------------------------
+    // SHOW LOGIN
 
     const showLoginButton =
         document.getElementById("showLoginButton");
 
     if (showLoginButton) {
 
-        showLoginButton.addEventListener("click", () => {
+        showLoginButton.addEventListener(
+            "click",
+            showLogin
+        );
 
-            showLogin();
-
-        });
     }
 
 
-    // --------------------------------------------------------
-    // CATEGORY FORM
-    // --------------------------------------------------------
+    // CATEGORY
 
     const categoryForm =
         document.getElementById("categoryForm");
 
     if (categoryForm) {
 
-        categoryForm.addEventListener("submit", async (event) => {
+        categoryForm.addEventListener(
+            "submit",
+            async (event) => {
 
-            event.preventDefault();
+                event.preventDefault();
 
-            const categoryInput =
-                document.getElementById("categoryName");
+                const input =
+                    document.getElementById("categoryName");
 
-            const name =
-                categoryInput.value.trim();
+                const name =
+                    input.value.trim();
 
 
-            if (!name) {
+                if (!name) {
 
-                showCategoryMessage(
-                    "Please enter a category name."
-                );
+                    showCategoryMessage(
+                        "Please enter a category name."
+                    );
 
-                return;
+                    return;
+
+                }
+
+
+                await createCategory(name);
+
             }
+        );
 
-
-            await createCategory(name);
-
-        });
     }
 
 
-    // --------------------------------------------------------
-    // TRANSACTION FORM
-    // --------------------------------------------------------
+    // TRANSACTION
 
     const transactionForm =
         document.getElementById("transactionForm");
 
     if (transactionForm) {
 
-        transactionForm.addEventListener("submit", async (event) => {
+        transactionForm.addEventListener(
+            "submit",
+            async (event) => {
 
-            event.preventDefault();
+                event.preventDefault();
 
-            await createTransaction();
+                await createTransaction();
 
-        });
+            }
+        );
+
     }
 
 
-    // --------------------------------------------------------
-    // LOGOUT BUTTON
-    // --------------------------------------------------------
+    // LOGOUT
 
     const logoutButton =
         document.getElementById("logoutButton");
 
     if (logoutButton) {
 
-        logoutButton.addEventListener("click", async () => {
+        logoutButton.addEventListener(
+            "click",
+            logout
+        );
 
-            await logout();
-
-        });
     }
 
-});
+}
 
 
 // ============================================================
@@ -182,6 +191,16 @@ function showLogin() {
 
     const financeSection =
         document.getElementById("financeSection");
+
+    const authSection =
+        document.getElementById("authSection");
+
+
+    if (authSection) {
+
+        authSection.style.display = "block";
+
+    }
 
 
     if (loginSection) {
@@ -205,26 +224,8 @@ function showLogin() {
     }
 
 
-    // Clear messages
+    clearMessages();
 
-    const loginMessage =
-        document.getElementById("loginMessage");
-
-    if (loginMessage) {
-
-        loginMessage.textContent = "";
-
-    }
-
-
-    const registerMessage =
-        document.getElementById("registerMessage");
-
-    if (registerMessage) {
-
-        registerMessage.textContent = "";
-
-    }
 }
 
 
@@ -265,10 +266,23 @@ function showRegister() {
     }
 
 
-    // Clear messages
+    clearMessages();
+
+}
+
+
+// ============================================================
+// CLEAR AUTH MESSAGES
+// ============================================================
+
+function clearMessages() {
 
     const loginMessage =
         document.getElementById("loginMessage");
+
+    const registerMessage =
+        document.getElementById("registerMessage");
+
 
     if (loginMessage) {
 
@@ -277,14 +291,12 @@ function showRegister() {
     }
 
 
-    const registerMessage =
-        document.getElementById("registerMessage");
-
     if (registerMessage) {
 
         registerMessage.textContent = "";
 
     }
+
 }
 
 
@@ -324,10 +336,6 @@ async function register() {
         document.getElementById("registerMessage");
 
 
-    // --------------------------------------------------------
-    // Validation
-    // --------------------------------------------------------
-
     if (
         !name ||
         !email ||
@@ -339,6 +347,7 @@ async function register() {
             "Please fill in all fields.";
 
         return;
+
     }
 
 
@@ -348,6 +357,7 @@ async function register() {
             "Password must be at least 8 characters.";
 
         return;
+
     }
 
 
@@ -357,12 +367,9 @@ async function register() {
             "Passwords do not match.";
 
         return;
+
     }
 
-
-    // --------------------------------------------------------
-    // API REQUEST
-    // --------------------------------------------------------
 
     try {
 
@@ -389,10 +396,6 @@ async function register() {
             await response.json();
 
 
-        // ----------------------------------------------------
-        // Registration Failed
-        // ----------------------------------------------------
-
         if (!data.success) {
 
             message.textContent =
@@ -400,32 +403,27 @@ async function register() {
                 "Registration failed.";
 
             return;
+
         }
 
-
-        // ----------------------------------------------------
-        // Registration Successful
-        // ----------------------------------------------------
 
         message.textContent =
             "Registration successful! Please login.";
 
-
-        // Clear register form
 
         document
             .getElementById("registerForm")
             .reset();
 
 
-        // Wait a little so user can see success message
-
         setTimeout(() => {
 
             showLogin();
 
+
             const loginEmail =
                 document.getElementById("loginEmail");
+
 
             if (loginEmail) {
 
@@ -448,6 +446,7 @@ async function register() {
             "Something went wrong during registration.";
 
     }
+
 }
 
 
@@ -474,22 +473,15 @@ async function login() {
         document.getElementById("loginMessage");
 
 
-    // --------------------------------------------------------
-    // Validation
-    // --------------------------------------------------------
-
     if (!email || !password) {
 
         message.textContent =
             "Email and password are required.";
 
         return;
+
     }
 
-
-    // --------------------------------------------------------
-    // API REQUEST
-    // --------------------------------------------------------
 
     try {
 
@@ -515,10 +507,6 @@ async function login() {
             await response.json();
 
 
-        // ----------------------------------------------------
-        // Login Failed
-        // ----------------------------------------------------
-
         if (!data.success) {
 
             message.textContent =
@@ -526,48 +514,36 @@ async function login() {
                 "Login failed.";
 
             return;
+
         }
 
-
-        // ----------------------------------------------------
-        // Login Successful
-        // ----------------------------------------------------
 
         message.textContent =
             "Login successful.";
 
-
-        // Hide authentication
 
         document
             .getElementById("authSection")
             .style.display = "none";
 
 
-        // Show finance application
-
         document
             .getElementById("financeSection")
             .style.display = "block";
 
-
-        // Clear login form
 
         document
             .getElementById("loginForm")
             .reset();
 
 
-        // ----------------------------------------------------
-        // Load User Data
-        // ----------------------------------------------------
+        // Load all user data
 
         await loadCategories();
 
         await loadTransactions();
 
         await loadDashboard();
-
 
     } catch (error) {
 
@@ -581,6 +557,7 @@ async function login() {
             "Something went wrong during login.";
 
     }
+
 }
 
 
@@ -609,10 +586,6 @@ async function logout() {
             await response.json();
 
 
-        // ----------------------------------------------------
-        // Logout Failed
-        // ----------------------------------------------------
-
         if (!data.success) {
 
             logoutMessage.textContent =
@@ -620,37 +593,22 @@ async function logout() {
                 "Logout failed.";
 
             return;
+
         }
 
-
-        // ----------------------------------------------------
-        // Hide Finance Section
-        // ----------------------------------------------------
 
         document
             .getElementById("financeSection")
             .style.display = "none";
 
 
-        // ----------------------------------------------------
-        // Show Authentication Section
-        // ----------------------------------------------------
-
         document
             .getElementById("authSection")
             .style.display = "block";
 
 
-        // ----------------------------------------------------
-        // Show Login
-        // ----------------------------------------------------
-
         showLogin();
 
-
-        // ----------------------------------------------------
-        // Clear Forms
-        // ----------------------------------------------------
 
         document
             .getElementById("loginForm")
@@ -662,9 +620,7 @@ async function logout() {
             .reset();
 
 
-        // ----------------------------------------------------
-        // Clear Categories
-        // ----------------------------------------------------
+        // Clear categories
 
         document
             .getElementById("categoryList")
@@ -677,9 +633,7 @@ async function logout() {
             "No categories found.";
 
 
-        // ----------------------------------------------------
-        // Clear Transactions
-        // ----------------------------------------------------
+        // Clear transactions
 
         document
             .getElementById("transactionList")
@@ -691,9 +645,36 @@ async function logout() {
             .textContent = "";
 
 
-        // ----------------------------------------------------
-        // Reset Dashboard
-        // ----------------------------------------------------
+        // Clear recent transactions
+
+        const recentList =
+            document.getElementById(
+                "recentTransactionsList"
+            );
+
+
+        const recentMessage =
+            document.getElementById(
+                "recentTransactionsMessage"
+            );
+
+
+        if (recentList) {
+
+            recentList.innerHTML = "";
+
+        }
+
+
+        if (recentMessage) {
+
+            recentMessage.textContent =
+                "No recent transactions found.";
+
+        }
+
+
+        // Reset dashboard
 
         document
             .getElementById("totalIncome")
@@ -725,6 +706,7 @@ async function logout() {
             "Something went wrong during logout.";
 
     }
+
 }
 
 
@@ -739,7 +721,9 @@ async function loadCategories() {
 
 
     const categorySelect =
-        document.getElementById("transactionCategory");
+        document.getElementById(
+            "transactionCategory"
+        );
 
 
     try {
@@ -772,6 +756,7 @@ async function loadCategories() {
             );
 
             return;
+
         }
 
 
@@ -785,6 +770,7 @@ async function loadCategories() {
             );
 
             return;
+
         }
 
 
@@ -793,105 +779,101 @@ async function loadCategories() {
             .textContent = "";
 
 
-        data.categories.forEach((category) => {
+        data.categories.forEach(
+            (category) => {
 
-            const li =
-                document.createElement("li");
-
-
-            const nameSpan =
-                document.createElement("span");
+                const li =
+                    document.createElement("li");
 
 
-            nameSpan.textContent =
-                category.name;
+                const nameSpan =
+                    document.createElement("span");
 
 
-            // ------------------------------------------------
-            // EDIT
-            // ------------------------------------------------
-
-            const editButton =
-                document.createElement("button");
+                nameSpan.textContent =
+                    category.name;
 
 
-            editButton.textContent =
-                "Edit";
+                // EDIT
+
+                const editButton =
+                    document.createElement("button");
 
 
-            editButton.type =
-                "button";
+                editButton.textContent =
+                    "Edit";
 
 
-            editButton.addEventListener(
-                "click",
-                () => {
-
-                    editCategory(
-                        category.category_id,
-                        category.name
-                    );
-
-                }
-            );
+                editButton.type =
+                    "button";
 
 
-            // ------------------------------------------------
-            // DELETE
-            // ------------------------------------------------
+                editButton.addEventListener(
+                    "click",
+                    () => {
 
-            const deleteButton =
-                document.createElement("button");
+                        editCategory(
+                            category.category_id,
+                            category.name
+                        );
 
-
-            deleteButton.textContent =
-                "Delete";
-
-
-            deleteButton.type =
-                "button";
+                    }
+                );
 
 
-            deleteButton.addEventListener(
-                "click",
-                () => {
+                // DELETE
 
-                    deleteCategory(
-                        category.category_id
-                    );
-
-                }
-            );
+                const deleteButton =
+                    document.createElement("button");
 
 
-            li.appendChild(nameSpan);
-
-            li.appendChild(editButton);
-
-            li.appendChild(deleteButton);
-
-            categoryList.appendChild(li);
+                deleteButton.textContent =
+                    "Delete";
 
 
-            // ------------------------------------------------
-            // CATEGORY DROPDOWN
-            // ------------------------------------------------
-
-            const option =
-                document.createElement("option");
+                deleteButton.type =
+                    "button";
 
 
-            option.value =
-                category.category_id;
+                deleteButton.addEventListener(
+                    "click",
+                    () => {
+
+                        deleteCategory(
+                            category.category_id
+                        );
+
+                    }
+                );
 
 
-            option.textContent =
-                category.name;
+                li.appendChild(nameSpan);
+
+                li.appendChild(editButton);
+
+                li.appendChild(deleteButton);
+
+                categoryList.appendChild(li);
 
 
-            categorySelect.appendChild(option);
+                // DROPDOWN
 
-        });
+                const option =
+                    document.createElement("option");
+
+
+                option.value =
+                    category.category_id;
+
+
+                option.textContent =
+                    category.name;
+
+
+                categorySelect.appendChild(option);
+
+            }
+        );
 
 
     } catch (error) {
@@ -907,6 +889,7 @@ async function loadCategories() {
         );
 
     }
+
 }
 
 
@@ -947,6 +930,7 @@ async function createCategory(name) {
             );
 
             return;
+
         }
 
 
@@ -962,7 +946,6 @@ async function createCategory(name) {
 
         await loadCategories();
 
-
     } catch (error) {
 
         console.error(
@@ -976,6 +959,7 @@ async function createCategory(name) {
         );
 
     }
+
 }
 
 
@@ -1013,6 +997,7 @@ async function editCategory(
         );
 
         return;
+
     }
 
 
@@ -1048,6 +1033,7 @@ async function editCategory(
             );
 
             return;
+
         }
 
 
@@ -1074,6 +1060,7 @@ async function editCategory(
         );
 
     }
+
 }
 
 
@@ -1127,6 +1114,7 @@ async function deleteCategory(categoryId) {
             );
 
             return;
+
         }
 
 
@@ -1138,6 +1126,8 @@ async function deleteCategory(categoryId) {
         await loadCategories();
 
         await loadTransactions();
+
+        await loadDashboard();
 
 
     } catch (error) {
@@ -1153,6 +1143,7 @@ async function deleteCategory(categoryId) {
         );
 
     }
+
 }
 
 
@@ -1163,7 +1154,9 @@ async function deleteCategory(categoryId) {
 function showCategoryMessage(message) {
 
     const element =
-        document.getElementById("categoryMessage");
+        document.getElementById(
+            "categoryMessage"
+        );
 
 
     if (element) {
@@ -1171,6 +1164,7 @@ function showCategoryMessage(message) {
         element.textContent = message;
 
     }
+
 }
 
 
@@ -1181,11 +1175,15 @@ function showCategoryMessage(message) {
 async function loadTransactions() {
 
     const transactionList =
-        document.getElementById("transactionList");
+        document.getElementById(
+            "transactionList"
+        );
 
 
     const transactionMessage =
-        document.getElementById("transactionMessage");
+        document.getElementById(
+            "transactionMessage"
+        );
 
 
     try {
@@ -1209,7 +1207,12 @@ async function loadTransactions() {
                 data.message ||
                 "Failed to load transactions.";
 
+
+            updateRecentTransactions([]);
+
+
             return;
+
         }
 
 
@@ -1221,94 +1224,112 @@ async function loadTransactions() {
             transactionMessage.textContent =
                 "No transactions found.";
 
+
+            updateRecentTransactions([]);
+
+
             return;
+
         }
 
 
         transactionMessage.textContent = "";
 
 
-        data.transactions.forEach((transaction) => {
+        // ----------------------------------------------------
+        // DISPLAY ALL TRANSACTIONS
+        // ----------------------------------------------------
 
-            const li =
-                document.createElement("li");
+        data.transactions.forEach(
+            (transaction) => {
 
-
-            const details =
-                document.createElement("span");
-
-
-            details.textContent =
-                `${transaction.transaction_date} - ` +
-                `${transaction.category_name} - ` +
-                `${transaction.type} - ` +
-                `Rs. ${transaction.amount} - ` +
-                `${transaction.description || ""}`;
+                const li =
+                    document.createElement("li");
 
 
-            // ------------------------------------------------
-            // EDIT
-            // ------------------------------------------------
-
-            const editButton =
-                document.createElement("button");
+                const details =
+                    document.createElement("span");
 
 
-            editButton.textContent =
-                "Edit";
+                details.textContent =
+                    `${transaction.transaction_date} - ` +
+                    `${transaction.category_name} - ` +
+                    `${transaction.type} - ` +
+                    `Rs. ${transaction.amount} - ` +
+                    `${transaction.description || ""}`;
 
 
-            editButton.type =
-                "button";
+                // EDIT BUTTON
+
+                const editButton =
+                    document.createElement("button");
 
 
-            editButton.addEventListener(
-                "click",
-                () => {
-
-                    editTransaction(transaction);
-
-                }
-            );
+                editButton.textContent =
+                    "Edit";
 
 
-            // ------------------------------------------------
-            // DELETE
-            // ------------------------------------------------
-
-            const deleteButton =
-                document.createElement("button");
+                editButton.type =
+                    "button";
 
 
-            deleteButton.textContent =
-                "Delete";
+                editButton.addEventListener(
+                    "click",
+                    () => {
+
+                        editTransaction(
+                            transaction
+                        );
+
+                    }
+                );
 
 
-            deleteButton.type =
-                "button";
+                // DELETE BUTTON
+
+                const deleteButton =
+                    document.createElement("button");
 
 
-            deleteButton.addEventListener(
-                "click",
-                () => {
-
-                    deleteTransaction(
-                        transaction.transaction_id
-                    );
-
-                }
-            );
+                deleteButton.textContent =
+                    "Delete";
 
 
-            li.appendChild(details);
+                deleteButton.type =
+                    "button";
 
-            li.appendChild(editButton);
 
-            li.appendChild(deleteButton);
+                deleteButton.addEventListener(
+                    "click",
+                    () => {
 
-            transactionList.appendChild(li);
+                        deleteTransaction(
+                            transaction.transaction_id
+                        );
 
-        });
+                    }
+                );
+
+
+                li.appendChild(details);
+
+                li.appendChild(editButton);
+
+                li.appendChild(deleteButton);
+
+                transactionList.appendChild(li);
+
+            }
+        );
+
+
+        // ----------------------------------------------------
+        // UPDATE RECENT TRANSACTIONS
+        // ----------------------------------------------------
+
+        updateRecentTransactions(
+            data.transactions
+        );
 
 
     } catch (error) {
@@ -1322,7 +1343,121 @@ async function loadTransactions() {
         transactionMessage.textContent =
             "Something went wrong while loading transactions.";
 
+
+        updateRecentTransactions([]);
+
     }
+
+}
+
+
+// ============================================================
+// UPDATE RECENT TRANSACTIONS
+// ============================================================
+
+function updateRecentTransactions(
+    transactions
+) {
+
+    const recentList =
+        document.getElementById(
+            "recentTransactionsList"
+        );
+
+
+    const recentMessage =
+        document.getElementById(
+            "recentTransactionsMessage"
+        );
+
+
+    if (
+        !recentList ||
+        !recentMessage
+    ) {
+
+        return;
+
+    }
+
+
+    recentList.innerHTML = "";
+
+
+    if (
+        !transactions ||
+        transactions.length === 0
+    ) {
+
+        recentMessage.textContent =
+            "No recent transactions found.";
+
+        return;
+
+    }
+
+
+    recentMessage.textContent = "";
+
+
+    /*
+     * Sort transactions by date.
+     *
+     * Latest transaction comes first.
+     */
+
+    const sortedTransactions =
+        [...transactions].sort(
+            (a, b) => {
+
+                return new Date(
+                    b.transaction_date
+                ) -
+                new Date(
+                    a.transaction_date
+                );
+
+            }
+        );
+
+
+    /*
+     * Show only latest 5.
+     */
+
+    const recentTransactions =
+        sortedTransactions.slice(0, 5);
+
+
+    recentTransactions.forEach(
+        (transaction) => {
+
+            const li =
+                document.createElement("li");
+
+
+            const details =
+                document.createElement("span");
+
+
+            details.textContent =
+                `${transaction.transaction_date} - ` +
+                `${transaction.category_name} - ` +
+                `${transaction.type} - ` +
+                `Rs. ${parseFloat(
+                    transaction.amount || 0
+                ).toFixed(2)} - ` +
+                `${transaction.description || ""}`;
+
+
+            li.appendChild(details);
+
+
+            recentList.appendChild(li);
+
+        }
+    );
+
 }
 
 
@@ -1335,40 +1470,52 @@ async function createTransaction() {
     const amount =
         parseFloat(
             document
-                .getElementById("transactionAmount")
+                .getElementById(
+                    "transactionAmount"
+                )
                 .value
         );
 
 
     const type =
         document
-            .getElementById("transactionType")
+            .getElementById(
+                "transactionType"
+            )
             .value;
 
 
     const categoryId =
         parseInt(
             document
-                .getElementById("transactionCategory")
+                .getElementById(
+                    "transactionCategory"
+                )
                 .value
         );
 
 
     const description =
         document
-            .getElementById("transactionDescription")
+            .getElementById(
+                "transactionDescription"
+            )
             .value
             .trim();
 
 
     const transactionDate =
         document
-            .getElementById("transactionDate")
+            .getElementById(
+                "transactionDate"
+            )
             .value;
 
 
     const message =
-        document.getElementById("transactionMessage");
+        document.getElementById(
+            "transactionMessage"
+        );
 
 
     if (
@@ -1383,6 +1530,7 @@ async function createTransaction() {
             "Please fill in all required fields.";
 
         return;
+
     }
 
 
@@ -1408,7 +1556,8 @@ async function createTransaction() {
 
                         description: description,
 
-                        transaction_date: transactionDate
+                        transaction_date:
+                            transactionDate
 
                     })
                 }
@@ -1426,6 +1575,7 @@ async function createTransaction() {
                 "Failed to create transaction.";
 
             return;
+
         }
 
 
@@ -1434,7 +1584,9 @@ async function createTransaction() {
 
 
         document
-            .getElementById("transactionForm")
+            .getElementById(
+                "transactionForm"
+            )
             .reset();
 
 
@@ -1455,6 +1607,7 @@ async function createTransaction() {
             "Something went wrong while creating the transaction.";
 
     }
+
 }
 
 
@@ -1462,7 +1615,9 @@ async function createTransaction() {
 // EDIT TRANSACTION
 // ============================================================
 
-async function editTransaction(transaction) {
+async function editTransaction(
+    transaction
+) {
 
     const newAmount =
         prompt(
@@ -1482,13 +1637,17 @@ async function editTransaction(transaction) {
         parseFloat(newAmount);
 
 
-    if (!amount || amount <= 0) {
+    if (
+        !amount ||
+        amount <= 0
+    ) {
 
         showTransactionMessage(
             "Amount must be greater than zero."
         );
 
         return;
+
     }
 
 
@@ -1555,6 +1714,7 @@ async function editTransaction(transaction) {
             );
 
             return;
+
         }
 
 
@@ -1581,6 +1741,7 @@ async function editTransaction(transaction) {
         );
 
     }
+
 }
 
 
@@ -1588,7 +1749,9 @@ async function editTransaction(transaction) {
 // DELETE TRANSACTION
 // ============================================================
 
-async function deleteTransaction(transactionId) {
+async function deleteTransaction(
+    transactionId
+) {
 
     const confirmed =
         confirm(
@@ -1616,8 +1779,10 @@ async function deleteTransaction(transactionId) {
                     },
 
                     body: JSON.stringify({
+
                         transaction_id:
                             transactionId
+
                     })
                 }
             );
@@ -1635,6 +1800,7 @@ async function deleteTransaction(transactionId) {
             );
 
             return;
+
         }
 
 
@@ -1661,6 +1827,7 @@ async function deleteTransaction(transactionId) {
         );
 
     }
+
 }
 
 
@@ -1668,17 +1835,23 @@ async function deleteTransaction(transactionId) {
 // TRANSACTION MESSAGE
 // ============================================================
 
-function showTransactionMessage(message) {
+function showTransactionMessage(
+    message
+) {
 
     const element =
-        document.getElementById("transactionMessage");
+        document.getElementById(
+            "transactionMessage"
+        );
 
 
     if (element) {
 
-        element.textContent = message;
+        element.textContent =
+            message;
 
     }
+
 }
 
 
@@ -1689,7 +1862,9 @@ function showTransactionMessage(message) {
 async function loadDashboard() {
 
     const dashboardMessage =
-        document.getElementById("dashboardMessage");
+        document.getElementById(
+            "dashboardMessage"
+        );
 
 
     try {
@@ -1711,6 +1886,7 @@ async function loadDashboard() {
                 "Failed to load dashboard.";
 
             return;
+
         }
 
 
@@ -1719,7 +1895,9 @@ async function loadDashboard() {
 
 
         document
-            .getElementById("totalIncome")
+            .getElementById(
+                "totalIncome"
+            )
             .textContent =
             `Rs. ${parseFloat(
                 summary.total_income || 0
@@ -1727,7 +1905,9 @@ async function loadDashboard() {
 
 
         document
-            .getElementById("totalExpenses")
+            .getElementById(
+                "totalExpenses"
+            )
             .textContent =
             `Rs. ${parseFloat(
                 summary.total_expenses || 0
@@ -1735,7 +1915,9 @@ async function loadDashboard() {
 
 
         document
-            .getElementById("balance")
+            .getElementById(
+                "balance"
+            )
             .textContent =
             `Rs. ${parseFloat(
                 summary.balance || 0
@@ -1757,4 +1939,5 @@ async function loadDashboard() {
             "Something went wrong while loading dashboard.";
 
     }
+
 }

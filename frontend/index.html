@@ -13,14 +13,20 @@
     <title>Personal Finance Tracker</title>
 
 
-    <!-- Main CSS -->
+    <!-- ======================================================
+         MAIN CSS
+    ======================================================= -->
+
     <link
         rel="stylesheet"
         href="css/style.css"
     >
 
 
-    <!-- Font Awesome -->
+    <!-- ======================================================
+         FONT AWESOME
+    ======================================================= -->
+
     <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
@@ -42,9 +48,11 @@
             <i class="fa-solid fa-wallet"></i>
         </div>
 
+
         <h1>
             Personal Finance Tracker
         </h1>
+
 
         <p>
             Manage your money. Track your future.
@@ -55,21 +63,21 @@
 
 
     <!-- ======================================================
-         MAIN
+         MAIN CONTENT
     ======================================================= -->
 
     <main>
 
 
         <!-- ==================================================
-             AUTHENTICATION
+             AUTHENTICATION SECTION
         =================================================== -->
 
         <div id="authSection">
 
 
             <!-- =================================================
-                 LOGIN
+                 LOGIN SECTION
             ================================================== -->
 
             <section
@@ -77,10 +85,16 @@
                 class="auth-section"
             >
 
+                <!-- LOGIN ICON -->
+
                 <div class="auth-icon">
+
                     <i class="fa-solid fa-right-to-bracket"></i>
+
                 </div>
 
+
+                <!-- TITLE -->
 
                 <h2>
                     Welcome Back
@@ -95,6 +109,9 @@
                 <!-- LOGIN FORM -->
 
                 <form id="loginForm">
+
+
+                    <!-- EMAIL -->
 
                     <div class="input-group">
 
@@ -111,6 +128,8 @@
                     </div>
 
 
+                    <!-- PASSWORD -->
+
                     <div class="input-group">
 
                         <i class="fa-solid fa-lock"></i>
@@ -126,6 +145,8 @@
                     </div>
 
 
+                    <!-- LOGIN BUTTON -->
+
                     <button
                         type="submit"
                         class="primary-button"
@@ -140,10 +161,12 @@
                 </form>
 
 
+                <!-- LOGIN MESSAGE -->
+
                 <p id="loginMessage"></p>
 
 
-                <!-- REGISTER OPTION -->
+                <!-- REGISTER DIVIDER -->
 
                 <div class="auth-divider">
 
@@ -153,6 +176,8 @@
 
                 </div>
 
+
+                <!-- REGISTER BUTTON -->
 
                 <button
                     type="button"
@@ -166,13 +191,12 @@
 
                 </button>
 
-
             </section>
 
 
 
             <!-- =================================================
-                 REGISTER
+                 REGISTER SECTION
             ================================================== -->
 
             <section
@@ -181,12 +205,17 @@
                 style="display: none;"
             >
 
+
+                <!-- REGISTER ICON -->
+
                 <div class="auth-icon register-icon">
 
                     <i class="fa-solid fa-user-plus"></i>
 
                 </div>
 
+
+                <!-- TITLE -->
 
                 <h2>
                     Create Account
@@ -203,7 +232,7 @@
                 <form id="registerForm">
 
 
-                    <!-- NAME -->
+                    <!-- FULL NAME -->
 
                     <div class="input-group">
 
@@ -282,12 +311,14 @@
 
                         <i class="fa-solid fa-user-plus"></i>
 
-                        Register
+                        Create Account
 
                     </button>
 
                 </form>
 
+
+                <!-- REGISTER MESSAGE -->
 
                 <p id="registerMessage"></p>
 
@@ -306,16 +337,14 @@
 
                 </button>
 
-
             </section>
-
 
         </div>
 
 
 
         <!-- ==================================================
-             FINANCE SECTION
+             FINANCE APPLICATION
         =================================================== -->
 
         <section
@@ -325,10 +354,11 @@
 
 
             <!-- =================================================
-                 CATEGORIES
+                 CATEGORY MANAGEMENT
             ================================================== -->
 
             <section id="categorySection">
+
 
                 <h2>
 
@@ -344,7 +374,10 @@
                 </h3>
 
 
+                <!-- CATEGORY FORM -->
+
                 <form id="categoryForm">
+
 
                     <input
                         type="text"
@@ -365,10 +398,14 @@
                 </form>
 
 
+                <!-- CATEGORY MESSAGE -->
+
                 <p id="categoryMessage">
                     No categories found.
                 </p>
 
+
+                <!-- CATEGORY LIST -->
 
                 <ul id="categoryList"></ul>
 
@@ -382,6 +419,7 @@
 
             <section id="dashboardSection">
 
+
                 <h2>
 
                     <i class="fa-solid fa-chart-pie"></i>
@@ -394,9 +432,10 @@
                 <div class="summary-container">
 
 
-                    <!-- INCOME -->
+                    <!-- TOTAL INCOME -->
 
                     <div class="summary-card income-card">
+
 
                         <div class="summary-icon">
 
@@ -418,9 +457,10 @@
 
 
 
-                    <!-- EXPENSE -->
+                    <!-- TOTAL EXPENSES -->
 
                     <div class="summary-card expense-card">
+
 
                         <div class="summary-icon">
 
@@ -446,6 +486,7 @@
 
                     <div class="summary-card balance-card">
 
+
                         <div class="summary-icon">
 
                             <i class="fa-solid fa-wallet"></i>
@@ -464,11 +505,43 @@
 
                     </div>
 
-
                 </div>
 
 
+                <!-- DASHBOARD MESSAGE -->
+
                 <p id="dashboardMessage"></p>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 RECENT TRANSACTIONS
+            ================================================== -->
+
+            <section id="recentTransactionsSection">
+
+
+                <h2>
+
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+
+                    Recent Transactions
+
+                </h2>
+
+
+                <!-- MESSAGE -->
+
+                <p id="recentTransactionsMessage">
+                    No recent transactions found.
+                </p>
+
+
+                <!-- RECENT TRANSACTIONS LIST -->
+
+                <ul id="recentTransactionsList"></ul>
 
             </section>
 
@@ -480,6 +553,7 @@
 
             <section id="transactionSection">
 
+
                 <h2>
 
                     <i class="fa-solid fa-money-bill-transfer"></i>
@@ -488,6 +562,8 @@
 
                 </h2>
 
+
+                <!-- TRANSACTION FORM -->
 
                 <form id="transactionForm">
 
@@ -558,7 +634,7 @@
                     >
 
 
-                    <!-- BUTTON -->
+                    <!-- ADD TRANSACTION BUTTON -->
 
                     <button type="submit">
 
@@ -571,8 +647,12 @@
                 </form>
 
 
+                <!-- TRANSACTION MESSAGE -->
+
                 <p id="transactionMessage"></p>
 
+
+                <!-- ALL TRANSACTIONS -->
 
                 <ul id="transactionList"></ul>
 
@@ -585,6 +665,7 @@
             ================================================== -->
 
             <section id="logoutSection">
+
 
                 <button
                     type="button"
@@ -602,19 +683,151 @@
 
             </section>
 
-
         </section>
-
 
     </main>
 
 
 
     <!-- ======================================================
-         JAVASCRIPT
+         MAIN JAVASCRIPT
     ======================================================= -->
 
     <script src="js/app.js"></script>
+
+
+
+    <!-- ======================================================
+         RECENT TRANSACTIONS DISPLAY
+         
+         This section mirrors the latest transactions
+         from the main transaction list.
+    ======================================================= -->
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", () => {
+
+            const transactionList =
+                document.getElementById("transactionList");
+
+            const recentTransactionsList =
+                document.getElementById("recentTransactionsList");
+
+            const recentTransactionsMessage =
+                document.getElementById("recentTransactionsMessage");
+
+
+            if (
+                !transactionList ||
+                !recentTransactionsList ||
+                !recentTransactionsMessage
+            ) {
+
+                return;
+
+            }
+
+
+            function updateRecentTransactions() {
+
+                recentTransactionsList.innerHTML = "";
+
+
+                const transactions =
+                    Array.from(
+                        transactionList.children
+                    );
+
+
+                if (transactions.length === 0) {
+
+                    recentTransactionsMessage.textContent =
+                        "No recent transactions found.";
+
+                    return;
+
+                }
+
+
+                recentTransactionsMessage.textContent = "";
+
+
+                /*
+                 * Show the latest 5 transactions.
+                 */
+
+                const recentTransactions =
+                    transactions.slice(-5).reverse();
+
+
+                recentTransactions.forEach(
+                    (transaction) => {
+
+                        const li =
+                            document.createElement("li");
+
+
+                        const details =
+                            transaction.querySelector("span");
+
+
+                        if (details) {
+
+                            const span =
+                                document.createElement("span");
+
+
+                            span.textContent =
+                                details.textContent;
+
+
+                            li.appendChild(span);
+
+                        }
+
+
+                        recentTransactionsList.appendChild(li);
+
+                    }
+                );
+
+            }
+
+
+            /*
+             * Watch the main transaction list.
+             *
+             * Whenever app.js adds, edits or removes
+             * transactions, Recent Transactions updates.
+             */
+
+            const observer =
+                new MutationObserver(() => {
+
+                    updateRecentTransactions();
+
+                });
+
+
+            observer.observe(
+                transactionList,
+                {
+                    childList: true,
+                    subtree: true
+                }
+            );
+
+
+            /*
+             * Initial update.
+             */
+
+            updateRecentTransactions();
+
+        });
+
+    </script>
 
 
 </body>
