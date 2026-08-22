@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Login</title>
+</head>
+<body>
+
+    <h2>Test User Login</h2>
+
+    <form id="loginForm">
+
+        <label>Email:</label><br>
+        <input type="email" id="email" required>
+        <br><br>
+
+        <label>Password:</label><br>
+        <input type="password" id="password" required>
+        <br><br>
+
+        <button type="submit">Login</button>
+
+    </form>
+
+    <p id="result"></p>
+
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+            const data = {
+                email: document.getElementById("email").value,
+                password: document.getElementById("password").value
+            };
+
+            try {
+
+                const response = await fetch(
+                    "http://localhost/personal-finance-tracker/backend/index.php?action=login",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(data)
+                    }
+                );
+
+                const result = await response.json();
+
+                document.getElementById("result").textContent =
+                    result.message;
+
+                console.log(result);
+
+            } catch (error) {
+
+                document.getElementById("result").textContent =
+                    "Something went wrong.";
+
+                console.error(error);
+            }
+        });
+    </script>
+
+</body>
+</html>
