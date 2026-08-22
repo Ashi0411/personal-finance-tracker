@@ -1,3 +1,7 @@
+/* ============================================================
+   GLOBAL
+   ============================================================ */
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -5,81 +9,182 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f6f8;
-    color: #333;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f7fb;
+    color: #1f2937;
+    line-height: 1.6;
 }
 
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+
 header {
-    background-color: #1f2937;
+    background: #1f2937;
     color: white;
-    padding: 25px;
+    padding: 30px 20px;
     text-align: center;
 }
 
 header h1 {
-    margin-bottom: 8px;
+    font-size: 30px;
+    margin-bottom: 6px;
 }
 
+header p {
+    color: #d1d5db;
+    font-size: 15px;
+}
+
+
+/* ============================================================
+   MAIN
+   ============================================================ */
+
 main {
-    width: 90%;
-    max-width: 900px;
+    width: 92%;
+    max-width: 1000px;
     margin: 30px auto;
 }
 
+
+/* ============================================================
+   SECTIONS
+   ============================================================ */
+
 section {
-    background-color: white;
+    background: white;
     padding: 25px;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 25px;
 }
 
-h2 {
+section h2 {
+    color: #111827;
     margin-bottom: 20px;
 }
 
-h3 {
+section h3 {
+    color: #374151;
     margin-bottom: 15px;
 }
 
-/* Category Form */
+
+/* ============================================================
+   LOGIN
+   ============================================================ */
+
+#loginSection {
+    max-width: 450px;
+    margin: 30px auto;
+}
+
+#loginSection h2 {
+    text-align: center;
+}
+
+#loginForm {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+#loginForm input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    font-size: 15px;
+    outline: none;
+    transition: 0.2s;
+}
+
+#loginForm input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+#loginForm button {
+    padding: 12px;
+    border: none;
+    border-radius: 7px;
+    background: #2563eb;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#loginForm button:hover {
+    background: #1d4ed8;
+}
+
+#loginMessage {
+    text-align: center;
+    margin-top: 15px;
+    font-weight: 600;
+}
+
+
+/* ============================================================
+   FINANCE SECTION
+   ============================================================ */
+
+#financeSection {
+    display: none;
+}
+
+
+/* ============================================================
+   CATEGORY
+   ============================================================ */
 
 #categoryForm {
     display: flex;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
 }
 
 #categoryName {
     flex: 1;
-    padding: 11px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
     font-size: 15px;
+    outline: none;
+}
+
+#categoryName:focus {
+    border-color: #2563eb;
 }
 
 #categoryForm button {
-    padding: 11px 18px;
+    padding: 12px 18px;
     border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    background-color: #2563eb;
+    border-radius: 7px;
+    background: #2563eb;
     color: white;
     font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
 #categoryForm button:hover {
-    background-color: #1d4ed8;
+    background: #1d4ed8;
 }
-
-/* Messages */
 
 #categoryMessage {
+    color: #6b7280;
     margin-bottom: 15px;
-    color: #666;
 }
 
-/* Category List */
+
+/* ============================================================
+   CATEGORY LIST
+   ============================================================ */
 
 #categoryList {
     list-style: none;
@@ -89,63 +194,43 @@ h3 {
     display: flex;
     align-items: center;
     gap: 8px;
-
-    background-color: #f1f5f9;
-
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
     padding: 12px 15px;
     margin-bottom: 8px;
-
-    border-radius: 6px;
+    border-radius: 8px;
 }
 
 #categoryList li span {
     flex: 1;
+    font-weight: 500;
 }
 
-/* Edit Button */
-
 #categoryList li button {
-    padding: 7px 12px;
     border: none;
-    border-radius: 5px;
-    cursor: pointer;
+    padding: 7px 12px;
+    border-radius: 6px;
     color: white;
+    cursor: pointer;
+    font-size: 13px;
 }
 
 #categoryList li button:first-of-type {
-    background-color: #f59e0b;
+    background: #f59e0b;
 }
 
 #categoryList li button:first-of-type:hover {
-    background-color: #d97706;
+    background: #d97706;
 }
 
-/* Delete Button */
-
 #categoryList li button:last-of-type {
-    background-color: #dc2626;
+    background: #dc2626;
 }
 
 #categoryList li button:last-of-type:hover {
-    background-color: #b91c1c;
+    background: #b91c1c;
 }
 
-/* Mobile */
-
-@media (max-width: 600px) {
-
-    #categoryForm {
-        flex-direction: column;
-    }
-
-    #categoryForm button {
-        width: 100%;
-    }
-
-    #categoryList li {
-        flex-wrap: wrap;
-    }
-}
 
 /* ============================================================
    DASHBOARD
@@ -158,31 +243,39 @@ h3 {
 .summary-container {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
+    gap: 18px;
     margin-top: 20px;
 }
 
 .summary-card {
-    background-color: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
     border-radius: 10px;
-    padding: 20px;
+    padding: 22px;
     text-align: center;
+    transition: 0.2s;
+}
+
+.summary-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
 }
 
 .summary-card h3 {
-    margin-bottom: 10px;
-    font-size: 16px;
+    font-size: 15px;
+    color: #6b7280;
+    margin-bottom: 8px;
 }
 
 .summary-card p {
-    font-size: 24px;
+    font-size: 25px;
     font-weight: bold;
+    color: #111827;
 }
 
 #dashboardMessage {
     margin-top: 15px;
-    color: #666;
+    color: #6b7280;
 }
 
 
@@ -192,31 +285,46 @@ h3 {
 
 #transactionForm {
     display: grid;
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 20px;
 }
 
 #transactionForm input,
 #transactionForm select {
-    padding: 11px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
     font-size: 15px;
+    outline: none;
+    background: white;
+}
+
+#transactionForm input:focus,
+#transactionForm select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
 }
 
 #transactionForm button {
-    padding: 11px;
+    padding: 12px;
     border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    background-color: #2563eb;
+    border-radius: 7px;
+    background: #2563eb;
     color: white;
     font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
 #transactionForm button:hover {
-    background-color: #1d4ed8;
+    background: #1d4ed8;
 }
+
+
+/* ============================================================
+   TRANSACTION LIST
+   ============================================================ */
 
 #transactionList {
     list-style: none;
@@ -226,41 +334,68 @@ h3 {
     display: flex;
     align-items: center;
     gap: 8px;
-
-    background-color: #f1f5f9;
-
-    padding: 12px 15px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    padding: 13px 15px;
     margin-bottom: 8px;
-
-    border-radius: 6px;
+    border-radius: 8px;
 }
 
 #transactionList li span {
     flex: 1;
+    font-size: 14px;
 }
 
 #transactionList li button {
-    padding: 7px 12px;
     border: none;
-    border-radius: 5px;
-    cursor: pointer;
+    padding: 7px 12px;
+    border-radius: 6px;
     color: white;
+    cursor: pointer;
+    font-size: 13px;
 }
 
 #transactionList li button:first-of-type {
-    background-color: #f59e0b;
+    background: #f59e0b;
 }
 
 #transactionList li button:first-of-type:hover {
-    background-color: #d97706;
+    background: #d97706;
 }
 
 #transactionList li button:last-of-type {
-    background-color: #dc2626;
+    background: #dc2626;
 }
 
 #transactionList li button:last-of-type:hover {
-    background-color: #b91c1c;
+    background: #b91c1c;
+}
+
+
+/* ============================================================
+   LOGOUT
+   ============================================================ */
+
+#logoutButton {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 7px;
+    background: #dc2626;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+#logoutButton:hover {
+    background: #b91c1c;
+}
+
+#logoutMessage {
+    display: inline-block;
+    margin-left: 10px;
+    color: #6b7280;
 }
 
 
@@ -270,11 +405,69 @@ h3 {
 
 @media (max-width: 700px) {
 
+    main {
+        width: 94%;
+        margin: 20px auto;
+    }
+
+    section {
+        padding: 20px;
+    }
+
     .summary-container {
         grid-template-columns: 1fr;
     }
 
+    #categoryForm {
+        flex-direction: column;
+    }
+
+    #categoryForm button {
+        width: 100%;
+    }
+
+    #categoryList li {
+        flex-wrap: wrap;
+    }
+
     #transactionList li {
         flex-wrap: wrap;
+    }
+
+    #transactionList li span {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+
+    #transactionList li button {
+        flex: 1;
+    }
+
+    header h1 {
+        font-size: 24px;
+    }
+}
+
+
+/* ============================================================
+   SMALL MOBILE
+   ============================================================ */
+
+@media (max-width: 450px) {
+
+    main {
+        width: 96%;
+    }
+
+    section {
+        padding: 16px;
+    }
+
+    .summary-card p {
+        font-size: 22px;
+    }
+
+    #categoryList li button {
+        flex: 1;
     }
 }

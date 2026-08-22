@@ -2,127 +2,372 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Personal Finance Tracker</title>
 
-    <link rel="stylesheet" href="css/style.css">
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
 </head>
+
 
 <body>
 
+
+    <!-- ======================================================
+         HEADER
+    ======================================================= -->
+
     <header>
-        <h1>Personal Finance Tracker</h1>
-        <p>Manage your personal finances easily.</p>
+
+        <h1>
+            Personal Finance Tracker
+        </h1>
+
+        <p>
+            Manage your personal finances easily.
+        </p>
+
     </header>
+
+
+
+    <!-- ======================================================
+         MAIN
+    ======================================================= -->
 
     <main>
 
-        <section>
-            <h2>Dashboard</h2>
 
-            <h3>Categories</h3>
+        <!-- ==================================================
+             LOGIN SECTION
+        =================================================== -->
 
-            <form id="categoryForm">
+        <section id="loginSection">
+
+            <h2>
+                Login
+            </h2>
+
+
+            <form id="loginForm">
+
 
                 <input
-                    type="text"
-                    id="categoryName"
-                    placeholder="Enter category name"
+                    type="email"
+                    id="loginEmail"
+                    placeholder="Email"
                     required
                 >
 
+
+                <input
+                    type="password"
+                    id="loginPassword"
+                    placeholder="Password"
+                    required
+                >
+
+
                 <button type="submit">
-                    Add Category
+                    Login
                 </button>
+
 
             </form>
 
-            <p id="categoryMessage">
-                Loading categories...
-            </p>
 
-            <ul id="categoryList"></ul>
+            <p id="loginMessage"></p>
+
 
         </section>
-        <section>
+
+
+
+        <!-- ==================================================
+             FINANCE SECTION
+
+             Hidden until successful login
+        =================================================== -->
+
+        <section
+            id="financeSection"
+            style="display: none;"
+        >
+
+
+            <!-- ==============================================
+                 DASHBOARD / CATEGORIES
+            =============================================== -->
+
+            <section id="categorySection">
+
+
+                <h2>
+                    Dashboard
+                </h2>
+
+
+                <h3>
+                    Categories
+                </h3>
+
+
+
+                <form id="categoryForm">
+
+
+                    <input
+                        type="text"
+                        id="categoryName"
+                        placeholder="Enter category name"
+                        required
+                    >
+
+
+                    <button type="submit">
+                        Add Category
+                    </button>
+
+
+                </form>
+
+
+
+                <p id="categoryMessage">
+                    No categories found.
+                </p>
+
+
+                <ul id="categoryList"></ul>
+
+
+            </section>
+
+
+
+            <!-- ==============================================
+                 FINANCIAL SUMMARY
+            =============================================== -->
+
             <section id="dashboardSection">
 
-    <h2>Financial Summary</h2>
 
-    <div class="summary-container">
+                <h2>
+                    Financial Summary
+                </h2>
 
-        <div class="summary-card">
-            <h3>Total Income</h3>
-            <p id="totalIncome">Rs. 0.00</p>
-        </div>
 
-        <div class="summary-card">
-            <h3>Total Expenses</h3>
-            <p id="totalExpenses">Rs. 0.00</p>
-        </div>
 
-        <div class="summary-card">
-            <h3>Balance</h3>
-            <p id="balance">Rs. 0.00</p>
-        </div>
+                <div class="summary-container">
 
-    </div>
 
-    <p id="dashboardMessage"></p>
+                    <!-- TOTAL INCOME -->
 
-</section>
+                    <div class="summary-card">
 
-    <h2>Transactions</h2>
+                        <h3>
+                            Total Income
+                        </h3>
 
-    <form id="transactionForm">
+                        <p id="totalIncome">
+                            Rs. 0.00
+                        </p>
 
-        <input
-            type="number"
-            id="transactionAmount"
-            placeholder="Amount"
-            min="0.01"
-            step="0.01"
-            required
-        >
+                    </div>
 
-        <select id="transactionType" required>
-            <option value="">Select Type</option>
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
-        </select>
 
-        <select id="transactionCategory" required>
-            <option value="">Select Category</option>
-        </select>
 
-        <input
-            type="text"
-            id="transactionDescription"
-            placeholder="Description"
-        >
+                    <!-- TOTAL EXPENSES -->
 
-        <input
-            type="date"
-            id="transactionDate"
-            required
-        >
+                    <div class="summary-card">
 
-        <button type="submit">
-            Add Transaction
-        </button>
+                        <h3>
+                            Total Expenses
+                        </h3>
 
-    </form>
+                        <p id="totalExpenses">
+                            Rs. 0.00
+                        </p>
 
-    <p id="transactionMessage"></p>
+                    </div>
 
-    <ul id="transactionList"></ul>
 
-</section>
+
+                    <!-- BALANCE -->
+
+                    <div class="summary-card">
+
+                        <h3>
+                            Balance
+                        </h3>
+
+                        <p id="balance">
+                            Rs. 0.00
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <p id="dashboardMessage"></p>
+
+
+            </section>
+
+
+
+            <!-- ==============================================
+                 TRANSACTIONS
+            =============================================== -->
+
+            <section id="transactionSection">
+
+
+                <h2>
+                    Transactions
+                </h2>
+
+
+
+                <form id="transactionForm">
+
+
+                    <!-- AMOUNT -->
+
+                    <input
+                        type="number"
+                        id="transactionAmount"
+                        placeholder="Amount"
+                        min="0.01"
+                        step="0.01"
+                        required
+                    >
+
+
+
+                    <!-- TYPE -->
+
+                    <select
+                        id="transactionType"
+                        required
+                    >
+
+                        <option value="">
+                            Select Type
+                        </option>
+
+                        <option value="income">
+                            Income
+                        </option>
+
+                        <option value="expense">
+                            Expense
+                        </option>
+
+                    </select>
+
+
+
+                    <!-- CATEGORY -->
+
+                    <select
+                        id="transactionCategory"
+                        required
+                    >
+
+                        <option value="">
+                            Select Category
+                        </option>
+
+                    </select>
+
+
+
+                    <!-- DESCRIPTION -->
+
+                    <input
+                        type="text"
+                        id="transactionDescription"
+                        placeholder="Description"
+                    >
+
+
+
+                    <!-- DATE -->
+
+                    <input
+                        type="date"
+                        id="transactionDate"
+                        required
+                    >
+
+
+
+                    <!-- SUBMIT -->
+
+                    <button type="submit">
+                        Add Transaction
+                    </button>
+
+
+                </form>
+
+
+
+                <p id="transactionMessage"></p>
+
+
+                <ul id="transactionList"></ul>
+
+
+            </section>
+
+
+
+            <!-- ==============================================
+                 LOGOUT
+            =============================================== -->
+
+            <section id="logoutSection">
+
+                <button
+                    type="button"
+                    id="logoutButton"
+                >
+                    Logout
+                </button>
+
+                <p id="logoutMessage"></p>
+
+            </section>
+
+
+        </section>
+
+
     </main>
 
+
+
+    <!-- ======================================================
+         JAVASCRIPT
+    ======================================================= -->
+
     <script src="js/app.js"></script>
+
 
 </body>
 
