@@ -190,6 +190,30 @@ class UserController
             return;
         }
 
+        if (!password_verify(
+    $password,
+    $user['password_hash']
+)) {
+
+    http_response_code(401);
+
+    echo json_encode([
+        'success' => false,
+        'message' =>
+            'Invalid email or password.'
+    ]);
+
+    return;
+}
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$_SESSION['user_id'] = $user['user_id'];
+$_SESSION['user_name'] = $user['name'];
+$_SESSION['user_email'] = $user['email'];
+
 
         echo json_encode([
             'success' => true,

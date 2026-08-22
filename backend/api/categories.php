@@ -1,5 +1,9 @@
 <?php
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/../config/database.php';
@@ -9,7 +13,20 @@ $controller = new CategoryController($pdo);
 
 $method = $_SERVER['REQUEST_METHOD'];
 
-$userId = 1;
+
+if (!isset($_SESSION['user_id'])) {
+
+    http_response_code(401);
+
+    echo json_encode([
+        'success' => false,
+        'message' => 'Please login first.'
+    ]);
+
+    exit;
+}
+
+$userId = $_SESSION['user_id'];
 
 try {
 

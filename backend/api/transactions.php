@@ -7,8 +7,23 @@ require_once __DIR__ . '/../controllers/TransactionController.php';
 
 $controller = new TransactionController($pdo);
 
-// Temporary user ID for testing
-$userId = 1;
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (!isset($_SESSION['user_id'])) {
+
+    http_response_code(401);
+
+    echo json_encode([
+        'success' => false,
+        'message' => 'Please login first.'
+    ]);
+
+    exit;
+}
+
+$userId = $_SESSION['user_id'];
 
 $method = $_SERVER['REQUEST_METHOD'];
 
