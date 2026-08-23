@@ -162,136 +162,233 @@
         <!-- ==================================================
              2. COMPACT FINANCE DASHBOARD
         =================================================== -->
+        <!-- ==================================================
+             2. MAIN FINANCE DASHBOARD
+        =================================================== -->
         <div id="financeSection" class="dashboard-wrapper" style="display: none;">
 
-            <!-- A. COMPACT METRICS RIBBON -->
-            <div class="metrics-ribbon">
-                <!-- Total Income -->
-                <div class="metric-card income-metric">
-                    <div class="metric-icon">
+            <!-- ==============================================
+                 TIER 1: FINANCIAL SUMMARY CARDS (3 CARDS)
+            =============================================== -->
+            <div class="summary-cards-grid">
+                <!-- Total Income Card -->
+                <div class="summary-card card-income">
+                    <div class="card-icon">
                         <i class="fa-solid fa-arrow-trend-up"></i>
                     </div>
-                    <div class="metric-info">
-                        <span class="metric-label">Total Income</span>
-                        <h3 class="metric-value" id="totalIncome">Rs. 0.00</h3>
+                    <div class="card-content">
+                        <span class="card-label">Total Income</span>
+                        <h2 class="card-value" id="totalIncome">Rs. 0.00</h2>
                     </div>
                 </div>
 
-                <!-- Total Expenses -->
-                <div class="metric-card expense-metric">
-                    <div class="metric-icon">
+                <!-- Total Expenses Card -->
+                <div class="summary-card card-expense">
+                    <div class="card-icon">
                         <i class="fa-solid fa-arrow-trend-down"></i>
                     </div>
-                    <div class="metric-info">
-                        <span class="metric-label">Total Expenses</span>
-                        <h3 class="metric-value" id="totalExpenses">Rs. 0.00</h3>
+                    <div class="card-content">
+                        <span class="card-label">Total Expenses</span>
+                        <h2 class="card-value" id="totalExpenses">Rs. 0.00</h2>
                     </div>
                 </div>
 
-                <!-- Net Balance -->
-                <div class="metric-card balance-metric">
-                    <div class="metric-icon">
+                <!-- Balance Card -->
+                <div class="summary-card card-balance">
+                    <div class="card-icon">
                         <i class="fa-solid fa-wallet"></i>
                     </div>
-                    <div class="metric-info">
-                        <span class="metric-label">Net Balance</span>
-                        <h3 class="metric-value" id="balance">Rs. 0.00</h3>
+                    <div class="card-content">
+                        <span class="card-label">Balance</span>
+                        <h2 class="card-value" id="balance">Rs. 0.00</h2>
                     </div>
                 </div>
             </div>
 
-            <!-- B. 2-COLUMN UNIFIED WORKSPACE -->
-            <div class="app-workspace-grid">
+            <!-- ==============================================
+                 TIER 2: WORKSPACE TABS CONTAINER
+            =============================================== -->
+            <div class="dashboard-views-container">
 
-                <!-- ==========================================
-                     LEFT COLUMN: TRANSACTION ACTIVITY & LIST (60%)
-                =========================================== -->
-                <div class="workspace-main">
+                <!-- TAB 1: OVERVIEW (MAIN DASHBOARD) -->
+                <div id="tabOverview" class="tab-pane active">
 
-                    <!-- TAB 1: OVERVIEW & ANALYTICS -->
-                    <div id="tabOverview" class="tab-pane active">
-                        <!-- Visual Analytics Charts Row -->
-                        <div class="charts-grid">
-                            <div class="card chart-card">
-                                <div class="chart-header">
-                                    <h3 class="chart-title"><i class="fa-solid fa-chart-pie"></i> Expense by Category</h3>
-                                </div>
-                                <div class="chart-body">
-                                    <div id="categoryChartEmpty" class="chart-empty-state" style="display: none;">
-                                        <i class="fa-solid fa-chart-pie"></i>
-                                        <p>No expense data yet</p>
-                                    </div>
-                                    <canvas id="categoryExpenseChart"></canvas>
-                                </div>
+                    <!-- A. FINANCIAL ANALYTICS (3 CHARTS GRID) -->
+                    <div class="analytics-charts-grid">
+                        <!-- Chart 1: Expense by Category -->
+                        <div class="card chart-card">
+                            <div class="chart-header">
+                                <h3 class="chart-title"><i class="fa-solid fa-chart-pie chart-icon-expense"></i> Expense by Category</h3>
                             </div>
-
-                            <div class="card chart-card">
-                                <div class="chart-header">
-                                    <h3 class="chart-title"><i class="fa-solid fa-chart-column"></i> Cash Flow</h3>
+                            <div class="chart-body">
+                                <div id="categoryChartEmpty" class="chart-empty-state" style="display: none;">
+                                    <i class="fa-solid fa-chart-pie"></i>
+                                    <p>No expense data yet</p>
                                 </div>
-                                <div class="chart-body">
-                                    <div id="cashFlowChartEmpty" class="chart-empty-state" style="display: none;">
-                                        <i class="fa-solid fa-chart-column"></i>
-                                        <p>No transaction data yet</p>
-                                    </div>
-                                    <canvas id="cashFlowChart"></canvas>
-                                </div>
+                                <canvas id="categoryExpenseChart"></canvas>
                             </div>
                         </div>
 
-                        <!-- Recent Activity Card -->
-                        <div class="card panel-card" style="margin-top: 16px;">
+                        <!-- Chart 2: Income by Category -->
+                        <div class="card chart-card">
+                            <div class="chart-header">
+                                <h3 class="chart-title"><i class="fa-solid fa-chart-pie chart-icon-income"></i> Income by Category</h3>
+                            </div>
+                            <div class="chart-body">
+                                <div id="categoryIncomeChartEmpty" class="chart-empty-state" style="display: none;">
+                                    <i class="fa-solid fa-chart-pie"></i>
+                                    <p>No income data yet</p>
+                                </div>
+                                <canvas id="categoryIncomeChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Chart 3: Overall Cash Flow -->
+                        <div class="card chart-card">
+                            <div class="chart-header">
+                                <h3 class="chart-title"><i class="fa-solid fa-chart-column chart-icon-cashflow"></i> Overall Cash Flow</h3>
+                            </div>
+                            <div class="chart-body">
+                                <div id="cashFlowChartEmpty" class="chart-empty-state" style="display: none;">
+                                    <i class="fa-solid fa-chart-column"></i>
+                                    <p>No transaction data yet</p>
+                                </div>
+                                <canvas id="cashFlowChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- B. RECENT ACTIVITY SECTION -->
+                    <div class="card panel-card recent-activity-panel">
+                        <div class="panel-header">
+                            <div>
+                                <h2 class="panel-title"><i class="fa-solid fa-clock-rotate-left"></i> Recent Activity</h2>
+                                <p class="panel-subtitle">Your latest recorded financial transactions</p>
+                            </div>
+                            <button type="button" class="btn-secondary btn-sm" id="viewAllTxBtn">
+                                View All Transactions <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+
+                        <p id="recentTransactionsMessage" class="empty-msg">No recent transactions found.</p>
+                        <ul id="recentTransactionsList" class="activity-list"></ul>
+                    </div>
+
+                    <!-- C. BOTTOM 2-COLUMN MANAGEMENT SECTION -->
+                    <div class="bottom-management-grid">
+
+                        <!-- LEFT CARD: ADD NEW CATEGORY -->
+                        <div class="card management-card">
                             <div class="panel-header">
                                 <div>
-                                    <h2 class="panel-title"><i class="fa-solid fa-clock-rotate-left"></i> Recent Activity</h2>
-                                    <p class="panel-subtitle">Your latest recorded financial entries</p>
+                                    <h2 class="panel-title"><i class="fa-solid fa-layer-group"></i> Add New Category</h2>
+                                    <p class="panel-subtitle">Create and organize transaction categories</p>
                                 </div>
-                                <button type="button" class="btn-secondary btn-sm" id="viewAllTxBtn">
-                                    View All <i class="fa-solid fa-arrow-right"></i>
+                            </div>
+
+                            <form id="categoryForm" class="compact-inline-form">
+                                <input type="text" id="categoryName" placeholder="Category Name..." required>
+                                <button type="submit" class="btn-primary" id="addCategoryBtn">
+                                    <i class="fa-solid fa-plus"></i> Add Category
                                 </button>
+                            </form>
+                            <p id="categoryMessage" class="feedback-msg"></p>
+
+                            <div class="existing-categories-section">
+                                <h4 class="subheading-title">Existing Categories</h4>
+                                <div id="categoryChipsContainer" class="category-chips-list"></div>
                             </div>
-
-                            <p id="recentTransactionsMessage" class="empty-msg">No recent transactions found.</p>
-                            <ul id="recentTransactionsList" class="activity-list"></ul>
                         </div>
-                    </div>
 
-                    <!-- TAB 2: FULL TRANSACTIONS WITH SEARCH & FILTER -->
-                    <div id="tabTransactions" class="tab-pane" style="display: none;">
-                        <div class="card panel-card">
+                        <!-- RIGHT CARD: ADD NEW TRANSACTION -->
+                        <div class="card management-card">
                             <div class="panel-header">
                                 <div>
-                                    <h2 class="panel-title"><i class="fa-solid fa-receipt"></i> All Transactions</h2>
-                                    <p class="panel-subtitle">Search, filter, and manage your history</p>
+                                    <h2 class="panel-title"><i class="fa-solid fa-money-bill-transfer"></i> Add New Transaction</h2>
+                                    <p class="panel-subtitle">Record a new income or expense entry</p>
                                 </div>
                             </div>
 
-                            <!-- Filter Toolbar -->
-                            <div class="filter-toolbar">
-                                <div class="search-box">
-                                    <i class="fa-solid fa-magnifying-glass"></i>
-                                    <input type="text" id="txSearchInput" placeholder="Search description or category...">
+                            <form id="transactionForm" class="transaction-full-form">
+                                <div class="form-row">
+                                    <div class="form-ctrl flex-1">
+                                        <label for="transactionAmount">Amount (Rs.)</label>
+                                        <input type="number" id="transactionAmount" placeholder="Rs. 5000" min="0.01" step="0.01" required>
+                                    </div>
+                                    <div class="form-ctrl flex-1">
+                                        <label for="transactionType">Transaction Type</label>
+                                        <select id="transactionType" required>
+                                            <option value="expense">Expense</option>
+                                            <option value="income">Income</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="filter-selects">
-                                    <select id="txTypeFilter">
-                                        <option value="">All Types</option>
-                                        <option value="income">Income</option>
-                                        <option value="expense">Expense</option>
-                                    </select>
-                                    <select id="txCategoryFilter">
-                                        <option value="">All Categories</option>
-                                    </select>
+
+                                <div class="form-row">
+                                    <div class="form-ctrl flex-1">
+                                        <label for="transactionCategory">Category</label>
+                                        <select id="transactionCategory" required>
+                                            <option value="">Select Category...</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-ctrl flex-1">
+                                        <label for="transactionDate">Date</label>
+                                        <input type="date" id="transactionDate" required>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <p id="transactionMessage" class="feedback-msg"></p>
+                                <div class="form-ctrl">
+                                    <label for="transactionDescription">Description</label>
+                                    <input type="text" id="transactionDescription" placeholder="e.g. Monthly salary or Weekly groceries">
+                                </div>
 
-                            <!-- Scrollable Transaction List -->
-                            <div class="scrollable-list-container">
-                                <ul id="transactionList" class="activity-list"></ul>
+                                <button type="submit" class="btn-primary btn-block" id="addTxBtn">
+                                    <i class="fa-solid fa-plus"></i> Add Transaction
+                                </button>
+                            </form>
+                            <p id="quickTransactionMessage" class="feedback-msg"></p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- TAB 2: FULL TRANSACTIONS WITH SEARCH & FILTER -->
+                <div id="tabTransactions" class="tab-pane" style="display: none;">
+                    <div class="card panel-card">
+                        <div class="panel-header">
+                            <div>
+                                <h2 class="panel-title"><i class="fa-solid fa-receipt"></i> All Transactions</h2>
+                                <p class="panel-subtitle">Search, filter, and manage your full transaction history</p>
                             </div>
                         </div>
+
+                        <!-- Filter Toolbar -->
+                        <div class="filter-toolbar">
+                            <div class="search-box">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="txSearchInput" placeholder="Search description or category...">
+                            </div>
+                            <div class="filter-selects">
+                                <select id="txTypeFilter">
+                                    <option value="">All Types</option>
+                                    <option value="income">Income</option>
+                                    <option value="expense">Expense</option>
+                                </select>
+                                <select id="txCategoryFilter">
+                                    <option value="">All Categories</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <p id="transactionMessage" class="feedback-msg"></p>
+
+                        <!-- Scrollable Transaction List -->
+                        <div class="scrollable-list-container">
+                            <ul id="transactionList" class="activity-list"></ul>
+                        </div>
                     </div>
+                </div>
 
                     <!-- TAB 3: BUDGETS & FINANCIAL GOALS -->
                     <div id="tabBudgets" class="tab-pane" style="display: none;">

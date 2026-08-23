@@ -23,6 +23,7 @@ let userBudgets = [];
 let userGoals = [];
 let activeTab = "overview";
 let categoryExpenseChartInstance = null;
+let categoryIncomeChartInstance = null;
 let cashFlowChartInstance = null;
 
 // ============================================================
@@ -440,7 +441,7 @@ async function loadCategories() {
         if (budgetCatSelect) budgetCatSelect.innerHTML = defaultOption + optionsHtml;
         if (editBudgetCatSelect) editBudgetCatSelect.innerHTML = defaultOption + optionsHtml;
 
-        // 2. Populate Quick Chips (Right Sidebar)
+        // 2. Populate Quick Chips (Bottom Left Card)
         if (categoryChips) {
             categoryChips.innerHTML = "";
             userCategories.forEach(cat => {
@@ -448,8 +449,10 @@ async function loadCategories() {
                 chip.className = "category-chip";
                 chip.innerHTML = `
                     <span>${escapeHtml(cat.name)}</span>
-                    <button type="button" class="chip-action-btn edit-chip" title="Edit"><i class="fa-solid fa-pen"></i></button>
-                    <button type="button" class="chip-action-btn del-chip" title="Delete"><i class="fa-solid fa-xmark"></i></button>
+                    <span class="chip-actions">
+                        <button type="button" class="chip-btn edit-chip" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                        <button type="button" class="chip-btn del-chip" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                    </span>
                 `;
                 chip.querySelector(".edit-chip").addEventListener("click", () => openCategoryModal(cat.category_id, cat.name));
                 chip.querySelector(".del-chip").addEventListener("click", () => deleteCategory(cat.category_id, cat.name));
@@ -687,6 +690,7 @@ function buildTransactionLi(tx) {
     li.innerHTML = `
         <div class="item-left">
             <span class="type-pill ${isIncome ? 'pill-income' : 'pill-expense'}">
+                <i class="fa-solid ${isIncome ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'}"></i>
                 ${isIncome ? 'Income' : 'Expense'}
             </span>
             <div class="item-text">
@@ -887,15 +891,16 @@ function updateVisualCharts() {
     }
 
     renderCategoryExpenseChart();
+    renderCategoryIncomeChart();
     renderCashFlowChart();
 }
 
+// 1. EXPENSE BY CATEGORY (PIE / DOUGHNUT)
 function renderCategoryExpenseChart() {
     const canvas = document.getElementById("categoryExpenseChart");
     const emptyState = document.getElementById("categoryChartEmpty");
     if (!canvas) return;
 
-    // Filter only expense transactions
     const expenses = allTransactions.filter(t => t.type === "expense");
 
     if (expenses.length === 0) {
@@ -911,21 +916,24 @@ function renderCategoryExpenseChart() {
     if (emptyState) emptyState.style.display = "none";
     canvas.style.display = "block";
 
-    // Aggregate expenses by category
+    // Aggregate by category
     const categoryTotals = {};
+    let totalExpenseSum = 0;
     expenses.forEach(tx => {
         const cat = tx.category_name || "Uncategorized";
         const amt = parseFloat(tx.amount || 0);
         categoryTotals[cat] = (categoryTotals[cat] || 0) + amt;
+        totalExpenseSum += amt;
     });
 
     const labels = Object.keys(categoryTotals);
     const data = Object.values(categoryTotals);
 
+    // Pink / Purple / Amber Palette
     const colors = [
-        "#6366f1", "#ec4899", "#f59e0b", "#10b981", 
-        "#06b6d4", "#8b5cf6", "#f43f5e", "#14b8a6",
-        "#3b82f6", "#e11d48", "#84cc16", "#d946ef"
+        "#ec4899", "#f43f5e", "#d946ef", "#a855f7", 
+        "#6366f1", "#f59e0b", "#06b6d4", "#10b981", 
+        "#fb7185", "#c084fc", "#38bdf8", "#fbbf24"
     ];
 
     if (categoryExpenseChartInstance) {
@@ -949,30 +957,123 @@ function renderCategoryExpenseChart() {
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: "right",
+                    position: "bottom",
                     labels: {
                         boxWidth: 10,
-                        font: { size: 11, family: "Plus Jakarta Sans" },
+                        padding: 8,
+                        font: { size: 10.5, family: "Plus Jakarta Sans" },
                         color: "#475569"
                     }
                 },
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            const val = parseFloat(context.raw || 0).toLocaleString("en-IN", {
+                            const val = parseFloat(context.raw || 0);
+                            const pct = totalExpenseSum > 0 ? ((val / totalExpenseSum) * 100).toFixed(1) : 0;
+                            const formatted = val.toLocaleString("en-IN", {
                                 minimumFractionDigits: 2,
                                 maximumFractionDigits: 2
                             });
-                            return ` ${context.label}: Rs. ${val}`;
+                            return ` ${context.label}: Rs. ${formatted} (${pct}%)`;
                         }
                     }
                 }
             },
-            cutout: "65%"
+            cutout: "60%"
         }
     });
 }
 
+// 2. INCOME BY CATEGORY (PIE / DOUGHNUT)
+function renderCategoryIncomeChart() {
+    const canvas = document.getElementById("categoryIncomeChart");
+    const emptyState = document.getElementById("categoryIncomeChartEmpty");
+    if (!canvas) return;
+
+    const incomes = allTransactions.filter(t => t.type === "income");
+
+    if (incomes.length === 0) {
+        if (emptyState) emptyState.style.display = "flex";
+        canvas.style.display = "none";
+        if (categoryIncomeChartInstance) {
+            categoryIncomeChartInstance.destroy();
+            categoryIncomeChartInstance = null;
+        }
+        return;
+    }
+
+    if (emptyState) emptyState.style.display = "none";
+    canvas.style.display = "block";
+
+    // Aggregate by category
+    const categoryTotals = {};
+    let totalIncomeSum = 0;
+    incomes.forEach(tx => {
+        const cat = tx.category_name || "Uncategorized";
+        const amt = parseFloat(tx.amount || 0);
+        categoryTotals[cat] = (categoryTotals[cat] || 0) + amt;
+        totalIncomeSum += amt;
+    });
+
+    const labels = Object.keys(categoryTotals);
+    const data = Object.values(categoryTotals);
+
+    // Light Blue / Purple / Teal Palette
+    const colors = [
+        "#0284c7", "#38bdf8", "#6366f1", "#10b981", 
+        "#8b5cf6", "#06b6d4", "#14b8a6", "#3b82f6",
+        "#7c3aed", "#22d3ee", "#34d399", "#818cf8"
+    ];
+
+    if (categoryIncomeChartInstance) {
+        categoryIncomeChartInstance.destroy();
+    }
+
+    const ctx = canvas.getContext("2d");
+    categoryIncomeChartInstance = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors.slice(0, labels.length),
+                borderWidth: 2,
+                borderColor: "#ffffff"
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: "bottom",
+                    labels: {
+                        boxWidth: 10,
+                        padding: 8,
+                        font: { size: 10.5, family: "Plus Jakarta Sans" },
+                        color: "#475569"
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const val = parseFloat(context.raw || 0);
+                            const pct = totalIncomeSum > 0 ? ((val / totalIncomeSum) * 100).toFixed(1) : 0;
+                            const formatted = val.toLocaleString("en-IN", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+                            return ` ${context.label}: Rs. ${formatted} (${pct}%)`;
+                        }
+                    }
+                }
+            },
+            cutout: "60%"
+        }
+    });
+}
+
+// 3. OVERALL CASH FLOW (MONTHLY BAR CHART)
 function renderCashFlowChart() {
     const canvas = document.getElementById("cashFlowChart");
     const emptyState = document.getElementById("cashFlowChartEmpty");
@@ -991,14 +1092,37 @@ function renderCashFlowChart() {
     if (emptyState) emptyState.style.display = "none";
     canvas.style.display = "block";
 
-    let totalIncome = 0;
-    let totalExpense = 0;
+    // Group income and expenses by Month (YYYY-MM)
+    const monthMap = {};
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
     allTransactions.forEach(tx => {
+        if (!tx.transaction_date) return;
+        const d = new Date(tx.transaction_date);
+        if (isNaN(d.getTime())) return;
+
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        const label = `${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+
+        if (!monthMap[key]) {
+            monthMap[key] = { label: label, income: 0, expense: 0 };
+        }
+
         const amt = parseFloat(tx.amount || 0);
-        if (tx.type === "income") totalIncome += amt;
-        else if (tx.type === "expense") totalExpense += amt;
+        if (tx.type === "income") {
+            monthMap[key].income += amt;
+        } else if (tx.type === "expense") {
+            monthMap[key].expense += amt;
+        }
     });
+
+    // Sort chronologically and take up to last 6 months
+    const sortedKeys = Object.keys(monthMap).sort();
+    const recentKeys = sortedKeys.slice(-6);
+
+    const labels = recentKeys.map(k => monthMap[k].label);
+    const incomeData = recentKeys.map(k => monthMap[k].income);
+    const expenseData = recentKeys.map(k => monthMap[k].expense);
 
     if (cashFlowChartInstance) {
         cashFlowChartInstance.destroy();
@@ -1008,19 +1132,37 @@ function renderCashFlowChart() {
     cashFlowChartInstance = new Chart(ctx, {
         type: "bar",
         data: {
-            labels: ["Income", "Expense"],
-            datasets: [{
-                data: [totalIncome, totalExpense],
-                backgroundColor: ["#10b981", "#ef4444"],
-                borderRadius: 6,
-                maxBarThickness: 44
-            }]
+            labels: labels,
+            datasets: [
+                {
+                    label: "Income",
+                    data: incomeData,
+                    backgroundColor: "#0284c7", // Light Blue
+                    borderRadius: 4,
+                    maxBarThickness: 24
+                },
+                {
+                    label: "Expenses",
+                    data: expenseData,
+                    backgroundColor: "#ec4899", // Pink
+                    borderRadius: 4,
+                    maxBarThickness: 24
+                }
+            ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { display: false },
+                legend: {
+                    position: "bottom",
+                    labels: {
+                        boxWidth: 10,
+                        padding: 8,
+                        font: { size: 10.5, family: "Plus Jakarta Sans" },
+                        color: "#475569"
+                    }
+                },
                 tooltip: {
                     callbacks: {
                         label: function(context) {
@@ -1028,7 +1170,7 @@ function renderCashFlowChart() {
                                 minimumFractionDigits: 2,
                                 maximumFractionDigits: 2
                             });
-                            return ` Total: Rs. ${val}`;
+                            return ` ${context.dataset.label}: Rs. ${val}`;
                         }
                     }
                 }
@@ -1037,17 +1179,19 @@ function renderCashFlowChart() {
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        font: { size: 10, family: "Plus Jakarta Sans" },
+                        font: { size: 9.5, family: "Plus Jakarta Sans" },
                         color: "#94a3b8",
                         callback: function(val) {
-                            return "Rs. " + val.toLocaleString("en-IN");
+                            if (val >= 1000000) return (val / 1000000).toFixed(1) + "M";
+                            if (val >= 1000) return (val / 1000).toFixed(0) + "k";
+                            return val;
                         }
                     },
                     grid: { color: "#f1f5f9" }
                 },
                 x: {
                     ticks: {
-                        font: { size: 12, weight: "600", family: "Plus Jakarta Sans" },
+                        font: { size: 10.5, weight: "600", family: "Plus Jakarta Sans" },
                         color: "#475569"
                     },
                     grid: { display: false }
