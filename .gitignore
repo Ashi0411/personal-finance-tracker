@@ -43,7 +43,6 @@ desktop.ini
 *.iml
 
 # Database dumps / local database files
-*.sql
 *.sqlite
 *.sqlite3
 
