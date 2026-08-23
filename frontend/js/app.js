@@ -60,11 +60,13 @@ function setUserLoggedIn(user) {
     const userProfileBar = document.getElementById("userProfileBar");
     const appNav = document.getElementById("appNav");
     const userNameDisplay = document.getElementById("userNameDisplay");
+    const heroBanner = document.getElementById("heroBanner");
 
     if (authSection) authSection.style.display = "none";
     if (financeSection) financeSection.style.display = "block";
     if (userProfileBar) userProfileBar.style.display = "flex";
     if (appNav) appNav.style.display = "flex";
+    if (heroBanner) heroBanner.style.display = "flex";
     if (userNameDisplay) userNameDisplay.textContent = user.name || "User";
 
     // Set today's date as default in transaction date input
@@ -267,6 +269,7 @@ function showLogin() {
     const financeSection = document.getElementById("financeSection");
     const userProfileBar = document.getElementById("userProfileBar");
     const appNav = document.getElementById("appNav");
+    const heroBanner = document.getElementById("heroBanner");
 
     if (authSection) authSection.style.display = "flex";
     if (loginSection) loginSection.style.display = "block";
@@ -274,6 +277,7 @@ function showLogin() {
     if (financeSection) financeSection.style.display = "none";
     if (userProfileBar) userProfileBar.style.display = "none";
     if (appNav) appNav.style.display = "none";
+    if (heroBanner) heroBanner.style.display = "none";
 
     clearAuthMessages();
 }

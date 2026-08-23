@@ -24,7 +24,7 @@
 <body>
 
     <!-- ======================================================
-         SLIM TOP NAVBAR
+         TOP NAVBAR & HERO BANNER
     ======================================================= -->
     <header class="app-header">
         <div class="header-inner">
@@ -64,6 +64,15 @@
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 </button>
             </div>
+        </div>
+
+        <!-- HERO HEADER BANNER (Displayed when logged in) -->
+        <div id="heroBanner" class="hero-banner" style="display: none;">
+            <div class="hero-icon-pill">
+                <i class="fa-solid fa-wallet"></i>
+            </div>
+            <h1 class="hero-title">💰 Personal Finance Tracker</h1>
+            <p class="hero-subtitle">Manage your money. Track your future.</p>
         </div>
     </header>
 
@@ -160,47 +169,51 @@
         </div>
 
         <!-- ==================================================
-             2. COMPACT FINANCE DASHBOARD
-        =================================================== -->
-        <!-- ==================================================
              2. MAIN FINANCE DASHBOARD
         =================================================== -->
         <div id="financeSection" class="dashboard-wrapper" style="display: none;">
 
             <!-- ==============================================
-                 TIER 1: FINANCIAL SUMMARY CARDS (3 CARDS)
+                 TIER 1: FINANCIAL SUMMARY CONTAINER
             =============================================== -->
-            <div class="summary-cards-grid">
-                <!-- Total Income Card -->
-                <div class="summary-card card-income">
-                    <div class="card-icon">
-                        <i class="fa-solid fa-arrow-trend-up"></i>
-                    </div>
-                    <div class="card-content">
+            <div class="card financial-summary-container">
+                <div class="summary-container-header">
+                    <span class="header-decor-icons">💎 <i class="fa-solid fa-chart-pie"></i></span>
+                    <h2>Financial Summary</h2>
+                </div>
+
+                <div class="summary-cards-grid">
+                    <!-- Total Income Card (Pastel Blue) -->
+                    <div class="summary-card card-income">
+                        <div class="card-top-icon">💰</div>
+                        <div class="card-icon-trend">
+                            <i class="fa-solid fa-arrow-trend-up"></i>
+                        </div>
                         <span class="card-label">Total Income</span>
                         <h2 class="card-value" id="totalIncome">Rs. 0.00</h2>
+                        <div class="card-corner-watermark"></div>
                     </div>
-                </div>
 
-                <!-- Total Expenses Card -->
-                <div class="summary-card card-expense">
-                    <div class="card-icon">
-                        <i class="fa-solid fa-arrow-trend-down"></i>
-                    </div>
-                    <div class="card-content">
+                    <!-- Total Expenses Card (Pastel Pink) -->
+                    <div class="summary-card card-expense">
+                        <div class="card-top-icon">💸</div>
+                        <div class="card-icon-trend">
+                            <i class="fa-solid fa-arrow-trend-down"></i>
+                        </div>
                         <span class="card-label">Total Expenses</span>
                         <h2 class="card-value" id="totalExpenses">Rs. 0.00</h2>
+                        <div class="card-corner-watermark"></div>
                     </div>
-                </div>
 
-                <!-- Balance Card -->
-                <div class="summary-card card-balance">
-                    <div class="card-icon">
-                        <i class="fa-solid fa-wallet"></i>
-                    </div>
-                    <div class="card-content">
-                        <span class="card-label">Balance</span>
+                    <!-- Net Balance Card (Pastel Purple) -->
+                    <div class="summary-card card-balance">
+                        <div class="card-top-icon">💎</div>
+                        <div class="card-icon-trend">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
+                        <span class="card-label">Net Balance</span>
                         <h2 class="card-value" id="balance">Rs. 0.00</h2>
+                        <div class="card-corner-watermark"></div>
                     </div>
                 </div>
             </div>
