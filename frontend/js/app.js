@@ -18,6 +18,8 @@ const TRANSACTION_API_URL = "../backend/api/transactions.php";
 let userCategories = [];
 let allTransactions = [];
 let activeTab = "overview";
+let categoryExpenseChartInstance = null;
+let cashFlowChartInstance = null;
 
 // ============================================================
 // INITIALIZATION
@@ -545,6 +547,7 @@ async function loadTransactions() {
 
         renderRecentTransactions(allTransactions);
         applyTransactionFilters();
+        updateVisualCharts();
 
     } catch (error) {
         console.error("Transactions loading error:", error);
@@ -810,6 +813,186 @@ async function loadDashboard() {
     } catch (error) {
         console.error("Dashboard loading error:", error);
     }
+}
+
+// ============================================================
+// VISUAL ANALYTICS & CHARTS (Chart.js)
+// ============================================================
+function updateVisualCharts() {
+    if (typeof Chart === "undefined") {
+        console.warn("Chart.js not loaded.");
+        return;
+    }
+
+    renderCategoryExpenseChart();
+    renderCashFlowChart();
+}
+
+function renderCategoryExpenseChart() {
+    const canvas = document.getElementById("categoryExpenseChart");
+    const emptyState = document.getElementById("categoryChartEmpty");
+    if (!canvas) return;
+
+    // Filter only expense transactions
+    const expenses = allTransactions.filter(t => t.type === "expense");
+
+    if (expenses.length === 0) {
+        if (emptyState) emptyState.style.display = "flex";
+        canvas.style.display = "none";
+        if (categoryExpenseChartInstance) {
+            categoryExpenseChartInstance.destroy();
+            categoryExpenseChartInstance = null;
+        }
+        return;
+    }
+
+    if (emptyState) emptyState.style.display = "none";
+    canvas.style.display = "block";
+
+    // Aggregate expenses by category
+    const categoryTotals = {};
+    expenses.forEach(tx => {
+        const cat = tx.category_name || "Uncategorized";
+        const amt = parseFloat(tx.amount || 0);
+        categoryTotals[cat] = (categoryTotals[cat] || 0) + amt;
+    });
+
+    const labels = Object.keys(categoryTotals);
+    const data = Object.values(categoryTotals);
+
+    const colors = [
+        "#6366f1", "#ec4899", "#f59e0b", "#10b981", 
+        "#06b6d4", "#8b5cf6", "#f43f5e", "#14b8a6",
+        "#3b82f6", "#e11d48", "#84cc16", "#d946ef"
+    ];
+
+    if (categoryExpenseChartInstance) {
+        categoryExpenseChartInstance.destroy();
+    }
+
+    const ctx = canvas.getContext("2d");
+    categoryExpenseChartInstance = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors.slice(0, labels.length),
+                borderWidth: 2,
+                borderColor: "#ffffff"
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: "right",
+                    labels: {
+                        boxWidth: 10,
+                        font: { size: 11, family: "Plus Jakarta Sans" },
+                        color: "#475569"
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const val = parseFloat(context.raw || 0).toLocaleString("en-IN", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+                            return ` ${context.label}: Rs. ${val}`;
+                        }
+                    }
+                }
+            },
+            cutout: "65%"
+        }
+    });
+}
+
+function renderCashFlowChart() {
+    const canvas = document.getElementById("cashFlowChart");
+    const emptyState = document.getElementById("cashFlowChartEmpty");
+    if (!canvas) return;
+
+    if (allTransactions.length === 0) {
+        if (emptyState) emptyState.style.display = "flex";
+        canvas.style.display = "none";
+        if (cashFlowChartInstance) {
+            cashFlowChartInstance.destroy();
+            cashFlowChartInstance = null;
+        }
+        return;
+    }
+
+    if (emptyState) emptyState.style.display = "none";
+    canvas.style.display = "block";
+
+    let totalIncome = 0;
+    let totalExpense = 0;
+
+    allTransactions.forEach(tx => {
+        const amt = parseFloat(tx.amount || 0);
+        if (tx.type === "income") totalIncome += amt;
+        else if (tx.type === "expense") totalExpense += amt;
+    });
+
+    if (cashFlowChartInstance) {
+        cashFlowChartInstance.destroy();
+    }
+
+    const ctx = canvas.getContext("2d");
+    cashFlowChartInstance = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: ["Income", "Expense"],
+            datasets: [{
+                data: [totalIncome, totalExpense],
+                backgroundColor: ["#10b981", "#ef4444"],
+                borderRadius: 6,
+                maxBarThickness: 44
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const val = parseFloat(context.raw || 0).toLocaleString("en-IN", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+                            return ` Total: Rs. ${val}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        font: { size: 10, family: "Plus Jakarta Sans" },
+                        color: "#94a3b8",
+                        callback: function(val) {
+                            return "Rs. " + val.toLocaleString("en-IN");
+                        }
+                    },
+                    grid: { color: "#f1f5f9" }
+                },
+                x: {
+                    ticks: {
+                        font: { size: 12, weight: "600", family: "Plus Jakarta Sans" },
+                        color: "#475569"
+                    },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
 }
 
 // ============================================================

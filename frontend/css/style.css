@@ -413,6 +413,64 @@ body {
     align-items: start;
 }
 
+/* ============================================================
+   CHARTS & ANALYTICS
+   ============================================================ */
+.charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 4px;
+}
+
+.chart-card {
+    padding: 16px;
+    background: #ffffff;
+}
+
+.chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.chart-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.chart-title i {
+    color: var(--primary);
+}
+
+.chart-body {
+    position: relative;
+    height: 190px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 12px;
+    gap: 6px;
+}
+
+.chart-empty-state i {
+    font-size: 26px;
+    opacity: 0.4;
+}
+
 /* Panel Card Common */
 .panel-card {
     padding: 20px;

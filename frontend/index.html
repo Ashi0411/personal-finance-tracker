@@ -14,6 +14,9 @@
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
+    <!-- Chart.js for Visual Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
     <!-- Main Stylesheet -->
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -202,9 +205,39 @@
                 =========================================== -->
                 <div class="workspace-main">
 
-                    <!-- TAB 1: OVERVIEW & RECENT ACTIVITY -->
+                    <!-- TAB 1: OVERVIEW & ANALYTICS -->
                     <div id="tabOverview" class="tab-pane active">
-                        <div class="card panel-card">
+                        <!-- Visual Analytics Charts Row -->
+                        <div class="charts-grid">
+                            <div class="card chart-card">
+                                <div class="chart-header">
+                                    <h3 class="chart-title"><i class="fa-solid fa-chart-pie"></i> Expense by Category</h3>
+                                </div>
+                                <div class="chart-body">
+                                    <div id="categoryChartEmpty" class="chart-empty-state" style="display: none;">
+                                        <i class="fa-solid fa-chart-pie"></i>
+                                        <p>No expense data yet</p>
+                                    </div>
+                                    <canvas id="categoryExpenseChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="card chart-card">
+                                <div class="chart-header">
+                                    <h3 class="chart-title"><i class="fa-solid fa-chart-column"></i> Cash Flow</h3>
+                                </div>
+                                <div class="chart-body">
+                                    <div id="cashFlowChartEmpty" class="chart-empty-state" style="display: none;">
+                                        <i class="fa-solid fa-chart-column"></i>
+                                        <p>No transaction data yet</p>
+                                    </div>
+                                    <canvas id="cashFlowChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Activity Card -->
+                        <div class="card panel-card" style="margin-top: 16px;">
                             <div class="panel-header">
                                 <div>
                                     <h2 class="panel-title"><i class="fa-solid fa-clock-rotate-left"></i> Recent Activity</h2>
