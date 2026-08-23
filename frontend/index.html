@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Personal Finance Tracker</title>
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <link rel="apple-touch-icon" href="images/favicon.png">
+
     <!-- Google Fonts: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,9 +33,7 @@
     <header class="app-header">
         <div class="header-inner">
             <div class="brand">
-                <div class="brand-icon">
-                    <i class="fa-solid fa-wallet"></i>
-                </div>
+                <img src="images/logo.png" alt="FinanceTracker Logo" class="brand-logo-img">
                 <div class="brand-text">
                     <span class="brand-title">FinanceTracker</span>
                     <span class="brand-tagline">Personal Finance</span>
@@ -56,8 +58,8 @@
 
             <!-- User Profile & Report & Logout -->
             <div id="userProfileBar" class="user-profile" style="display: none;">
-                <button type="button" id="openReportBtn" class="btn-report-nav" title="Generate Monthly Financial Report">
-                    <i class="fa-solid fa-file-invoice-dollar"></i> <span>Monthly Report</span>
+                <button type="button" id="openReportBtn" class="btn-report-nav" title="Generate Financial Statements">
+                    <i class="fa-solid fa-file-invoice-dollar"></i> <span>Financial Reports</span>
                 </button>
                 <div class="user-avatar">
                     <i class="fa-solid fa-user"></i>
@@ -72,9 +74,9 @@
         <!-- HERO HEADER BANNER (Displayed when logged in) -->
         <div id="heroBanner" class="hero-banner" style="display: none;">
             <div class="hero-icon-pill">
-                <i class="fa-solid fa-wallet"></i>
+                <img src="images/logo.png" alt="FinanceTracker Logo" class="hero-logo-img">
             </div>
-            <h1 class="hero-title">💰 Personal Finance Tracker</h1>
+            <h1 class="hero-title">Personal Finance Tracker</h1>
             <p class="hero-subtitle">Manage your money. Track your future.</p>
         </div>
     </header>
@@ -92,8 +94,8 @@
             <!-- LOGIN CARD -->
             <div id="loginSection" class="auth-card">
                 <div class="auth-card-header">
-                    <div class="auth-card-icon">
-                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    <div class="auth-card-logo-wrap">
+                        <img src="images/logo.png" alt="FinanceTracker Logo" class="auth-card-logo-img">
                     </div>
                     <h2>Welcome Back</h2>
                     <p>Enter your credentials to access your financial dashboard</p>
@@ -127,8 +129,8 @@
             <!-- REGISTER CARD -->
             <div id="registerSection" class="auth-card" style="display: none;">
                 <div class="auth-card-header">
-                    <div class="auth-card-icon reg-icon">
-                        <i class="fa-solid fa-user-plus"></i>
+                    <div class="auth-card-logo-wrap">
+                        <img src="images/logo.png" alt="FinanceTracker Logo" class="auth-card-logo-img">
                     </div>
                     <h2>Create Free Account</h2>
                     <p>Start tracking your income & expenses today</p>
@@ -788,9 +790,7 @@
                     <!-- Statement Letterhead -->
                     <div class="statement-letterhead">
                         <div class="statement-brand">
-                            <div class="brand-icon">
-                                <i class="fa-solid fa-wallet"></i>
-                            </div>
+                            <img src="images/logo.png" alt="FinanceTracker Logo" class="statement-brand-logo">
                             <div>
                                 <h1 class="statement-brand-title">FinanceTracker</h1>
                                 <p class="statement-brand-sub">Personal Wealth & Cash Flow Management</p>
