@@ -16,8 +16,10 @@ const TRANSACTION_API_URL = "../backend/api/transactions.php";
 const BUDGET_API_URL      = "../backend/api/budgets.php";
 const GOAL_API_URL        = "../backend/api/goals.php";
 const REPORT_API_URL      = "../backend/api/reports.php";
+const PROFILE_API_URL     = "../backend/api/profile.php";
 
 // App State
+let currentUser = null;
 let userCategories = [];
 let allTransactions = [];
 let userBudgets = [];
@@ -58,6 +60,7 @@ async function checkSession() {
 }
 
 function setUserLoggedIn(user) {
+    currentUser = user;
     const authSection = document.getElementById("authSection");
     const financeSection = document.getElementById("financeSection");
     const userProfileBar = document.getElementById("userProfileBar");
@@ -71,6 +74,9 @@ function setUserLoggedIn(user) {
     if (appNav) appNav.style.display = "flex";
     if (heroBanner) heroBanner.style.display = "flex";
     if (userNameDisplay) userNameDisplay.textContent = user.name || "User";
+
+    // Update Avatar UI in header
+    updateAvatarUI(user.avatar_url);
 
     // Set today's date as default in transaction date input
     const dateInput = document.getElementById("transactionDate");
@@ -274,6 +280,23 @@ function setupEventListeners() {
     if (scopeMonthlyBtn) scopeMonthlyBtn.addEventListener("click", () => switchReportScope("monthly"));
     if (scopeYearlyBtn) scopeYearlyBtn.addEventListener("click", () => switchReportScope("yearly"));
 
+    // User Profile & Avatar Modal
+    const openProfileBtn = document.getElementById("openProfileBtn");
+    const closeProfileBtn = document.getElementById("closeProfileModalBtn");
+    const doneProfileBtn = document.getElementById("doneProfileBtn");
+    const choosePhotoBtn = document.getElementById("choosePhotoBtn");
+    const avatarUploadTrigger = document.getElementById("avatarUploadTrigger");
+    const avatarFileInput = document.getElementById("avatarFileInput");
+    const deletePhotoBtn = document.getElementById("deletePhotoBtn");
+
+    if (openProfileBtn) openProfileBtn.addEventListener("click", openProfileModal);
+    if (closeProfileBtn) closeProfileBtn.addEventListener("click", closeProfileModal);
+    if (doneProfileBtn) doneProfileBtn.addEventListener("click", closeProfileModal);
+    if (choosePhotoBtn) choosePhotoBtn.addEventListener("click", () => avatarFileInput?.click());
+    if (avatarUploadTrigger) avatarUploadTrigger.addEventListener("click", () => avatarFileInput?.click());
+    if (avatarFileInput) avatarFileInput.addEventListener("change", handleAvatarFileUpload);
+    if (deletePhotoBtn) deletePhotoBtn.addEventListener("click", handleAvatarDelete);
+
     // Close on Escape or Backdrop click
     window.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
@@ -283,10 +306,11 @@ function setupEventListeners() {
             closeDepositModal();
             closeGoalModal();
             closeMonthlyReportModal();
+            closeProfileModal();
         }
     });
 
-    ["editCategoryModal", "editTransactionModal", "editBudgetModal", "depositGoalModal", "editGoalModal", "monthlyReportModal"].forEach(id => {
+    ["editCategoryModal", "editTransactionModal", "editBudgetModal", "depositGoalModal", "editGoalModal", "monthlyReportModal", "profileModal"].forEach(id => {
         const m = document.getElementById(id);
         if (m) {
             m.addEventListener("click", (e) => {
@@ -297,6 +321,7 @@ function setupEventListeners() {
                     closeDepositModal();
                     closeGoalModal();
                     closeMonthlyReportModal();
+                    closeProfileModal();
                 }
             });
         }
@@ -2247,6 +2272,215 @@ function downloadMonthlyReportCSV() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+}
+
+// ============================================================
+// USER PROFILE & AVATAR MANAGER
+// ============================================================
+function updateAvatarUI(avatarUrl) {
+    const headerImg = document.getElementById("headerUserAvatarImg");
+    const headerIcon = document.getElementById("headerUserAvatarIcon");
+
+    if (avatarUrl) {
+        // Append cache buster parameter to avoid browser caching stale image
+        const cacheBustedUrl = avatarUrl.includes("?") ? `${avatarUrl}&t=${Date.now()}` : `${avatarUrl}?t=${Date.now()}`;
+        if (headerImg) {
+            headerImg.src = `../${avatarUrl}`;
+            headerImg.style.display = "block";
+        }
+        if (headerIcon) {
+            headerIcon.style.display = "none";
+        }
+    } else {
+        if (headerImg) {
+            headerImg.style.display = "none";
+            headerImg.src = "";
+        }
+        if (headerIcon) {
+            headerIcon.style.display = "block";
+        }
+    }
+}
+
+async function openProfileModal() {
+    const modal = document.getElementById("profileModal");
+    const nameDisplay = document.getElementById("profileNameDisplay");
+    const emailDisplay = document.getElementById("profileEmailDisplay");
+    const joinedDisplay = document.getElementById("profileJoinedDisplay");
+    const avatarImg = document.getElementById("profileModalAvatarImg");
+    const avatarFallback = document.getElementById("profileModalAvatarFallback");
+    const deleteBtn = document.getElementById("deletePhotoBtn");
+    const uploadMsg = document.getElementById("profileUploadMsg");
+
+    if (uploadMsg) {
+        uploadMsg.textContent = "";
+        uploadMsg.className = "feedback-msg";
+    }
+
+    if (currentUser) {
+        if (nameDisplay) nameDisplay.textContent = currentUser.name || "User";
+        if (emailDisplay) emailDisplay.textContent = currentUser.email || "";
+    }
+
+    if (modal) modal.style.display = "flex";
+
+    // Fetch fresh profile data
+    try {
+        const res = await fetch(PROFILE_API_URL);
+        const data = await res.json();
+
+        if (data.success && data.user) {
+            currentUser = { ...currentUser, ...data.user };
+            if (nameDisplay) nameDisplay.textContent = data.user.name;
+            if (emailDisplay) emailDisplay.textContent = data.user.email;
+            
+            if (joinedDisplay && data.user.created_at) {
+                const date = new Date(data.user.created_at);
+                joinedDisplay.textContent = date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+            }
+
+            renderModalAvatar(data.user.avatar_url);
+            updateAvatarUI(data.user.avatar_url);
+        }
+    } catch (err) {
+        console.error("Failed to load profile:", err);
+    }
+}
+
+function renderModalAvatar(avatarUrl) {
+    const avatarImg = document.getElementById("profileModalAvatarImg");
+    const avatarFallback = document.getElementById("profileModalAvatarFallback");
+    const deleteBtn = document.getElementById("deletePhotoBtn");
+
+    if (avatarUrl) {
+        if (avatarImg) {
+            avatarImg.src = `../${avatarUrl}`;
+            avatarImg.style.display = "block";
+        }
+        if (avatarFallback) avatarFallback.style.display = "none";
+        if (deleteBtn) deleteBtn.style.display = "inline-flex";
+    } else {
+        if (avatarImg) {
+            avatarImg.style.display = "none";
+            avatarImg.src = "";
+        }
+        if (avatarFallback) avatarFallback.style.display = "flex";
+        if (deleteBtn) deleteBtn.style.display = "none";
+    }
+}
+
+function closeProfileModal() {
+    const modal = document.getElementById("profileModal");
+    if (modal) modal.style.display = "none";
+}
+
+async function handleAvatarFileUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const uploadMsg = document.getElementById("profileUploadMsg");
+
+    // Client-side validation
+    const maxBytes = 5 * 1024 * 1024;
+    if (file.size > maxBytes) {
+        if (uploadMsg) {
+            uploadMsg.textContent = "File is too large. Maximum size is 5MB.";
+            uploadMsg.className = "feedback-msg text-danger";
+        }
+        return;
+    }
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!allowedTypes.includes(file.type)) {
+        if (uploadMsg) {
+            uploadMsg.textContent = "Please select a valid image file (PNG, JPG, WebP, GIF).";
+            uploadMsg.className = "feedback-msg text-danger";
+        }
+        return;
+    }
+
+    if (uploadMsg) {
+        uploadMsg.textContent = "Uploading profile picture...";
+        uploadMsg.className = "feedback-msg text-info";
+    }
+
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    try {
+        const response = await fetch(`${PROFILE_API_URL}?action=upload`, {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            currentUser.avatar_url = data.avatar_url;
+            renderModalAvatar(data.avatar_url);
+            updateAvatarUI(data.avatar_url);
+
+            if (uploadMsg) {
+                uploadMsg.textContent = "Profile picture updated successfully!";
+                uploadMsg.className = "feedback-msg text-success";
+            }
+        } else {
+            if (uploadMsg) {
+                uploadMsg.textContent = data.message || "Failed to upload photo.";
+                uploadMsg.className = "feedback-msg text-danger";
+            }
+        }
+    } catch (err) {
+        console.error("Upload error:", err);
+        if (uploadMsg) {
+            uploadMsg.textContent = "An error occurred while uploading.";
+            uploadMsg.className = "feedback-msg text-danger";
+        }
+    } finally {
+        e.target.value = "";
+    }
+}
+
+async function handleAvatarDelete() {
+    if (!confirm("Are you sure you want to remove your profile picture?")) {
+        return;
+    }
+
+    const uploadMsg = document.getElementById("profileUploadMsg");
+    if (uploadMsg) {
+        uploadMsg.textContent = "Removing photo...";
+        uploadMsg.className = "feedback-msg text-info";
+    }
+
+    try {
+        const response = await fetch(`${PROFILE_API_URL}?action=delete`, {
+            method: "POST"
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            currentUser.avatar_url = null;
+            renderModalAvatar(null);
+            updateAvatarUI(null);
+
+            if (uploadMsg) {
+                uploadMsg.textContent = "Profile picture removed.";
+                uploadMsg.className = "feedback-msg text-success";
+            }
+        } else {
+            if (uploadMsg) {
+                uploadMsg.textContent = data.message || "Failed to remove photo.";
+                uploadMsg.className = "feedback-msg text-danger";
+            }
+        }
+    } catch (err) {
+        console.error("Delete photo error:", err);
+        if (uploadMsg) {
+            uploadMsg.textContent = "An error occurred while deleting photo.";
+            uploadMsg.className = "feedback-msg text-danger";
+        }
+    }
 }
 
 // ============================================================

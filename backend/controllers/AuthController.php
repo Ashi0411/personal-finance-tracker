@@ -61,14 +61,16 @@ class AuthController
         $_SESSION['user_id']    = (int) $user['user_id'];
         $_SESSION['user_name']  = $user['name'];
         $_SESSION['user_email'] = $user['email'];
+        $_SESSION['user_avatar'] = $user['avatar_url'] ?? null;
 
         echo json_encode([
             'success' => true,
             'message' => 'Login successful.',
             'user'    => [
-                'user_id' => (int) $user['user_id'],
-                'name'    => $user['name'],
-                'email'   => $user['email']
+                'user_id'    => (int) $user['user_id'],
+                'name'       => $user['name'],
+                'email'      => $user['email'],
+                'avatar_url' => $user['avatar_url'] ?? null
             ]
         ]);
     }
@@ -105,13 +107,18 @@ class AuthController
         startSecureSession();
 
         if (isset($_SESSION['user_id'])) {
+            $userId = (int) $_SESSION['user_id'];
+            $freshUser = $this->user->findById($userId);
+            $avatarUrl = $freshUser ? $freshUser['avatar_url'] : ($_SESSION['user_avatar'] ?? null);
+
             echo json_encode([
                 'success' => true,
                 'authenticated' => true,
                 'user' => [
-                    'user_id' => (int) $_SESSION['user_id'],
-                    'name'    => $_SESSION['user_name'] ?? 'User',
-                    'email'   => $_SESSION['user_email'] ?? ''
+                    'user_id'    => $userId,
+                    'name'       => $freshUser['name'] ?? ($_SESSION['user_name'] ?? 'User'),
+                    'email'      => $freshUser['email'] ?? ($_SESSION['user_email'] ?? ''),
+                    'avatar_url' => $avatarUrl
                 ]
             ]);
         } else {
