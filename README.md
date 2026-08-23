@@ -1,24 +1,53 @@
-# Personal Finance Tracker
+# 💰 Personal Finance Tracker
 
-A modern web-based application for managing personal income, expenses, budgets, and financial activities with real-time balance calculations and visual analytics.
+A modern, full-featured web application for managing personal income, expenses, category budgets, savings goals, and financial analytics with real-time balance calculations and visual Chart.js dashboards.
+
+---
+
+## 🎨 Design & Theme
+- **Color Palette**: Light Purple / Lavender (`#ede9fe`), Dark Blue / Navy (`#0f172a`), Light Sky Blue (`#dbeafe`), Pastel & Vibrant Pink (`#fce7f3` / `#ec4899`), Crisp White (`#ffffff`).
+- **Aesthetic**: Layered mixed ambient background glows, glassmorphic card surfaces, pastel category chips, dynamic category emojis (🍔, 💰, 🚗, 🛍️, ⚡, etc.), and smooth micro-animations.
+
+---
 
 ## 🚀 Technologies
 
-- **Backend**: PHP (Object-Oriented, PDO, RESTful JSON APIs)
-- **Database**: MySQL / MariaDB
-- **Frontend**: Vanilla JavaScript (ES6+), HTML5, CSS3 (Modern Glassmorphism Design)
-- **Version Control**: Git & GitHub
+- **Backend**: PHP 8.x / 7.4+ (Object-Oriented, PDO, RESTful JSON APIs)
+- **Database**: MySQL 5.7+ / 8.0+ or MariaDB (Adaptive port support: `3306` / `3307`)
+- **Frontend**: Vanilla JavaScript (ES6+), HTML5, Vanilla CSS3 (Custom Design System)
+- **Visual Analytics**: Chart.js 4.4.1 (Doughnut & Bar Charts)
+- **Icons & Typography**: Font Awesome 6.5.1, Plus Jakarta Sans (Google Fonts)
 
 ---
 
 ## 📦 Main Features
 
-- 🔐 **User Authentication**: Secure registration, login with hashed passwords (`password_hash`), and session management.
-- 📂 **Category Management**: Create, edit, and organize custom income and expense categories.
-- 💸 **Transaction Tracking**: Add, view, edit, and delete income and expense transactions.
-- 📊 **Financial Dashboard**: Real-time calculation of total income, total expenses, and net balance.
-- 🕒 **Recent Activity**: Quick view of latest financial transactions.
-- 🎯 **Budgets & Goals** *(Upcoming)*: Track category budgets and savings goals.
+1. 🔐 **User Authentication & Security**:
+   - Secure registration and login with bcrypt password hashing (`PASSWORD_BCRYPT`).
+   - Hardened session cookies (`HttpOnly`, `SameSite=Lax`, `session_regenerate_id`).
+   - Full IDOR protection (ownership validation on transactions, categories, budgets, and goals).
+
+2. 💎 **Interactive Financial Summary (Tier 1)**:
+   - Real-time **Total Income** (Pastel Blue), **Total Expenses** (Pastel Pink), and **Net Balance** (Pastel Purple) summary cards with decorative watermarks.
+
+3. 📊 **Visual Financial Analytics (Tier 2 - 3 Charts)**:
+   - 🥧 **Expense by Category**: Doughnut chart with category breakdown and percentage tooltips.
+   - 🥧 **Income by Category**: Doughnut chart showing income distribution across sources.
+   - 📊 **Overall Cash Flow**: Monthly Bar Chart comparing Income vs Expenses over time.
+
+4. 🕒 **Recent Activity Feed (Tier 3)**:
+   - Chronological transactions feed with category-aware emojis (🍔 Food, 💰 Salary, 🚗 Transport, ⚡ Bills, etc.), formatted amounts (`+ Rs. ...` / `- Rs. ...`), and quick edit/delete actions.
+
+5. 📂 **Category & Transaction Management (Tier 4)**:
+   - **Category Directory**: Create and manage categories with multi-color pastel chips (Sky Blue, Pink, Purple, Mint, Amber, Cyan).
+   - **Add Transaction Form**: Record income and expense entries with live zero-reload dashboard sync.
+
+6. 🎯 **Budgets & Financial Goals**:
+   - **Monthly Budgets**: Set spending limits per category and track consumption progress meters (Emerald `< 75%`, Amber `75%-99%`, Pink `≥ 100%`).
+   - **Savings Goals**: Set target dates, track savings progress percentages, and deposit funds.
+
+7. 🔍 **Search & Filter History**:
+   - Search transactions by note, description, or amount, with type (Income/Expense) and category filters.
 
 ---
 
@@ -30,21 +59,13 @@ A modern web-based application for managing personal income, expenses, budgets, 
 
 ### 2. Database Setup
 1. Start your local MySQL server (default port `3306` or `3307`).
-2. Open phpMyAdmin, MySQL Workbench, or your terminal and import the schema:
+2. Open phpMyAdmin or MySQL terminal and import the schema:
    ```bash
    mysql -u root -p < database/schema.sql
+   mysql -u root -p personal_finance_tracker < database/seed.sql
    ```
-   *Or create a database named `personal_finance_tracker` and execute the queries in `database/schema.sql`.*
 
-### 3. Configure Database Connection (Optional)
-Database credentials can be customized in `backend/config/database.php` or via environment variables:
-- `DB_HOST` (Default: `127.0.0.1`)
-- `DB_PORT` (Default: Auto-detects `3307` / `3306`)
-- `DB_NAME` (Default: `personal_finance_tracker`)
-- `DB_USER` (Default: `root`)
-- `DB_PASS` (Default: `""`)
-
-### 4. Running the Application
+### 3. Running the Application
 - **Using XAMPP / WAMP**: Place the project inside your `htdocs` or `www` directory and navigate to:
   ```
   http://localhost/personal-finance-tracker/frontend/index.html
@@ -62,18 +83,18 @@ Database credentials can be customized in `backend/config/database.php` or via e
 
 ```
 ├── backend/
-│   ├── api/            # JSON REST API endpoints (login, register, categories, transactions, dashboard)
-│   ├── config/         # Database configuration & connection
-│   ├── controllers/    # Business logic & request handling
-│   ├── middleware/     # Authentication & session guards
-│   └── models/         # Database interaction models
+│   ├── api/            # REST API endpoints (auth, categories, transactions, dashboard, budgets, goals)
+│   ├── config/         # Adaptive PDO Database connection (ports 3306/3307)
+│   ├── controllers/    # Request controllers & business logic
+│   ├── middleware/     # Authentication & secure session guards
+│   └── models/         # PDO Data models (User, Category, Transaction, Budget, Goal, Dashboard)
 ├── database/
-│   ├── schema.sql      # Database table definitions & constraints
-│   └── seed.sql        # Sample starter data
+│   ├── schema.sql      # Schema definitions with foreign keys & indexes
+│   └── seed.sql        # Starter data & default categories
 ├── docs/
-│   └── requirements.md # Functional & non-functional requirements
+│   └── requirements.md # Requirements specification
 └── frontend/
-    ├── css/            # Glassmorphic UI styling (style.css)
-    ├── js/             # Application logic & API interaction (app.js)
-    └── index.html      # Main user interface
+    ├── css/            # Vibrant colorful design system (style.css)
+    ├── js/             # Interactive SPA logic & Chart.js rendering (app.js)
+    └── index.html      # 4-tier dashboard layout & modal dialogs
 ```
