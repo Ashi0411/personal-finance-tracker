@@ -725,22 +725,48 @@
                         </button>
                     </div>
 
-                    <!-- Month Selector (For Monthly Scope) -->
+                    <!-- Month Selector with Arrows (For Monthly Scope) -->
                     <div class="report-period-selector" id="rptMonthPickerContainer">
-                        <label for="reportMonthPicker">Select Month:</label>
-                        <input type="month" id="reportMonthPicker" class="compact-input">
+                        <div class="overview-month-control report-month-control">
+                            <button type="button" class="month-nav-arrow" id="prevReportMonthBtn" title="Previous Month">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </button>
+                            <div class="month-input-wrapper">
+                                <i class="fa-regular fa-calendar-check month-cal-icon"></i>
+                                <input type="month" id="reportMonthPicker" class="overview-month-input" title="Click to select month and year">
+                            </div>
+                            <button type="button" class="month-nav-arrow" id="nextReportMonthBtn" title="Next Month">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- Year Selector (For Yearly Scope) -->
+                    <!-- Year Selector with Arrows (For Yearly Scope) -->
                     <div class="report-period-selector" id="rptYearPickerContainer" style="display: none;">
-                        <label for="reportYearPicker">Select Year:</label>
-                        <select id="reportYearPicker" class="compact-input">
-                            <option value="2027">2027</option>
-                            <option value="2026" selected>2026</option>
-                            <option value="2025">2025</option>
-                            <option value="2024">2024</option>
-                            <option value="2023">2023</option>
-                        </select>
+                        <div class="overview-month-control report-month-control">
+                            <button type="button" class="month-nav-arrow" id="prevReportYearBtn" title="Previous Year">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </button>
+                            <div class="month-input-wrapper">
+                                <i class="fa-regular fa-calendar-days month-cal-icon"></i>
+                                <select id="reportYearPicker" class="overview-month-input report-year-select" title="Click to select year">
+                                    <option value="2030">2030</option>
+                                    <option value="2029">2029</option>
+                                    <option value="2028">2028</option>
+                                    <option value="2027">2027</option>
+                                    <option value="2026" selected>2026</option>
+                                    <option value="2025">2025</option>
+                                    <option value="2024">2024</option>
+                                    <option value="2023">2023</option>
+                                    <option value="2022">2022</option>
+                                    <option value="2021">2021</option>
+                                    <option value="2020">2020</option>
+                                </select>
+                            </div>
+                            <button type="button" class="month-nav-arrow" id="nextReportYearBtn" title="Next Year">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="report-header-actions">

@@ -242,12 +242,22 @@ function setupEventListeners() {
     const scopeMonthlyBtn = document.getElementById("scopeMonthlyBtn");
     const scopeYearlyBtn = document.getElementById("scopeYearlyBtn");
 
+    const prevReportMonthBtn = document.getElementById("prevReportMonthBtn");
+    const nextReportMonthBtn = document.getElementById("nextReportMonthBtn");
+    const prevReportYearBtn = document.getElementById("prevReportYearBtn");
+    const nextReportYearBtn = document.getElementById("nextReportYearBtn");
+
     if (openReportBtn) openReportBtn.addEventListener("click", openMonthlyReportModal);
     if (closeReportBtn) closeReportBtn.addEventListener("click", closeMonthlyReportModal);
     if (printReportBtn) printReportBtn.addEventListener("click", printMonthlyReport);
     if (downloadReportCsvBtn) downloadReportCsvBtn.addEventListener("click", downloadMonthlyReportCSV);
     if (reportMonthPicker) reportMonthPicker.addEventListener("change", () => loadReportData());
     if (reportYearPicker) reportYearPicker.addEventListener("change", () => loadReportData());
+
+    if (prevReportMonthBtn) prevReportMonthBtn.addEventListener("click", () => changeReportMonth(-1));
+    if (nextReportMonthBtn) nextReportMonthBtn.addEventListener("click", () => changeReportMonth(1));
+    if (prevReportYearBtn) prevReportYearBtn.addEventListener("click", () => changeReportYear(-1));
+    if (nextReportYearBtn) nextReportYearBtn.addEventListener("click", () => changeReportYear(1));
 
     if (scopeMonthlyBtn) scopeMonthlyBtn.addEventListener("click", () => switchReportScope("monthly"));
     if (scopeYearlyBtn) scopeYearlyBtn.addEventListener("click", () => switchReportScope("yearly"));
@@ -1849,6 +1859,47 @@ function switchReportScope(scope) {
     }
 
     loadReportData();
+}
+
+function changeReportMonth(delta) {
+    const monthPicker = document.getElementById("reportMonthPicker");
+    let currentVal = monthPicker?.value || new Date().toISOString().slice(0, 7);
+
+    const [yearStr, monthStr] = currentVal.split("-");
+    let year = parseInt(yearStr, 10);
+    let month = parseInt(monthStr, 10) + delta;
+
+    if (month < 1) {
+        month = 12;
+        year -= 1;
+    } else if (month > 12) {
+        month = 1;
+        year += 1;
+    }
+
+    const newVal = `${year}-${String(month).padStart(2, '0')}`;
+    if (monthPicker) monthPicker.value = newVal;
+
+    loadMonthlyReport(newVal);
+}
+
+function changeReportYear(delta) {
+    const yearPicker = document.getElementById("reportYearPicker");
+    let currentYear = parseInt(yearPicker?.value || new Date().getFullYear().toString(), 10);
+    currentYear += delta;
+
+    if (yearPicker) {
+        let optExists = Array.from(yearPicker.options).some(o => o.value == currentYear);
+        if (!optExists) {
+            const opt = document.createElement("option");
+            opt.value = currentYear;
+            opt.textContent = currentYear;
+            yearPicker.appendChild(opt);
+        }
+        yearPicker.value = currentYear;
+    }
+
+    loadYearlyReport(currentYear.toString());
 }
 
 async function loadReportData() {
