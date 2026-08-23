@@ -84,13 +84,17 @@
 
 body {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: #f7f5fd;
+    background-color: #f3f0fb;
     background-image: 
-        radial-gradient(circle at 10% 12%, rgba(139, 92, 246, 0.15) 0%, transparent 45%),
-        radial-gradient(circle at 90% 18%, rgba(56, 189, 248, 0.14) 0%, transparent 40%),
-        radial-gradient(circle at 85% 85%, rgba(236, 72, 153, 0.14) 0%, transparent 45%),
-        radial-gradient(circle at 12% 85%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
-        linear-gradient(135deg, rgba(247, 245, 253, 0.94) 0%, rgba(237, 233, 254, 0.90) 100%);
+        radial-gradient(circle at 10% 10%, rgba(139, 92, 246, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 90% 15%, rgba(56, 189, 248, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(236, 72, 153, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 12% 90%, rgba(99, 102, 241, 0.10) 0%, transparent 45%),
+        linear-gradient(135deg, rgba(246, 243, 254, 0.88) 0%, rgba(238, 233, 255, 0.82) 50%, rgba(248, 238, 250, 0.86) 100%),
+        url('../images/finance_fullscreen_bg.png');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
     background-attachment: fixed;
     color: var(--text-primary);
     line-height: 1.55;
@@ -102,32 +106,12 @@ body {
 body::before {
     content: '';
     position: fixed;
-    right: 2%;
-    bottom: 2%;
-    width: 620px;
-    height: 480px;
-    background-image: url('../images/finance_bg_illustration.png');
-    background-size: contain;
+    inset: 0;
+    background-image: url('../images/finance_fullscreen_bg.png');
+    background-size: cover;
+    background-position: center center;
     background-repeat: no-repeat;
-    background-position: right bottom;
-    opacity: 0.16; /* soft transparent watermark */
-    pointer-events: none;
-    z-index: 0;
-}
-
-body::after {
-    content: '';
-    position: fixed;
-    left: 2%;
-    top: 15%;
-    width: 450px;
-    height: 380px;
-    background-image: url('../images/finance_bg_illustration.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: left top;
-    opacity: 0.10; /* subtle ambient watermark */
-    filter: blur(1px);
+    opacity: 0.25; /* clear full-screen background watermark */
     pointer-events: none;
     z-index: 0;
 }
