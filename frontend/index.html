@@ -82,116 +82,90 @@
     <main class="main-container">
 
         <!-- ==================================================
-             1. AUTHENTICATION (CREATIVE LOGIN / REGISTER)
+             1. AUTHENTICATION (LOGIN / REGISTER)
         =================================================== -->
         <div id="authSection" class="auth-wrapper">
-            <div class="auth-creative-container">
 
-                <!-- LEFT: 3D ILLUSTRATION & HIGHLIGHTS SHOWCASE -->
-                <div class="auth-showcase-panel">
-                    <div class="showcase-bg-image"></div>
-                    <div class="showcase-gradient-overlay"></div>
-                    <div class="showcase-content">
-                        <div class="showcase-pill-badge">
-                            <i class="fa-solid fa-gem"></i> <span>Smart Finance Intelligence</span>
-                        </div>
-                        <h2 class="showcase-heading">Master Your Money & Build Your Future</h2>
-                        <p class="showcase-subtext">Manage income, monitor category budgets, and reach your savings goals with real-time analytics.</p>
-                        
-                        <div class="showcase-feature-pills">
-                            <span class="feat-pill"><i class="fa-solid fa-chart-pie"></i> Visual Charts</span>
-                            <span class="feat-pill"><i class="fa-solid fa-bullseye"></i> Monthly Budgets</span>
-                            <span class="feat-pill"><i class="fa-solid fa-shield-halved"></i> 100% Secure</span>
-                        </div>
+            <!-- LOGIN CARD -->
+            <div id="loginSection" class="auth-card">
+                <div class="auth-card-header">
+                    <div class="auth-card-icon">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
                     </div>
+                    <h2>Welcome Back</h2>
+                    <p>Enter your credentials to access your financial dashboard</p>
                 </div>
 
-                <!-- RIGHT: INTERACTIVE AUTH FORMS -->
-                <div class="auth-forms-container">
-
-                    <!-- LOGIN CARD -->
-                    <div id="loginSection" class="auth-inner-card">
-                        <div class="auth-card-header">
-                            <div class="auth-card-icon">
-                                <i class="fa-solid fa-arrow-right-to-bracket"></i>
-                            </div>
-                            <h2>Welcome Back</h2>
-                            <p>Enter your credentials to access your financial dashboard</p>
-                        </div>
-
-                        <form id="loginForm" class="auth-form">
-                            <div class="input-field">
-                                <i class="fa-solid fa-envelope"></i>
-                                <input type="email" id="loginEmail" placeholder="Email address" autocomplete="email" required>
-                            </div>
-
-                            <div class="input-field">
-                                <i class="fa-solid fa-lock"></i>
-                                <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password" required>
-                            </div>
-
-                            <button type="submit" class="btn-primary btn-block" id="loginSubmitBtn">
-                                <span>Sign In to Dashboard</span>
-                                <i class="fa-solid fa-arrow-right"></i>
-                            </button>
-                        </form>
-
-                        <p id="loginMessage" class="feedback-msg"></p>
-
-                        <div class="auth-footer">
-                            <span>Don't have an account?</span>
-                            <button type="button" id="showRegisterButton" class="btn-link">Create Account</button>
-                        </div>
+                <form id="loginForm" class="auth-form">
+                    <div class="input-field">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" id="loginEmail" placeholder="Email address" autocomplete="email" required>
                     </div>
 
-                    <!-- REGISTER CARD -->
-                    <div id="registerSection" class="auth-inner-card" style="display: none;">
-                        <div class="auth-card-header">
-                            <div class="auth-card-icon reg-icon">
-                                <i class="fa-solid fa-user-plus"></i>
-                            </div>
-                            <h2>Create Free Account</h2>
-                            <p>Start organizing your personal finances in seconds</p>
-                        </div>
-
-                        <form id="registerForm" class="auth-form">
-                            <div class="input-field">
-                                <i class="fa-solid fa-user"></i>
-                                <input type="text" id="registerName" placeholder="Full Name" autocomplete="name" required>
-                            </div>
-
-                            <div class="input-field">
-                                <i class="fa-solid fa-envelope"></i>
-                                <input type="email" id="registerEmail" placeholder="Email address" autocomplete="email" required>
-                            </div>
-
-                            <div class="input-field">
-                                <i class="fa-solid fa-lock"></i>
-                                <input type="password" id="registerPassword" placeholder="Password (min 8 chars)" minlength="8" autocomplete="new-password" required>
-                            </div>
-
-                            <div class="input-field">
-                                <i class="fa-solid fa-shield-halved"></i>
-                                <input type="password" id="registerConfirmPassword" placeholder="Confirm Password" minlength="8" autocomplete="new-password" required>
-                            </div>
-
-                            <button type="submit" class="btn-primary btn-block btn-accent" id="registerSubmitBtn">
-                                <span>Complete Registration</span>
-                                <i class="fa-solid fa-user-check"></i>
-                            </button>
-                        </form>
-
-                        <p id="registerMessage" class="feedback-msg"></p>
-
-                        <div class="auth-footer">
-                            <span>Already registered?</span>
-                            <button type="button" id="showLoginButton" class="btn-link">Back to Sign In</button>
-                        </div>
+                    <div class="input-field">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password" required>
                     </div>
 
+                    <button type="submit" class="btn-primary btn-block" id="loginSubmitBtn">
+                        <span>Sign In to Dashboard</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+
+                <p id="loginMessage" class="feedback-msg"></p>
+
+                <div class="auth-footer">
+                    <span>Don't have an account?</span>
+                    <button type="button" id="showRegisterButton" class="btn-link">Create Account</button>
                 </div>
-
             </div>
+
+            <!-- REGISTER CARD -->
+            <div id="registerSection" class="auth-card" style="display: none;">
+                <div class="auth-card-header">
+                    <div class="auth-card-icon reg-icon">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <h2>Create Free Account</h2>
+                    <p>Start tracking your income & expenses today</p>
+                </div>
+
+                <form id="registerForm" class="auth-form">
+                    <div class="input-field">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" id="registerName" placeholder="Full Name" autocomplete="name" required>
+                    </div>
+
+                    <div class="input-field">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" id="registerEmail" placeholder="Email address" autocomplete="email" required>
+                    </div>
+
+                    <div class="input-field">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="registerPassword" placeholder="Password (min 8 chars)" minlength="8" autocomplete="new-password" required>
+                    </div>
+
+                    <div class="input-field">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <input type="password" id="registerConfirmPassword" placeholder="Confirm Password" minlength="8" autocomplete="new-password" required>
+                    </div>
+
+                    <button type="submit" class="btn-primary btn-block btn-accent" id="registerSubmitBtn">
+                        <span>Register Account</span>
+                        <i class="fa-solid fa-user-check"></i>
+                    </button>
+                </form>
+
+                <p id="registerMessage" class="feedback-msg"></p>
+
+                <div class="auth-footer">
+                    <span>Already registered?</span>
+                    <button type="button" id="showLoginButton" class="btn-link">Back to Sign In</button>
+                </div>
+            </div>
+
         </div>
 
         <!-- ==================================================
