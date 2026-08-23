@@ -448,11 +448,14 @@ async function loadCategories() {
         // 2. Populate Quick Chips (Bottom Left Card)
         if (categoryChips) {
             categoryChips.innerHTML = "";
-            userCategories.forEach(cat => {
+            const colorClasses = ["chip-purple", "chip-pink", "chip-blue", "chip-green", "chip-amber", "chip-cyan"];
+            userCategories.forEach((cat, index) => {
                 const chip = document.createElement("span");
-                chip.className = "category-chip";
+                const colorClass = colorClasses[index % colorClasses.length];
+                const emoji = getCategoryEmoji(cat.name);
+                chip.className = `category-chip ${colorClass}`;
                 chip.innerHTML = `
-                    <span>${escapeHtml(cat.name)}</span>
+                    <span class="chip-label">${emoji} ${escapeHtml(cat.name)}</span>
                     <span class="chip-actions">
                         <button type="button" class="chip-btn edit-chip" title="Edit"><i class="fa-solid fa-pen"></i></button>
                         <button type="button" class="chip-btn del-chip" title="Delete"><i class="fa-solid fa-trash"></i></button>
@@ -464,13 +467,17 @@ async function loadCategories() {
             });
         }
 
-        // 3. Populate Category Tab List (Tab 3)
+        // 3. Populate Category Tab List (Tab 4)
         if (categoryListTab) {
             categoryListTab.innerHTML = "";
             userCategories.forEach(cat => {
                 const li = document.createElement("li");
+                const emoji = getCategoryEmoji(cat.name);
                 li.innerHTML = `
-                    <span>${escapeHtml(cat.name)}</span>
+                    <span class="cat-tab-item">
+                        <span class="cat-icon-badge">${emoji}</span>
+                        <strong class="cat-name-text">${escapeHtml(cat.name)}</strong>
+                    </span>
                     <div class="item-btns">
                         <button type="button" class="btn-mini edit-cat" title="Edit"><i class="fa-solid fa-pen"></i></button>
                         <button type="button" class="btn-mini del del-cat" title="Delete"><i class="fa-solid fa-trash"></i></button>
@@ -683,24 +690,52 @@ function applyTransactionFilters() {
     });
 }
 
+// Category Emoji Helper for Colorful Visuals
+function getCategoryEmoji(name) {
+    if (!name) return "🏷️";
+    const lower = name.toLowerCase();
+    if (lower.includes("food") || lower.includes("grocer") || lower.includes("dine") || lower.includes("meal") || lower.includes("snack") || lower.includes("restaurant")) return "🍔";
+    if (lower.includes("salary") || lower.includes("wage") || lower.includes("income") || lower.includes("paycheck")) return "💰";
+    if (lower.includes("shop") || lower.includes("cloth") || lower.includes("mall") || lower.includes("buy")) return "🛍️";
+    if (lower.includes("trans") || lower.includes("fuel") || lower.includes("gas") || lower.includes("car") || lower.includes("uber") || lower.includes("bus") || lower.includes("train")) return "🚗";
+    if (lower.includes("bill") || lower.includes("util") || lower.includes("elect") || lower.includes("water") || lower.includes("power")) return "⚡";
+    if (lower.includes("movie") || lower.includes("entertain") || lower.includes("game") || lower.includes("subscrip") || lower.includes("netflix")) return "🎬";
+    if (lower.includes("health") || lower.includes("medic") || lower.includes("doctor") || lower.includes("pharm")) return "🏥";
+    if (lower.includes("edu") || lower.includes("book") || lower.includes("course") || lower.includes("school") || lower.includes("tutor")) return "📚";
+    if (lower.includes("rent") || lower.includes("house") || lower.includes("home") || lower.includes("flat")) return "🏠";
+    if (lower.includes("invest") || lower.includes("stock") || lower.includes("crypto") || lower.includes("dividend")) return "📈";
+    if (lower.includes("gift") || lower.includes("bonus")) return "🎁";
+    if (lower.includes("travel") || lower.includes("trip") || lower.includes("flight") || lower.includes("hotel")) return "✈️";
+    if (lower.includes("pet") || lower.includes("vet")) return "🐾";
+    return "🏷️";
+}
+
 function buildTransactionLi(tx) {
     const isIncome = tx.type === "income";
     const amountFormatted = parseFloat(tx.amount || 0).toLocaleString("en-IN", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     });
+    const emoji = getCategoryEmoji(tx.category_name);
 
     const li = document.createElement("li");
+    li.className = `activity-item ${isIncome ? 'item-is-income' : 'item-is-expense'}`;
     li.innerHTML = `
         <div class="item-left">
-            <span class="type-pill ${isIncome ? 'pill-income' : 'pill-expense'}">
-                <i class="fa-solid ${isIncome ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'}"></i>
-                ${isIncome ? 'Income' : 'Expense'}
-            </span>
+            <div class="item-emoji-avatar ${isIncome ? 'avatar-income' : 'avatar-expense'}">
+                ${emoji}
+            </div>
             <div class="item-text">
                 <span class="item-heading">${escapeHtml(tx.description || tx.category_name || 'Transaction')}</span>
                 <span class="item-subtext">
-                    ${escapeHtml(tx.category_name || 'Uncategorized')} &bull; ${escapeHtml(tx.transaction_date)}
+                    <span class="type-pill ${isIncome ? 'pill-income' : 'pill-expense'}">
+                        <i class="fa-solid ${isIncome ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'}"></i>
+                        ${isIncome ? 'Income' : 'Expense'}
+                    </span>
+                    <span class="subtext-sep">&bull;</span>
+                    ${escapeHtml(tx.category_name || 'Uncategorized')}
+                    <span class="subtext-sep">&bull;</span>
+                    ${escapeHtml(tx.transaction_date)}
                 </span>
             </div>
         </div>
