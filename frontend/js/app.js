@@ -928,6 +928,11 @@ async function loadDashboard() {
                 maximumFractionDigits: 2
             });
 
+        const monthDisplay = document.getElementById("currentMonthNameDisplay");
+        if (monthDisplay && summary.month_label) {
+            monthDisplay.textContent = summary.month_label;
+        }
+
         document.getElementById("totalIncome").textContent = formatCurrency(summary.total_income);
         document.getElementById("totalExpenses").textContent = formatCurrency(summary.total_expenses);
         document.getElementById("balance").textContent = formatCurrency(summary.balance);
@@ -951,13 +956,21 @@ function updateVisualCharts() {
     renderCashFlowChart();
 }
 
-// 1. EXPENSE BY CATEGORY (PIE / DOUGHNUT)
+// 1. EXPENSE BY CATEGORY (PIE / DOUGHNUT - CURRENT MONTH)
 function renderCategoryExpenseChart() {
     const canvas = document.getElementById("categoryExpenseChart");
     const emptyState = document.getElementById("categoryChartEmpty");
     if (!canvas) return;
 
-    const expenses = allTransactions.filter(t => t.type === "expense");
+    const currentMonth = new Date().toISOString().slice(0, 7);
+    
+    // Filter for current month's expenses
+    let expenses = allTransactions.filter(t => t.type === "expense" && (t.transaction_date || '').startsWith(currentMonth));
+    
+    // Fallback to all expenses if no transactions logged yet this month
+    if (expenses.length === 0) {
+        expenses = allTransactions.filter(t => t.type === "expense");
+    }
 
     if (expenses.length === 0) {
         if (emptyState) emptyState.style.display = "flex";
@@ -1040,13 +1053,21 @@ function renderCategoryExpenseChart() {
     });
 }
 
-// 2. INCOME BY CATEGORY (PIE / DOUGHNUT)
+// 2. INCOME BY CATEGORY (PIE / DOUGHNUT - CURRENT MONTH)
 function renderCategoryIncomeChart() {
     const canvas = document.getElementById("categoryIncomeChart");
     const emptyState = document.getElementById("categoryIncomeChartEmpty");
     if (!canvas) return;
 
-    const incomes = allTransactions.filter(t => t.type === "income");
+    const currentMonth = new Date().toISOString().slice(0, 7);
+    
+    // Filter for current month's income
+    let incomes = allTransactions.filter(t => t.type === "income" && (t.transaction_date || '').startsWith(currentMonth));
+    
+    // Fallback to all income if none in current month yet
+    if (incomes.length === 0) {
+        incomes = allTransactions.filter(t => t.type === "income");
+    }
 
     if (incomes.length === 0) {
         if (emptyState) emptyState.style.display = "flex";
@@ -1074,11 +1095,11 @@ function renderCategoryIncomeChart() {
     const labels = Object.keys(categoryTotals);
     const data = Object.values(categoryTotals);
 
-    // Light Blue / Purple / Teal Palette
+    // Blue / Cyan / Mint Palette
     const colors = [
-        "#0284c7", "#38bdf8", "#6366f1", "#10b981", 
-        "#8b5cf6", "#06b6d4", "#14b8a6", "#3b82f6",
-        "#7c3aed", "#22d3ee", "#34d399", "#818cf8"
+        "#0284c7", "#0ea5e9", "#06b6d4", "#10b981", 
+        "#38bdf8", "#6366f1", "#8b5cf6", "#14b8a6", 
+        "#3b82f6", "#22c55e", "#a855f7", "#64748b"
     ];
 
     if (categoryIncomeChartInstance) {

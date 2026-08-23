@@ -11,9 +11,9 @@ class DashboardController
         $this->dashboard = new Dashboard($db);
     }
 
-    public function getSummary(int $userId): array
+    public function getSummary(int $userId, ?string $monthYear = null): array
     {
-        $summary = $this->dashboard->getSummary($userId);
+        $summary = $this->dashboard->getSummary($userId, $monthYear);
 
         return [
             'success' => true,

@@ -24,7 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 try {
-    $response = $controller->getSummary($userId);
+    $monthYear = $_GET['month_year'] ?? date('Y-m');
+    $response = $controller->getSummary($userId, $monthYear);
     echo json_encode($response);
 } catch (Exception $e) {
     error_log("Dashboard API error: " . $e->getMessage());

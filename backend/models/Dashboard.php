@@ -9,55 +9,59 @@ class Dashboard
         $this->db = $db;
     }
 
-    public function getSummary(int $userId): array
+    public function getSummary(int $userId, ?string $monthYear = null): array
     {
-        $sql = "SELECT
-                    COALESCE(
-                        SUM(
-                            CASE
-                                WHEN type = 'income'
-                                THEN amount
-                                ELSE 0
-                            END
-                        ),
-                        0
-                    ) AS total_income,
+        if (!$monthYear || !preg_match('/^\d{4}-\d{2}$/', $monthYear)) {
+            $monthYear = date('Y-m');
+        }
 
-                    COALESCE(
-                        SUM(
-                            CASE
-                                WHEN type = 'expense'
-                                THEN amount
-                                ELSE 0
-                            END
-                        ),
-                        0
-                    ) AS total_expenses
+        // 1. Current Month Totals
+        $sqlMonth = "SELECT
+                        COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) AS month_income,
+                        COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS month_expenses
+                     FROM transactions
+                     WHERE user_id = :user_id
+                       AND DATE_FORMAT(transaction_date, '%Y-%m') = :month_year";
 
-                FROM transactions
-                WHERE user_id = :user_id";
-
-        $stmt = $this->db->prepare($sql);
-
-        $stmt->execute([
-            ':user_id' => $userId
+        $stmtMonth = $this->db->prepare($sqlMonth);
+        $stmtMonth->execute([
+            ':user_id'    => $userId,
+            ':month_year' => $monthYear
         ]);
 
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $monthResult = $stmtMonth->fetch(PDO::FETCH_ASSOC);
+        $monthIncome = (float) ($monthResult['month_income'] ?? 0);
+        $monthExpenses = (float) ($monthResult['month_expenses'] ?? 0);
+        $monthBalance = $monthIncome - $monthExpenses;
 
-        $totalIncome =
-            (float) $result['total_income'];
+        // 2. All-Time Cumulative Totals
+        $sqlAllTime = "SELECT
+                        COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) AS all_income,
+                        COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS all_expenses
+                       FROM transactions
+                       WHERE user_id = :user_id";
 
-        $totalExpenses =
-            (float) $result['total_expenses'];
+        $stmtAll = $this->db->prepare($sqlAllTime);
+        $stmtAll->execute([':user_id' => $userId]);
+        $allResult = $stmtAll->fetch(PDO::FETCH_ASSOC);
 
-        $balance =
-            $totalIncome - $totalExpenses;
+        $allIncome = (float) ($allResult['all_income'] ?? 0);
+        $allExpenses = (float) ($allResult['all_expenses'] ?? 0);
+        $allBalance = $allIncome - $allExpenses;
+
+        // Format label (e.g. "August 2026")
+        $dateTime = DateTime::createFromFormat('Y-m', $monthYear);
+        $monthLabel = $dateTime ? $dateTime->format('F Y') : $monthYear;
 
         return [
-            'total_income' => $totalIncome,
-            'total_expenses' => $totalExpenses,
-            'balance' => $balance
+            'month_year'        => $monthYear,
+            'month_label'       => $monthLabel,
+            'total_income'      => $monthIncome,
+            'total_expenses'    => $monthExpenses,
+            'balance'           => $monthBalance,
+            'all_time_income'   => $allIncome,
+            'all_time_expenses' => $allExpenses,
+            'all_time_balance'  => $allBalance
         ];
     }
 }

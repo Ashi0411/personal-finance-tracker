@@ -177,12 +177,17 @@
         <div id="financeSection" class="dashboard-wrapper" style="display: none;">
 
             <!-- ==============================================
-                 TIER 1: FINANCIAL SUMMARY CONTAINER
+                 TIER 1: FINANCIAL SUMMARY CONTAINER (CURRENT MONTH)
             =============================================== -->
             <div class="card financial-summary-container">
                 <div class="summary-container-header">
-                    <span class="header-decor-icons">💎 <i class="fa-solid fa-chart-pie"></i></span>
-                    <h2>Financial Summary</h2>
+                    <div class="summary-header-left">
+                        <span class="header-decor-icons">💎 <i class="fa-solid fa-chart-pie"></i></span>
+                        <h2>Monthly Overview</h2>
+                    </div>
+                    <div class="summary-period-badge" id="currentMonthBadge">
+                        <i class="fa-regular fa-calendar-check"></i> <span id="currentMonthNameDisplay">Current Month</span>
+                    </div>
                 </div>
 
                 <div class="summary-cards-grid">
@@ -192,7 +197,7 @@
                         <div class="card-icon-trend">
                             <i class="fa-solid fa-arrow-trend-up"></i>
                         </div>
-                        <span class="card-label">Total Income</span>
+                        <span class="card-label">Monthly Income</span>
                         <h2 class="card-value" id="totalIncome">Rs. 0.00</h2>
                         <div class="card-corner-watermark"></div>
                     </div>
@@ -203,7 +208,7 @@
                         <div class="card-icon-trend">
                             <i class="fa-solid fa-arrow-trend-down"></i>
                         </div>
-                        <span class="card-label">Total Expenses</span>
+                        <span class="card-label">Monthly Expenses</span>
                         <h2 class="card-value" id="totalExpenses">Rs. 0.00</h2>
                         <div class="card-corner-watermark"></div>
                     </div>
@@ -214,7 +219,7 @@
                         <div class="card-icon-trend">
                             <i class="fa-solid fa-wallet"></i>
                         </div>
-                        <span class="card-label">Net Balance</span>
+                        <span class="card-label">Monthly Net Savings</span>
                         <h2 class="card-value" id="balance">Rs. 0.00</h2>
                         <div class="card-corner-watermark"></div>
                     </div>
