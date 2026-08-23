@@ -1,5 +1,6 @@
 /**
  * Personal Finance Tracker - Main Application Logic
+ * Compact 2-Column Minimalist Architecture
  */
 
 // ============================================================
@@ -13,8 +14,10 @@ const CATEGORY_API_URL    = "../backend/api/categories.php";
 const DASHBOARD_API_URL   = "../backend/api/dashboard.php";
 const TRANSACTION_API_URL = "../backend/api/transactions.php";
 
-// Global cache for categories (used for populating dropdowns)
+// App State
 let userCategories = [];
+let allTransactions = [];
+let activeTab = "overview";
 
 // ============================================================
 // INITIALIZATION
@@ -25,7 +28,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // ============================================================
-// SESSION MANAGEMENT (Check active login on page load)
+// SESSION MANAGEMENT
 // ============================================================
 async function checkSession() {
     try {
@@ -48,14 +51,16 @@ function setUserLoggedIn(user) {
     const authSection = document.getElementById("authSection");
     const financeSection = document.getElementById("financeSection");
     const userProfileBar = document.getElementById("userProfileBar");
+    const appNav = document.getElementById("appNav");
     const userNameDisplay = document.getElementById("userNameDisplay");
 
     if (authSection) authSection.style.display = "none";
     if (financeSection) financeSection.style.display = "block";
     if (userProfileBar) userProfileBar.style.display = "flex";
+    if (appNav) appNav.style.display = "flex";
     if (userNameDisplay) userNameDisplay.textContent = user.name || "User";
 
-    // Set today's date as default in transaction date picker
+    // Set today's date as default
     const dateInput = document.getElementById("transactionDate");
     if (dateInput && !dateInput.value) {
         dateInput.value = new Date().toISOString().split("T")[0];
@@ -88,14 +93,49 @@ function setupEventListeners() {
     const headerLogoutButton = document.getElementById("headerLogoutButton");
     if (headerLogoutButton) headerLogoutButton.addEventListener("click", logout);
 
-    // 2. Category & Transaction Forms
+    // 2. Tab Navigation
+    document.querySelectorAll(".nav-tab").forEach(tab => {
+        tab.addEventListener("click", () => switchTab(tab.dataset.tab));
+    });
+
+    const viewAllBtn = document.getElementById("viewAllTxBtn");
+    if (viewAllBtn) viewAllBtn.addEventListener("click", () => switchTab("transactions"));
+
+    const manageCatLink = document.getElementById("manageCategoriesLink");
+    if (manageCatLink) manageCatLink.addEventListener("click", () => switchTab("categories"));
+
+    // 3. Quick Type Radio Toggles
+    const typeExpRadio = document.getElementById("typeExpenseRadio");
+    const typeIncRadio = document.getElementById("typeIncomeRadio");
+    const txTypeHidden = document.getElementById("transactionType");
+
+    if (typeExpRadio && txTypeHidden) {
+        typeExpRadio.addEventListener("change", () => { txTypeHidden.value = "expense"; });
+    }
+    if (typeIncRadio && txTypeHidden) {
+        typeIncRadio.addEventListener("change", () => { txTypeHidden.value = "income"; });
+    }
+
+    // 4. Category & Transaction Forms
     const categoryForm = document.getElementById("categoryForm");
-    if (categoryForm) categoryForm.addEventListener("submit", handleCreateCategory);
+    if (categoryForm) categoryForm.addEventListener("submit", handleCreateCategoryQuick);
+
+    const categoryFormTab = document.getElementById("categoryFormTab");
+    if (categoryFormTab) categoryFormTab.addEventListener("submit", handleCreateCategoryTab);
 
     const transactionForm = document.getElementById("transactionForm");
     if (transactionForm) transactionForm.addEventListener("submit", handleCreateTransaction);
 
-    // 3. Modal Controls - Category Edit
+    // 5. Search & Filter Inputs
+    const searchInput = document.getElementById("txSearchInput");
+    const typeFilter = document.getElementById("txTypeFilter");
+    const catFilter = document.getElementById("txCategoryFilter");
+
+    if (searchInput) searchInput.addEventListener("input", applyTransactionFilters);
+    if (typeFilter) typeFilter.addEventListener("change", applyTransactionFilters);
+    if (catFilter) catFilter.addEventListener("change", applyTransactionFilters);
+
+    // 6. Modal Handlers
     const closeCatBtn = document.getElementById("closeCategoryModalBtn");
     const cancelCatBtn = document.getElementById("cancelCategoryModalBtn");
     if (closeCatBtn) closeCatBtn.addEventListener("click", closeCategoryModal);
@@ -104,7 +144,6 @@ function setupEventListeners() {
     const editCategoryForm = document.getElementById("editCategoryForm");
     if (editCategoryForm) editCategoryForm.addEventListener("submit", handleUpdateCategory);
 
-    // 4. Modal Controls - Transaction Edit
     const closeTxBtn = document.getElementById("closeTransactionModalBtn");
     const cancelTxBtn = document.getElementById("cancelTransactionModalBtn");
     if (closeTxBtn) closeTxBtn.addEventListener("click", closeTransactionModal);
@@ -113,7 +152,7 @@ function setupEventListeners() {
     const editTransactionForm = document.getElementById("editTransactionForm");
     if (editTransactionForm) editTransactionForm.addEventListener("submit", handleUpdateTransaction);
 
-    // 5. Close Modals on Escape Key or Backdrop Click
+    // Close on Escape or Backdrop click
     window.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
             closeCategoryModal();
@@ -137,7 +176,28 @@ function setupEventListeners() {
 }
 
 // ============================================================
-// VIEW SWITCHING
+// TAB NAVIGATION
+// ============================================================
+function switchTab(tabName) {
+    activeTab = tabName;
+
+    // Update nav tab buttons
+    document.querySelectorAll(".nav-tab").forEach(tab => {
+        tab.classList.toggle("active", tab.dataset.tab === tabName);
+    });
+
+    // Toggle Tab Panes
+    const tabOverview = document.getElementById("tabOverview");
+    const tabTransactions = document.getElementById("tabTransactions");
+    const tabCategories = document.getElementById("tabCategories");
+
+    if (tabOverview) tabOverview.style.display = tabName === "overview" ? "block" : "none";
+    if (tabTransactions) tabTransactions.style.display = tabName === "transactions" ? "block" : "none";
+    if (tabCategories) tabCategories.style.display = tabName === "categories" ? "block" : "none";
+}
+
+// ============================================================
+// VIEW SWITCHING (Auth)
 // ============================================================
 function showLogin() {
     const authSection = document.getElementById("authSection");
@@ -145,12 +205,14 @@ function showLogin() {
     const registerSection = document.getElementById("registerSection");
     const financeSection = document.getElementById("financeSection");
     const userProfileBar = document.getElementById("userProfileBar");
+    const appNav = document.getElementById("appNav");
 
-    if (authSection) authSection.style.display = "block";
+    if (authSection) authSection.style.display = "flex";
     if (loginSection) loginSection.style.display = "block";
     if (registerSection) registerSection.style.display = "none";
     if (financeSection) financeSection.style.display = "none";
     if (userProfileBar) userProfileBar.style.display = "none";
+    if (appNav) appNav.style.display = "none";
 
     clearAuthMessages();
 }
@@ -168,19 +230,19 @@ function showRegister() {
 function clearAuthMessages() {
     const loginMsg = document.getElementById("loginMessage");
     const regMsg = document.getElementById("registerMessage");
-    if (loginMsg) { loginMsg.textContent = ""; loginMsg.className = "feedback-message"; }
-    if (regMsg) { regMsg.textContent = ""; regMsg.className = "feedback-message"; }
+    if (loginMsg) { loginMsg.textContent = ""; loginMsg.className = "feedback-msg"; }
+    if (regMsg) { regMsg.textContent = ""; regMsg.className = "feedback-msg"; }
 }
 
 function showFeedback(elementId, message, isSuccess = false) {
     const el = document.getElementById(elementId);
     if (!el) return;
     el.textContent = message;
-    el.className = `feedback-message ${isSuccess ? "msg-success" : "msg-error"}`;
+    el.className = `feedback-msg ${isSuccess ? "msg-success" : "msg-error"}`;
 }
 
 // ============================================================
-// AUTHENTICATION
+// AUTHENTICATION LOGIC
 // ============================================================
 async function handleRegister(e) {
     e.preventDefault();
@@ -226,7 +288,7 @@ async function handleRegister(e) {
             showLogin();
             const loginEmail = document.getElementById("loginEmail");
             if (loginEmail) loginEmail.value = email;
-            showFeedback("loginMessage", "Account created! Please login.", true);
+            showFeedback("loginMessage", "Account created! Please sign in.", true);
         }, 1200);
 
     } catch (error) {
@@ -277,6 +339,7 @@ async function logout() {
         console.error("Logout error:", error);
     } finally {
         userCategories = [];
+        allTransactions = [];
         showLogin();
         showFeedback("loginMessage", "You have been logged out.", true);
     }
@@ -286,9 +349,11 @@ async function logout() {
 // CATEGORY MANAGEMENT
 // ============================================================
 async function loadCategories() {
-    const categoryList = document.getElementById("categoryList");
+    const categoryChips = document.getElementById("categoryChipsContainer");
     const categorySelect = document.getElementById("transactionCategory");
     const modalCategorySelect = document.getElementById("editTransactionCategory");
+    const filterCategorySelect = document.getElementById("txCategoryFilter");
+    const categoryListTab = document.getElementById("categoryListTab");
 
     try {
         const response = await fetch(CATEGORY_API_URL);
@@ -296,14 +361,12 @@ async function loadCategories() {
 
         if (!data.success || !data.categories) {
             userCategories = [];
-            showFeedback("categoryMessage", data.message || "Failed to load categories.");
             return;
         }
 
         userCategories = data.categories;
-        categoryList.innerHTML = "";
 
-        // Populate dropdowns
+        // 1. Populate Dropdowns
         const defaultOption = '<option value="">Select Category</option>';
         const optionsHtml = userCategories
             .map(cat => `<option value="${cat.category_id}">${escapeHtml(cat.name)}</option>`)
@@ -311,59 +374,63 @@ async function loadCategories() {
 
         if (categorySelect) categorySelect.innerHTML = defaultOption + optionsHtml;
         if (modalCategorySelect) modalCategorySelect.innerHTML = defaultOption + optionsHtml;
+        if (filterCategorySelect) filterCategorySelect.innerHTML = '<option value="">All Categories</option>' + optionsHtml;
 
-        if (userCategories.length === 0) {
-            showFeedback("categoryMessage", "No categories found. Add one above to get started!");
-            return;
+        // 2. Populate Quick Chips (Right Sidebar)
+        if (categoryChips) {
+            categoryChips.innerHTML = "";
+            userCategories.forEach(cat => {
+                const chip = document.createElement("span");
+                chip.className = "category-chip";
+                chip.innerHTML = `
+                    <span>${escapeHtml(cat.name)}</span>
+                    <button type="button" class="chip-action-btn edit-chip" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                    <button type="button" class="chip-action-btn del-chip" title="Delete"><i class="fa-solid fa-xmark"></i></button>
+                `;
+                chip.querySelector(".edit-chip").addEventListener("click", () => openCategoryModal(cat.category_id, cat.name));
+                chip.querySelector(".del-chip").addEventListener("click", () => deleteCategory(cat.category_id, cat.name));
+                categoryChips.appendChild(chip);
+            });
         }
 
-        document.getElementById("categoryMessage").textContent = "";
-
-        userCategories.forEach(category => {
-            const li = document.createElement("li");
-
-            const nameSpan = document.createElement("span");
-            nameSpan.className = "item-title";
-            nameSpan.textContent = category.name;
-
-            const actionsDiv = document.createElement("div");
-            actionsDiv.className = "item-actions";
-
-            // Edit button
-            const editBtn = document.createElement("button");
-            editBtn.className = "btn-icon";
-            editBtn.title = "Edit Category";
-            editBtn.innerHTML = '<i class="fa-solid fa-pen"></i>';
-            editBtn.addEventListener("click", () => openCategoryModal(category.category_id, category.name));
-
-            // Delete button
-            const deleteBtn = document.createElement("button");
-            deleteBtn.className = "btn-icon btn-delete";
-            deleteBtn.title = "Delete Category";
-            deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
-            deleteBtn.addEventListener("click", () => deleteCategory(category.category_id, category.name));
-
-            actionsDiv.appendChild(editBtn);
-            actionsDiv.appendChild(deleteBtn);
-
-            li.appendChild(nameSpan);
-            li.appendChild(actionsDiv);
-            categoryList.appendChild(li);
-        });
+        // 3. Populate Category Tab List (Tab 3)
+        if (categoryListTab) {
+            categoryListTab.innerHTML = "";
+            userCategories.forEach(cat => {
+                const li = document.createElement("li");
+                li.innerHTML = `
+                    <span>${escapeHtml(cat.name)}</span>
+                    <div class="item-btns">
+                        <button type="button" class="btn-mini edit-cat" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                        <button type="button" class="btn-mini del del-cat" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+                li.querySelector(".edit-cat").addEventListener("click", () => openCategoryModal(cat.category_id, cat.name));
+                li.querySelector(".del-cat").addEventListener("click", () => deleteCategory(cat.category_id, cat.name));
+                categoryListTab.appendChild(li);
+            });
+        }
 
     } catch (error) {
         console.error("Categories loading error:", error);
-        showFeedback("categoryMessage", "Could not load categories.");
     }
 }
 
-async function handleCreateCategory(e) {
+async function handleCreateCategoryQuick(e) {
     e.preventDefault();
     const input = document.getElementById("categoryName");
-    const name = input.value.trim();
+    await createCategory(input.value.trim(), input, "categoryMessage");
+}
 
+async function handleCreateCategoryTab(e) {
+    e.preventDefault();
+    const input = document.getElementById("categoryNameTab");
+    await createCategory(input.value.trim(), input, "categoryTabMessage");
+}
+
+async function createCategory(name, inputElement, messageElementId) {
     if (!name) {
-        showFeedback("categoryMessage", "Category name is required.");
+        showFeedback(messageElementId, "Category name is required.");
         return;
     }
 
@@ -377,17 +444,17 @@ async function handleCreateCategory(e) {
         const data = await response.json();
 
         if (!data.success) {
-            showFeedback("categoryMessage", data.message || "Failed to create category.");
+            showFeedback(messageElementId, data.message || "Failed to create category.");
             return;
         }
 
-        input.value = "";
-        showFeedback("categoryMessage", "Category added successfully!", true);
+        if (inputElement) inputElement.value = "";
+        showFeedback(messageElementId, "Category added!", true);
         await loadCategories();
 
     } catch (error) {
         console.error("Create category error:", error);
-        showFeedback("categoryMessage", "Error adding category.");
+        showFeedback(messageElementId, "Error adding category.");
     }
 }
 
@@ -426,7 +493,7 @@ async function handleUpdateCategory(e) {
 
         closeCategoryModal();
         await loadCategories();
-        await loadTransactions(); // Refresh transaction categories if name changed
+        await loadTransactions();
 
     } catch (error) {
         console.error("Update category error:", error);
@@ -449,18 +516,16 @@ async function deleteCategory(categoryId, categoryName) {
         const data = await response.json();
 
         if (!data.success) {
-            showFeedback("categoryMessage", data.message || "Failed to delete category.");
+            alert(data.message || "Failed to delete category.");
             return;
         }
 
-        showFeedback("categoryMessage", "Category deleted.", true);
         await loadCategories();
         await loadTransactions();
         await loadDashboard();
 
     } catch (error) {
         console.error("Delete category error:", error);
-        showFeedback("categoryMessage", "Error deleting category.");
     }
 }
 
@@ -468,79 +533,25 @@ async function deleteCategory(categoryId, categoryName) {
 // TRANSACTION MANAGEMENT
 // ============================================================
 async function loadTransactions() {
-    const transactionList = document.getElementById("transactionList");
-    const transactionMessage = document.getElementById("transactionMessage");
-
     try {
         const response = await fetch(TRANSACTION_API_URL);
         const data = await response.json();
 
-        transactionList.innerHTML = "";
-
-        if (!data.success || !data.transactions || data.transactions.length === 0) {
-            transactionMessage.textContent = "No transactions found. Add your first transaction above!";
-            transactionMessage.className = "empty-state-message";
-            updateRecentTransactionsView([]);
-            return;
+        if (!data.success || !data.transactions) {
+            allTransactions = [];
+        } else {
+            allTransactions = data.transactions;
         }
 
-        transactionMessage.textContent = "";
-
-        data.transactions.forEach(transaction => {
-            const li = createTransactionListItem(transaction);
-            transactionList.appendChild(li);
-        });
-
-        updateRecentTransactionsView(data.transactions);
+        renderRecentTransactions(allTransactions);
+        applyTransactionFilters();
 
     } catch (error) {
         console.error("Transactions loading error:", error);
-        showFeedback("transactionMessage", "Failed to load transactions.");
     }
 }
 
-function createTransactionListItem(tx) {
-    const li = document.createElement("li");
-
-    const isIncome = tx.type === "income";
-    const amountFormatted = parseFloat(tx.amount || 0).toLocaleString("en-IN", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    });
-
-    li.innerHTML = `
-        <div class="item-main-info">
-            <span class="item-badge ${isIncome ? 'badge-income' : 'badge-expense'}">
-                ${isIncome ? 'Income' : 'Expense'}
-            </span>
-            <div class="item-details">
-                <span class="item-title">${escapeHtml(tx.description || tx.category_name || 'Transaction')}</span>
-                <span class="item-meta">
-                    <i class="fa-solid fa-folder"></i> ${escapeHtml(tx.category_name || 'Uncategorized')} &bull; 
-                    <i class="fa-regular fa-calendar"></i> ${escapeHtml(tx.transaction_date)}
-                </span>
-            </div>
-        </div>
-        <div class="item-actions">
-            <span class="item-amount ${isIncome ? 'amount-income' : 'amount-expense'}">
-                ${isIncome ? '+' : '-'} Rs. ${amountFormatted}
-            </span>
-            <button type="button" class="btn-icon edit-tx-btn" title="Edit Transaction">
-                <i class="fa-solid fa-pen"></i>
-            </button>
-            <button type="button" class="btn-icon btn-delete delete-tx-btn" title="Delete Transaction">
-                <i class="fa-solid fa-trash"></i>
-            </button>
-        </div>
-    `;
-
-    li.querySelector(".edit-tx-btn").addEventListener("click", () => openTransactionModal(tx));
-    li.querySelector(".delete-tx-btn").addEventListener("click", () => deleteTransaction(tx.transaction_id));
-
-    return li;
-}
-
-function updateRecentTransactionsView(transactions) {
+function renderRecentTransactions(transactions) {
     const recentList = document.getElementById("recentTransactionsList");
     const recentMsg = document.getElementById("recentTransactionsMessage");
 
@@ -554,35 +565,87 @@ function updateRecentTransactionsView(transactions) {
 
     if (recentMsg) recentMsg.style.display = "none";
 
-    // Sort by date descending and take top 5
     const top5 = [...transactions]
         .sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date))
-        .slice(0, 5);
+        .slice(0, 6);
 
     top5.forEach(tx => {
-        const isIncome = tx.type === "income";
-        const amountFormatted = parseFloat(tx.amount || 0).toLocaleString("en-IN", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
-
-        const li = document.createElement("li");
-        li.innerHTML = `
-            <div class="item-main-info">
-                <span class="item-badge ${isIncome ? 'badge-income' : 'badge-expense'}">
-                    ${isIncome ? 'Income' : 'Expense'}
-                </span>
-                <div class="item-details">
-                    <span class="item-title">${escapeHtml(tx.description || tx.category_name)}</span>
-                    <span class="item-meta">${escapeHtml(tx.category_name)} &bull; ${escapeHtml(tx.transaction_date)}</span>
-                </div>
-            </div>
-            <span class="item-amount ${isIncome ? 'amount-income' : 'amount-expense'}">
-                ${isIncome ? '+' : '-'} Rs. ${amountFormatted}
-            </span>
-        `;
+        const li = buildTransactionLi(tx);
         recentList.appendChild(li);
     });
+}
+
+function applyTransactionFilters() {
+    const searchInput = document.getElementById("txSearchInput");
+    const typeFilter = document.getElementById("txTypeFilter");
+    const catFilter = document.getElementById("txCategoryFilter");
+    const transactionList = document.getElementById("transactionList");
+    const txMsg = document.getElementById("transactionMessage");
+
+    if (!transactionList) return;
+    transactionList.innerHTML = "";
+
+    const query = (searchInput ? searchInput.value.toLowerCase().trim() : "");
+    const typeVal = (typeFilter ? typeFilter.value : "");
+    const catVal = (catFilter ? catFilter.value : "");
+
+    const filtered = allTransactions.filter(tx => {
+        const desc = (tx.description || "").toLowerCase();
+        const catName = (tx.category_name || "").toLowerCase();
+        const matchesSearch = !query || desc.includes(query) || catName.includes(query);
+        const matchesType = !typeVal || tx.type === typeVal;
+        const matchesCat = !catVal || String(tx.category_id) === catVal;
+        return matchesSearch && matchesType && matchesCat;
+    });
+
+    if (filtered.length === 0) {
+        if (txMsg) txMsg.textContent = "No matching transactions found.";
+        return;
+    }
+
+    if (txMsg) txMsg.textContent = "";
+
+    filtered.forEach(tx => {
+        const li = buildTransactionLi(tx);
+        transactionList.appendChild(li);
+    });
+}
+
+function buildTransactionLi(tx) {
+    const isIncome = tx.type === "income";
+    const amountFormatted = parseFloat(tx.amount || 0).toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+
+    const li = document.createElement("li");
+    li.innerHTML = `
+        <div class="item-left">
+            <span class="type-pill ${isIncome ? 'pill-income' : 'pill-expense'}">
+                ${isIncome ? 'Income' : 'Expense'}
+            </span>
+            <div class="item-text">
+                <span class="item-heading">${escapeHtml(tx.description || tx.category_name || 'Transaction')}</span>
+                <span class="item-subtext">
+                    ${escapeHtml(tx.category_name || 'Uncategorized')} &bull; ${escapeHtml(tx.transaction_date)}
+                </span>
+            </div>
+        </div>
+        <div class="item-right">
+            <span class="item-sum ${isIncome ? 'sum-income' : 'sum-expense'}">
+                ${isIncome ? '+' : '-'} Rs. ${amountFormatted}
+            </span>
+            <div class="item-btns">
+                <button type="button" class="btn-mini edit-btn" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                <button type="button" class="btn-mini del delete-btn" title="Delete"><i class="fa-solid fa-trash"></i></button>
+            </div>
+        </div>
+    `;
+
+    li.querySelector(".edit-btn").addEventListener("click", () => openTransactionModal(tx));
+    li.querySelector(".delete-btn").addEventListener("click", () => deleteTransaction(tx.transaction_id));
+
+    return li;
 }
 
 async function handleCreateTransaction(e) {
@@ -595,7 +658,7 @@ async function handleCreateTransaction(e) {
     const description = document.getElementById("transactionDescription").value.trim();
 
     if (!amount || amount <= 0 || !type || !categoryId || !transactionDate) {
-        showFeedback("transactionMessage", "Please fill in all required fields.");
+        showFeedback("quickTransactionMessage", "Please fill in all required fields.");
         return;
     }
 
@@ -615,20 +678,20 @@ async function handleCreateTransaction(e) {
         const data = await response.json();
 
         if (!data.success) {
-            showFeedback("transactionMessage", data.message || "Failed to add transaction.");
+            showFeedback("quickTransactionMessage", data.message || "Failed to add entry.");
             return;
         }
 
-        document.getElementById("transactionForm").reset();
-        document.getElementById("transactionDate").value = new Date().toISOString().split("T")[0];
+        document.getElementById("transactionAmount").value = "";
+        document.getElementById("transactionDescription").value = "";
 
-        showFeedback("transactionMessage", "Transaction added successfully!", true);
+        showFeedback("quickTransactionMessage", "Entry recorded!", true);
         await loadTransactions();
         await loadDashboard();
 
     } catch (error) {
         console.error("Create transaction error:", error);
-        showFeedback("transactionMessage", "Error adding transaction.");
+        showFeedback("quickTransactionMessage", "Error saving entry.");
     }
 }
 
@@ -660,7 +723,7 @@ async function handleUpdateTransaction(e) {
     const description = document.getElementById("editTransactionDescription").value.trim();
 
     if (!transactionId || !amount || amount <= 0 || !type || !categoryId || !transactionDate) {
-        alert("Please complete all required fields.");
+        alert("Please fill all required fields.");
         return;
     }
 
@@ -681,7 +744,7 @@ async function handleUpdateTransaction(e) {
         const data = await response.json();
 
         if (!data.success) {
-            alert(data.message || "Failed to update transaction.");
+            alert(data.message || "Failed to update entry.");
             return;
         }
 
@@ -691,7 +754,7 @@ async function handleUpdateTransaction(e) {
 
     } catch (error) {
         console.error("Update transaction error:", error);
-        alert("Error updating transaction.");
+        alert("Error updating entry.");
     }
 }
 
@@ -710,7 +773,7 @@ async function deleteTransaction(transactionId) {
         const data = await response.json();
 
         if (!data.success) {
-            showFeedback("transactionMessage", data.message || "Failed to delete transaction.");
+            alert(data.message || "Failed to delete transaction.");
             return;
         }
 
@@ -719,7 +782,6 @@ async function deleteTransaction(transactionId) {
 
     } catch (error) {
         console.error("Delete transaction error:", error);
-        showFeedback("transactionMessage", "Error deleting transaction.");
     }
 }
 
@@ -751,7 +813,7 @@ async function loadDashboard() {
 }
 
 // ============================================================
-// UTILITIES
+// UTILITY
 // ============================================================
 function escapeHtml(str) {
     if (!str) return "";

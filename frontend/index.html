@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Font Awesome Icons -->
+    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <!-- Main Stylesheet -->
@@ -21,261 +21,357 @@
 <body>
 
     <!-- ======================================================
-         HEADER
+         SLIM TOP NAVBAR
     ======================================================= -->
-    <header>
-        <div class="header-container">
-            <div class="header-branding">
-                <div class="header-icon">
+    <header class="app-header">
+        <div class="header-inner">
+            <div class="brand">
+                <div class="brand-icon">
                     <i class="fa-solid fa-wallet"></i>
                 </div>
-                <div>
-                    <h1>Personal Finance Tracker</h1>
-                    <p>Manage your money. Track your future.</p>
+                <div class="brand-text">
+                    <span class="brand-title">FinanceTracker</span>
+                    <span class="brand-tagline">Personal Finance</span>
                 </div>
             </div>
 
-            <!-- Logged-in User Profile Bar -->
-            <div id="userProfileBar" class="user-profile-bar" style="display: none;">
-                <div class="user-info">
-                    <i class="fa-solid fa-circle-user"></i>
-                    <span>Hello, <strong id="userNameDisplay">User</strong></span>
+            <!-- View Navigation Switcher (for logged in users) -->
+            <nav id="appNav" class="app-nav" style="display: none;">
+                <button type="button" class="nav-tab active" data-tab="overview">
+                    <i class="fa-solid fa-chart-pie"></i> Overview
+                </button>
+                <button type="button" class="nav-tab" data-tab="transactions">
+                    <i class="fa-solid fa-receipt"></i> Transactions
+                </button>
+                <button type="button" class="nav-tab" data-tab="categories">
+                    <i class="fa-solid fa-layer-group"></i> Categories
+                </button>
+            </nav>
+
+            <!-- User Profile & Logout -->
+            <div id="userProfileBar" class="user-profile" style="display: none;">
+                <div class="user-avatar">
+                    <i class="fa-solid fa-user"></i>
                 </div>
-                <button type="button" id="headerLogoutButton" class="header-logout-btn" title="Logout">
+                <span class="user-name" id="userNameDisplay">User</span>
+                <button type="button" id="headerLogoutButton" class="btn-logout" title="Logout">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                    <span>Logout</span>
                 </button>
             </div>
         </div>
     </header>
 
     <!-- ======================================================
-         MAIN CONTENT
+         MAIN CONTENT WRAPPER
     ======================================================= -->
-    <main>
+    <main class="main-container">
 
         <!-- ==================================================
-             AUTHENTICATION SECTION
+             1. AUTHENTICATION (LOGIN / REGISTER)
         =================================================== -->
-        <div id="authSection">
+        <div id="authSection" class="auth-wrapper">
 
-            <!-- LOGIN SECTION -->
-            <section id="loginSection" class="auth-section">
-                <div class="auth-icon">
-                    <i class="fa-solid fa-right-to-bracket"></i>
+            <!-- LOGIN CARD -->
+            <div id="loginSection" class="auth-card">
+                <div class="auth-card-header">
+                    <div class="auth-card-icon">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    </div>
+                    <h2>Welcome Back</h2>
+                    <p>Enter your details to access your finances</p>
                 </div>
 
-                <h2>Welcome Back</h2>
-                <p class="auth-subtitle">Login to manage your personal finances</p>
-
-                <form id="loginForm">
-                    <div class="input-group">
+                <form id="loginForm" class="auth-form">
+                    <div class="input-field">
                         <i class="fa-solid fa-envelope"></i>
                         <input type="email" id="loginEmail" placeholder="Email address" autocomplete="email" required>
                     </div>
 
-                    <div class="input-group">
+                    <div class="input-field">
                         <i class="fa-solid fa-lock"></i>
                         <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password" required>
                     </div>
 
-                    <button type="submit" class="primary-button" id="loginSubmitBtn">
-                        <i class="fa-solid fa-right-to-bracket"></i>
-                        <span>Login</span>
+                    <button type="submit" class="btn-primary btn-block" id="loginSubmitBtn">
+                        <span>Sign In</span>
+                        <i class="fa-solid fa-arrow-right"></i>
                     </button>
                 </form>
 
-                <p id="loginMessage" class="feedback-message"></p>
+                <p id="loginMessage" class="feedback-msg"></p>
 
-                <div class="auth-divider">
+                <div class="auth-footer">
                     <span>Don't have an account?</span>
+                    <button type="button" id="showRegisterButton" class="btn-link">Create Account</button>
+                </div>
+            </div>
+
+            <!-- REGISTER CARD -->
+            <div id="registerSection" class="auth-card" style="display: none;">
+                <div class="auth-card-header">
+                    <div class="auth-card-icon reg-icon">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <h2>Create Account</h2>
+                    <p>Start tracking your income & expenses today</p>
                 </div>
 
-                <button type="button" id="showRegisterButton" class="secondary-button">
-                    <i class="fa-solid fa-user-plus"></i>
-                    Create an Account
-                </button>
-            </section>
-
-            <!-- REGISTER SECTION -->
-            <section id="registerSection" class="auth-section" style="display: none;">
-                <div class="auth-icon register-icon">
-                    <i class="fa-solid fa-user-plus"></i>
-                </div>
-
-                <h2>Create Account</h2>
-                <p class="auth-subtitle">Start managing your personal finances</p>
-
-                <form id="registerForm">
-                    <div class="input-group">
+                <form id="registerForm" class="auth-form">
+                    <div class="input-field">
                         <i class="fa-solid fa-user"></i>
                         <input type="text" id="registerName" placeholder="Full Name" autocomplete="name" required>
                     </div>
 
-                    <div class="input-group">
+                    <div class="input-field">
                         <i class="fa-solid fa-envelope"></i>
                         <input type="email" id="registerEmail" placeholder="Email address" autocomplete="email" required>
                     </div>
 
-                    <div class="input-group">
+                    <div class="input-field">
                         <i class="fa-solid fa-lock"></i>
-                        <input type="password" id="registerPassword" placeholder="Password (min 8 characters)" minlength="8" autocomplete="new-password" required>
+                        <input type="password" id="registerPassword" placeholder="Password (min 8 chars)" minlength="8" autocomplete="new-password" required>
                     </div>
 
-                    <div class="input-group">
+                    <div class="input-field">
                         <i class="fa-solid fa-shield-halved"></i>
                         <input type="password" id="registerConfirmPassword" placeholder="Confirm Password" minlength="8" autocomplete="new-password" required>
                     </div>
 
-                    <button type="submit" class="primary-button register-button" id="registerSubmitBtn">
-                        <i class="fa-solid fa-user-plus"></i>
-                        <span>Create Account</span>
+                    <button type="submit" class="btn-primary btn-block btn-accent" id="registerSubmitBtn">
+                        <span>Register Account</span>
+                        <i class="fa-solid fa-user-check"></i>
                     </button>
                 </form>
 
-                <p id="registerMessage" class="feedback-message"></p>
+                <p id="registerMessage" class="feedback-msg"></p>
 
-                <button type="button" id="showLoginButton" class="back-button">
-                    <i class="fa-solid fa-arrow-left"></i>
-                    Back to Login
-                </button>
-            </section>
+                <div class="auth-footer">
+                    <span>Already registered?</span>
+                    <button type="button" id="showLoginButton" class="btn-link">Back to Sign In</button>
+                </div>
+            </div>
 
         </div>
 
         <!-- ==================================================
-             FINANCE DASHBOARD & APP SECTION
+             2. COMPACT FINANCE DASHBOARD
         =================================================== -->
-        <div id="financeSection" style="display: none;">
+        <div id="financeSection" class="dashboard-wrapper" style="display: none;">
 
-            <!-- FINANCIAL SUMMARY STATS -->
-            <section id="dashboardSection">
-                <div class="section-header">
-                    <h2><i class="fa-solid fa-chart-pie"></i> Financial Summary</h2>
+            <!-- A. COMPACT METRICS RIBBON -->
+            <div class="metrics-ribbon">
+                <!-- Total Income -->
+                <div class="metric-card income-metric">
+                    <div class="metric-icon">
+                        <i class="fa-solid fa-arrow-trend-up"></i>
+                    </div>
+                    <div class="metric-info">
+                        <span class="metric-label">Total Income</span>
+                        <h3 class="metric-value" id="totalIncome">Rs. 0.00</h3>
+                    </div>
                 </div>
 
-                <div class="summary-container">
-                    <!-- TOTAL INCOME -->
-                    <div class="summary-card income-card">
-                        <div class="summary-icon">
-                            <i class="fa-solid fa-arrow-trend-up"></i>
+                <!-- Total Expenses -->
+                <div class="metric-card expense-metric">
+                    <div class="metric-icon">
+                        <i class="fa-solid fa-arrow-trend-down"></i>
+                    </div>
+                    <div class="metric-info">
+                        <span class="metric-label">Total Expenses</span>
+                        <h3 class="metric-value" id="totalExpenses">Rs. 0.00</h3>
+                    </div>
+                </div>
+
+                <!-- Net Balance -->
+                <div class="metric-card balance-metric">
+                    <div class="metric-icon">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <div class="metric-info">
+                        <span class="metric-label">Net Balance</span>
+                        <h3 class="metric-value" id="balance">Rs. 0.00</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- B. 2-COLUMN UNIFIED WORKSPACE -->
+            <div class="app-workspace-grid">
+
+                <!-- ==========================================
+                     LEFT COLUMN: TRANSACTION ACTIVITY & LIST (60%)
+                =========================================== -->
+                <div class="workspace-main">
+
+                    <!-- TAB 1: OVERVIEW & RECENT ACTIVITY -->
+                    <div id="tabOverview" class="tab-pane active">
+                        <div class="card panel-card">
+                            <div class="panel-header">
+                                <div>
+                                    <h2 class="panel-title"><i class="fa-solid fa-clock-rotate-left"></i> Recent Activity</h2>
+                                    <p class="panel-subtitle">Your latest recorded financial entries</p>
+                                </div>
+                                <button type="button" class="btn-secondary btn-sm" id="viewAllTxBtn">
+                                    View All <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+
+                            <p id="recentTransactionsMessage" class="empty-msg">No recent transactions found.</p>
+                            <ul id="recentTransactionsList" class="activity-list"></ul>
                         </div>
-                        <h3>Total Income</h3>
-                        <p id="totalIncome" class="stat-amount">Rs. 0.00</p>
                     </div>
 
-                    <!-- TOTAL EXPENSES -->
-                    <div class="summary-card expense-card">
-                        <div class="summary-icon">
-                            <i class="fa-solid fa-arrow-trend-down"></i>
+                    <!-- TAB 2: FULL TRANSACTIONS WITH SEARCH & FILTER -->
+                    <div id="tabTransactions" class="tab-pane" style="display: none;">
+                        <div class="card panel-card">
+                            <div class="panel-header">
+                                <div>
+                                    <h2 class="panel-title"><i class="fa-solid fa-receipt"></i> All Transactions</h2>
+                                    <p class="panel-subtitle">Search, filter, and manage your history</p>
+                                </div>
+                            </div>
+
+                            <!-- Filter Toolbar -->
+                            <div class="filter-toolbar">
+                                <div class="search-box">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                    <input type="text" id="txSearchInput" placeholder="Search description or category...">
+                                </div>
+                                <div class="filter-selects">
+                                    <select id="txTypeFilter">
+                                        <option value="">All Types</option>
+                                        <option value="income">Income</option>
+                                        <option value="expense">Expense</option>
+                                    </select>
+                                    <select id="txCategoryFilter">
+                                        <option value="">All Categories</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <p id="transactionMessage" class="feedback-msg"></p>
+
+                            <!-- Scrollable Transaction List -->
+                            <div class="scrollable-list-container">
+                                <ul id="transactionList" class="activity-list"></ul>
+                            </div>
                         </div>
-                        <h3>Total Expenses</h3>
-                        <p id="totalExpenses" class="stat-amount">Rs. 0.00</p>
                     </div>
 
-                    <!-- BALANCE -->
-                    <div class="summary-card balance-card">
-                        <div class="summary-icon">
-                            <i class="fa-solid fa-wallet"></i>
+                    <!-- TAB 3: CATEGORIES MANAGER VIEW -->
+                    <div id="tabCategories" class="tab-pane" style="display: none;">
+                        <div class="card panel-card">
+                            <div class="panel-header">
+                                <div>
+                                    <h2 class="panel-title"><i class="fa-solid fa-layer-group"></i> Category Directory</h2>
+                                    <p class="panel-subtitle">Organize your transaction types</p>
+                                </div>
+                            </div>
+
+                            <form id="categoryFormTab" class="compact-inline-form">
+                                <input type="text" id="categoryNameTab" placeholder="New category name..." required>
+                                <button type="submit" class="btn-primary btn-sm">
+                                    <i class="fa-solid fa-plus"></i> Add
+                                </button>
+                            </form>
+
+                            <p id="categoryTabMessage" class="feedback-msg"></p>
+                            <ul id="categoryListTab" class="category-grid"></ul>
                         </div>
-                        <h3>Net Balance</h3>
-                        <p id="balance" class="stat-amount">Rs. 0.00</p>
                     </div>
+
                 </div>
 
-                <p id="dashboardMessage" class="feedback-message"></p>
-            </section>
+                <!-- ==========================================
+                     RIGHT COLUMN: QUICK ACTION SIDEBAR (40%)
+                =========================================== -->
+                <aside class="workspace-sidebar">
 
-            <!-- RECENT TRANSACTIONS QUICK VIEW -->
-            <section id="recentTransactionsSection">
-                <div class="section-header">
-                    <h2><i class="fa-solid fa-clock-rotate-left"></i> Recent Transactions</h2>
-                </div>
-                <p id="recentTransactionsMessage" class="empty-state-message">No recent transactions found.</p>
-                <ul id="recentTransactionsList" class="custom-list"></ul>
-            </section>
+                    <!-- QUICK ADD TRANSACTION CARD -->
+                    <div class="card sidebar-card">
+                        <div class="sidebar-header">
+                            <h3><i class="fa-solid fa-circle-plus"></i> Quick Record</h3>
+                        </div>
 
-            <!-- TRANSACTIONS CRUD -->
-            <section id="transactionSection">
-                <div class="section-header">
-                    <h2><i class="fa-solid fa-money-bill-transfer"></i> Transactions</h2>
-                </div>
+                        <form id="transactionForm" class="quick-form">
+                            <!-- Type Segmented Control -->
+                            <div class="type-toggle-group">
+                                <label class="type-toggle expense-toggle">
+                                    <input type="radio" name="quickType" value="expense" checked id="typeExpenseRadio">
+                                    <span><i class="fa-solid fa-arrow-trend-down"></i> Expense</span>
+                                </label>
+                                <label class="type-toggle income-toggle">
+                                    <input type="radio" name="quickType" value="income" id="typeIncomeRadio">
+                                    <span><i class="fa-solid fa-arrow-trend-up"></i> Income</span>
+                                </label>
+                            </div>
 
-                <!-- ADD TRANSACTION FORM -->
-                <form id="transactionForm" class="grid-form">
-                    <div class="form-group">
-                        <label for="transactionAmount">Amount</label>
-                        <input type="number" id="transactionAmount" placeholder="0.00" min="0.01" step="0.01" required>
+                            <!-- Hidden select for JS compatibility -->
+                            <input type="hidden" id="transactionType" value="expense">
+
+                            <!-- Amount & Category Row -->
+                            <div class="form-row">
+                                <div class="form-ctrl flex-1">
+                                    <label for="transactionAmount">Amount (Rs.)</label>
+                                    <input type="number" id="transactionAmount" placeholder="0.00" min="0.01" step="0.01" required>
+                                </div>
+                                <div class="form-ctrl flex-1">
+                                    <label for="transactionCategory">Category</label>
+                                    <select id="transactionCategory" required>
+                                        <option value="">Select...</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Date & Description -->
+                            <div class="form-ctrl">
+                                <label for="transactionDate">Date</label>
+                                <input type="date" id="transactionDate" required>
+                            </div>
+
+                            <div class="form-ctrl">
+                                <label for="transactionDescription">Note / Description</label>
+                                <input type="text" id="transactionDescription" placeholder="e.g. Weekly Groceries">
+                            </div>
+
+                            <button type="submit" class="btn-primary btn-block btn-submit" id="addTxBtn">
+                                <i class="fa-solid fa-plus"></i> Add Entry
+                            </button>
+                        </form>
+
+                        <p id="quickTransactionMessage" class="feedback-msg"></p>
                     </div>
 
-                    <div class="form-group">
-                        <label for="transactionType">Type</label>
-                        <select id="transactionType" required>
-                            <option value="">Select Type</option>
-                            <option value="income">Income</option>
-                            <option value="expense">Expense</option>
-                        </select>
+                    <!-- QUICK CATEGORIES CHIPS CARD -->
+                    <div class="card sidebar-card">
+                        <div class="sidebar-header">
+                            <h3><i class="fa-solid fa-tags"></i> Quick Categories</h3>
+                            <button type="button" class="btn-link-sm" id="manageCategoriesLink">Manage</button>
+                        </div>
+
+                        <form id="categoryForm" class="compact-inline-form">
+                            <input type="text" id="categoryName" placeholder="New category..." required>
+                            <button type="submit" class="btn-primary btn-icon-only" title="Add Category">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </form>
+
+                        <p id="categoryMessage" class="feedback-msg"></p>
+                        <div id="categoryChipsContainer" class="category-chips-list"></div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="transactionCategory">Category</label>
-                        <select id="transactionCategory" required>
-                            <option value="">Select Category</option>
-                        </select>
-                    </div>
+                </aside>
 
-                    <div class="form-group">
-                        <label for="transactionDate">Date</label>
-                        <input type="date" id="transactionDate" required>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label for="transactionDescription">Description</label>
-                        <input type="text" id="transactionDescription" placeholder="Description / Notes (optional)">
-                    </div>
-
-                    <div class="form-group full-width">
-                        <button type="submit" class="primary-button add-btn">
-                            <i class="fa-solid fa-plus"></i> Add Transaction
-                        </button>
-                    </div>
-                </form>
-
-                <p id="transactionMessage" class="feedback-message"></p>
-
-                <!-- ALL TRANSACTIONS LIST -->
-                <div class="list-wrapper">
-                    <ul id="transactionList" class="custom-list"></ul>
-                </div>
-            </section>
-
-            <!-- CATEGORY MANAGEMENT -->
-            <section id="categorySection">
-                <div class="section-header">
-                    <h2><i class="fa-solid fa-layer-group"></i> Categories</h2>
-                </div>
-
-                <form id="categoryForm" class="inline-form">
-                    <input type="text" id="categoryName" placeholder="Enter new category name..." required>
-                    <button type="submit" class="primary-button add-btn">
-                        <i class="fa-solid fa-plus"></i> Add Category
-                    </button>
-                </form>
-
-                <p id="categoryMessage" class="feedback-message"></p>
-
-                <ul id="categoryList" class="custom-list category-list-grid"></ul>
-            </section>
+            </div>
 
         </div>
 
     </main>
 
     <!-- ======================================================
-         MODALS (MODERN GLASSMORPHIC POPUPS)
+         MODALS (GLASSMORPHIC DIALOGS)
     ======================================================= -->
 
-    <!-- 1. EDIT CATEGORY MODAL -->
+    <!-- EDIT CATEGORY MODAL -->
     <div id="editCategoryModal" class="modal-overlay" style="display: none;">
         <div class="modal-card">
             <div class="modal-header">
@@ -284,19 +380,19 @@
             </div>
             <form id="editCategoryForm">
                 <input type="hidden" id="editCategoryId">
-                <div class="form-group">
+                <div class="form-ctrl">
                     <label for="editCategoryName">Category Name</label>
                     <input type="text" id="editCategoryName" required>
                 </div>
                 <div class="modal-actions">
-                    <button type="button" class="secondary-button" id="cancelCategoryModalBtn">Cancel</button>
-                    <button type="submit" class="primary-button">Save Changes</button>
+                    <button type="button" class="btn-secondary" id="cancelCategoryModalBtn">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Changes</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- 2. EDIT TRANSACTION MODAL -->
+    <!-- EDIT TRANSACTION MODAL -->
     <div id="editTransactionModal" class="modal-overlay" style="display: none;">
         <div class="modal-card">
             <div class="modal-header">
@@ -306,43 +402,45 @@
             <form id="editTransactionForm">
                 <input type="hidden" id="editTransactionId">
 
-                <div class="form-group">
-                    <label for="editTransactionAmount">Amount</label>
-                    <input type="number" id="editTransactionAmount" min="0.01" step="0.01" required>
+                <div class="form-row">
+                    <div class="form-ctrl flex-1">
+                        <label for="editTransactionAmount">Amount (Rs.)</label>
+                        <input type="number" id="editTransactionAmount" min="0.01" step="0.01" required>
+                    </div>
+                    <div class="form-ctrl flex-1">
+                        <label for="editTransactionType">Type</label>
+                        <select id="editTransactionType" required>
+                            <option value="expense">Expense</option>
+                            <option value="income">Income</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="editTransactionType">Type</label>
-                    <select id="editTransactionType" required>
-                        <option value="income">Income</option>
-                        <option value="expense">Expense</option>
-                    </select>
+                <div class="form-row">
+                    <div class="form-ctrl flex-1">
+                        <label for="editTransactionCategory">Category</label>
+                        <select id="editTransactionCategory" required></select>
+                    </div>
+                    <div class="form-ctrl flex-1">
+                        <label for="editTransactionDate">Date</label>
+                        <input type="date" id="editTransactionDate" required>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="editTransactionCategory">Category</label>
-                    <select id="editTransactionCategory" required></select>
-                </div>
-
-                <div class="form-group">
-                    <label for="editTransactionDate">Date</label>
-                    <input type="date" id="editTransactionDate" required>
-                </div>
-
-                <div class="form-group">
+                <div class="form-ctrl">
                     <label for="editTransactionDescription">Description</label>
-                    <input type="text" id="editTransactionDescription" placeholder="Description (optional)">
+                    <input type="text" id="editTransactionDescription" placeholder="Optional description">
                 </div>
 
                 <div class="modal-actions">
-                    <button type="button" class="secondary-button" id="cancelTransactionModalBtn">Cancel</button>
-                    <button type="submit" class="primary-button">Update Transaction</button>
+                    <button type="button" class="btn-secondary" id="cancelTransactionModalBtn">Cancel</button>
+                    <button type="submit" class="btn-primary">Update Entry</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Main JavaScript Logic -->
+    <!-- Main Logic -->
     <script src="js/app.js"></script>
 
 </body>
