@@ -409,12 +409,13 @@ function switchTab(tabName) {
 }
 
 // ============================================================
-// VIEW SWITCHING (Auth)
+// VIEW SWITCHING (Auth Split Layout)
 // ============================================================
 function showLogin() {
     const authSection = document.getElementById("authSection");
     const loginSection = document.getElementById("loginSection");
     const registerSection = document.getElementById("registerSection");
+    const authShowcaseSection = document.getElementById("authShowcaseSection");
     const financeSection = document.getElementById("financeSection");
     const userProfileBar = document.getElementById("userProfileBar");
     const appNav = document.getElementById("appNav");
@@ -422,6 +423,7 @@ function showLogin() {
 
     if (authSection) authSection.style.display = "flex";
     if (loginSection) loginSection.style.display = "block";
+    if (authShowcaseSection) authShowcaseSection.style.display = "flex";
     if (registerSection) registerSection.style.display = "none";
     if (financeSection) financeSection.style.display = "none";
     if (userProfileBar) userProfileBar.style.display = "none";
@@ -433,9 +435,11 @@ function showLogin() {
 
 function showRegister() {
     const loginSection = document.getElementById("loginSection");
+    const authShowcaseSection = document.getElementById("authShowcaseSection");
     const registerSection = document.getElementById("registerSection");
 
-    if (loginSection) loginSection.style.display = "none";
+    if (loginSection) loginSection.style.display = "block";
+    if (authShowcaseSection) authShowcaseSection.style.display = "none";
     if (registerSection) registerSection.style.display = "block";
 
     clearAuthMessages();

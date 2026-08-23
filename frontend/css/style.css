@@ -74,7 +74,7 @@
 }
 
 /* ============================================================
-   2. GLOBAL RESET & MIXED AMBIENT BACKGROUND
+   2. GLOBAL RESET & BLUE-WHITE-PURPLE HARMONIC BACKGROUND
    ============================================================ */
 * {
     box-sizing: border-box;
@@ -84,13 +84,14 @@
 
 body {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: #f5f3fc;
+    background-color: #f6f8fe;
     background-image: 
-        radial-gradient(circle at 10% 10%, rgba(139, 92, 246, 0.12) 0%, transparent 45%),
-        radial-gradient(circle at 90% 15%, rgba(56, 189, 248, 0.12) 0%, transparent 40%),
-        radial-gradient(circle at 85% 85%, rgba(236, 72, 153, 0.12) 0%, transparent 45%),
-        radial-gradient(circle at 12% 90%, rgba(99, 102, 241, 0.10) 0%, transparent 45%),
-        linear-gradient(135deg, rgba(246, 243, 254, 0.92) 0%, rgba(238, 233, 255, 0.88) 100%);
+        radial-gradient(circle at 10% 12%, rgba(37, 99, 235, 0.16) 0%, transparent 45%),
+        radial-gradient(circle at 90% 10%, rgba(124, 58, 237, 0.18) 0%, transparent 45%),
+        radial-gradient(circle at 50% 45%, rgba(56, 189, 248, 0.12) 0%, transparent 50%),
+        radial-gradient(circle at 85% 88%, rgba(147, 51, 234, 0.16) 0%, transparent 45%),
+        radial-gradient(circle at 15% 90%, rgba(59, 130, 246, 0.15) 0%, transparent 45%),
+        linear-gradient(135deg, #ffffff 0%, #f0f6ff 35%, #f5f0ff 70%, #faf8ff 100%);
     background-attachment: fixed;
     color: var(--text-primary);
     line-height: 1.55;
@@ -99,37 +100,26 @@ body {
     position: relative;
 }
 
-body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url('../images/expense_tracking_bg.png');
-    background-size: min(680px, 85vw) auto;
-    background-position: center bottom 20px;
-    background-repeat: no-repeat;
-    opacity: 0.24; /* crisp, clean watermark */
-    pointer-events: none;
-    z-index: 0;
-}
-
-/* Base Card Style */
+/* Base Card Style with 3D Spring Hover Lift */
 .card {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
-    transition: var(--transition);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .card:hover {
-    box-shadow: var(--shadow-md);
+    transform: translateY(-5px);
+    box-shadow: 0 16px 36px rgba(37, 99, 235, 0.13), 0 0 20px rgba(124, 58, 237, 0.09);
+    border-color: rgba(147, 197, 253, 0.8);
 }
 
 /* ============================================================
    3. TOP NAVBAR & VIBRANT HERO BANNER
    ============================================================ */
 .app-header {
-    background: linear-gradient(135deg, var(--color-dark-blue) 0%, var(--color-navy) 30%, var(--color-purple-deep) 70%, var(--color-purple-primary) 100%);
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 30%, #2563eb 70%, #7c3aed 100%);
     color: #ffffff;
     position: relative;
     box-shadow: 0 6px 24px rgba(15, 23, 42, 0.28);
@@ -159,6 +149,11 @@ body::before {
     object-fit: contain;
     filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.25));
     border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.brand-logo-img:hover {
+    transform: scale(1.08) rotate(3deg);
 }
 
 .brand-icon {
@@ -194,16 +189,17 @@ body::before {
     font-weight: 500;
 }
 
-/* Nav Tabs Switcher */
+/* Dynamic Interactive Nav Tabs Switcher with Floating Lift */
 .app-nav {
     display: flex;
     align-items: center;
-    gap: 5px;
-    background: rgba(15, 23, 42, 0.35);
-    padding: 4px;
+    gap: 6px;
+    background: rgba(15, 23, 42, 0.38);
+    padding: 5px;
     border-radius: var(--radius-md);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    backdrop-filter: blur(8px);
+    border: 1.5px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.15);
 }
 
 .nav-tab {
@@ -211,27 +207,44 @@ body::before {
     border: none;
     color: #e0e7ff;
     font-family: inherit;
-    font-size: 12.5px;
+    font-size: 13px;
     font-weight: 600;
-    padding: 6px 14px;
+    padding: 7px 16px;
     border-radius: var(--radius-sm);
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 6px;
-    transition: var(--transition);
+    gap: 7px;
+    transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+}
+
+.nav-tab i {
+    font-size: 13px;
+    transition: transform 0.25s ease;
 }
 
 .nav-tab:hover {
     color: #ffffff;
-    background: rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.22);
+    transform: translateY(-2.5px) scale(1.03);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+}
+
+.nav-tab:hover i {
+    transform: scale(1.18);
 }
 
 .nav-tab.active {
     background: #ffffff;
-    color: var(--color-purple-deep);
-    font-weight: 700;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+    color: #1e1b4b;
+    font-weight: 800;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25), 0 0 12px rgba(255, 255, 255, 0.45);
+}
+
+.nav-tab.active i {
+    color: #2563eb;
 }
 
 /* User Profile Badge & Logout */
@@ -245,19 +258,20 @@ body::before {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: rgba(255, 255, 255, 0.14);
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    padding: 3px 12px 3px 4px;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    padding: 4px 14px 4px 5px;
     border-radius: var(--radius-full);
     cursor: pointer;
     backdrop-filter: blur(8px);
-    transition: var(--transition);
+    transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .user-profile-badge:hover {
-    background: rgba(255, 255, 255, 0.28);
-    border-color: rgba(255, 255, 255, 0.45);
-    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.32);
+    border-color: rgba(255, 255, 255, 0.55);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
 }
 
 .user-avatar {
@@ -371,79 +385,191 @@ body::before {
 }
 
 /* ============================================================
-   5. AUTHENTICATION SECTION (CLEAN GLASSMORPHIC CARDS)
+   5. AUTHENTICATION SECTION (SPLIT SCREEN: LEFT LOGIN / RIGHT SHOWCASE)
    ============================================================ */
 .auth-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 50px 20px;
+    padding: 40px 20px;
     min-height: calc(100vh - 160px);
 }
 
-.auth-card {
-    background: rgba(255, 255, 255, 0.80);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 2px solid rgba(255, 255, 255, 0.95);
-    border-radius: var(--radius-xl);
+.auth-split-container {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    max-width: 960px;
     width: 100%;
-    max-width: 440px;
-    padding: 40px 34px;
-    box-shadow: 0 20px 50px rgba(30, 27, 75, 0.16), 0 0 35px rgba(124, 58, 237, 0.12);
-    text-align: center;
+    min-height: 540px;
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow: 0 25px 60px rgba(99, 102, 241, 0.20), 0 0 35px rgba(192, 132, 252, 0.18);
+    border: 2px solid rgba(255, 255, 255, 0.85);
+}
+
+.auth-panel {
+    flex: 1;
+    padding: 44px 38px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
     transition: var(--transition);
 }
 
-.auth-card:hover {
-    background: rgba(255, 255, 255, 0.88);
-    box-shadow: 0 25px 60px rgba(30, 27, 75, 0.22), 0 0 45px rgba(124, 58, 237, 0.20);
-    transform: translateY(-2px);
+/* Left Login Panel */
+.auth-panel-left {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.65) 0%, rgba(245, 238, 255, 0.55) 100%);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border-right: 1.5px solid rgba(255, 255, 255, 0.8);
+    text-align: center;
 }
 
-.auth-card-header {
-    margin-bottom: 24px;
+/* Right Panel (Showcase / Registration) */
+.auth-panel-right {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.45) 0%, rgba(238, 226, 255, 0.70) 50%, rgba(255, 255, 255, 0.40) 100%);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
-.auth-card-logo-wrap {
-    width: 72px;
-    height: 72px;
-    background: transparent;
-    border: none;
+/* Right Showcase View */
+.auth-showcase-view {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.showcase-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.showcase-logo-badge {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(243, 232, 255, 0.75));
+    border: 2px solid #ffffff;
+    box-shadow: 0 10px 28px rgba(99, 102, 241, 0.22);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 12px;
-    box-shadow: none;
-    padding: 0;
+    padding: 14px;
+    margin-bottom: 4px;
+}
+
+.showcase-logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.showcase-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    color: var(--color-purple-deep);
+    padding: 4px 14px;
+    border-radius: var(--radius-full);
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
+}
+
+.showcase-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--color-navy);
+    line-height: 1.25;
+    margin-top: 4px;
+}
+
+.showcase-desc {
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.5;
+    max-width: 340px;
+    margin-bottom: 6px;
+}
+
+.showcase-features-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 340px;
+}
+
+.showcase-feat-chip {
+    background: rgba(255, 255, 255, 0.75);
+    border: 1.5px solid rgba(255, 255, 255, 0.95);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #1e1b4b;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.06);
+    text-align: left;
+    transition: var(--transition);
+}
+
+.showcase-feat-chip:hover {
+    transform: translateX(4px);
+    background: #ffffff;
+}
+
+.showcase-feat-chip i {
+    color: var(--color-purple-deep);
+    font-size: 14px;
+}
+
+/* Right Registration View */
+.auth-register-view {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.auth-card-header {
+    margin-bottom: 22px;
+}
+
+.auth-card-logo-wrap {
+    width: 78px;
+    height: 78px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(243, 232, 255, 0.65));
+    border: 2px solid rgba(255, 255, 255, 0.95);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.16), inset 0 1px 1px #ffffff;
+    padding: 10px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
 .auth-card-logo-img {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    filter: drop-shadow(0 6px 14px rgba(99, 102, 241, 0.25));
-}
-
-.auth-card-icon {
-    width: 54px;
-    height: 54px;
-    background: linear-gradient(135deg, var(--pastel-purple), #e0e7ff);
-    color: var(--color-purple-deep);
-    border: 1.5px solid var(--pastel-purple-border);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    margin: 0 auto 12px;
-    box-shadow: var(--shadow-sm);
-}
-
-.auth-card-icon.reg-icon {
-    background: linear-gradient(135deg, var(--pastel-pink), #ffe4e6);
-    color: var(--pastel-pink-text);
-    border-color: var(--pastel-pink-border);
+    filter: drop-shadow(0 4px 8px rgba(99, 102, 241, 0.25));
 }
 
 .auth-card-header h2 {
@@ -456,7 +582,8 @@ body::before {
 
 .auth-card-header p {
     font-size: 13px;
-    color: var(--text-secondary);
+    color: #475569;
+    font-weight: 500;
 }
 
 .auth-form {
@@ -465,50 +592,126 @@ body::before {
     gap: 14px;
 }
 
-.input-field {
+.auth-panel .input-field {
     position: relative;
     display: flex;
     align-items: center;
 }
 
-.input-field i {
+.auth-panel .input-field i {
     position: absolute;
-    left: 14px;
-    color: var(--color-purple-primary);
+    left: 15px;
+    color: #6366f1;
     font-size: 14px;
     pointer-events: none;
+    transition: var(--transition);
 }
 
-.input-field input {
+.auth-panel .input-field input {
     width: 100%;
-    padding: 11px 14px 11px 40px;
-    border: 1.5px solid var(--input-border);
+    padding: 11px 16px 11px 40px;
+    border: 1.5px solid rgba(255, 255, 255, 0.85);
     border-radius: var(--radius-md);
     font-family: inherit;
-    font-size: 13.5px;
+    font-size: 13px;
+    font-weight: 600;
     transition: var(--transition);
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.60);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #0f172a;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.04);
 }
 
-.input-field input:focus {
+.auth-panel .input-field input::placeholder {
+    color: #64748b;
+    font-weight: 500;
+}
+
+.auth-panel .input-field input:focus {
     outline: none;
-    border-color: var(--color-purple-primary);
-    background: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 0 0 3.5px rgba(99, 102, 241, 0.16);
+    border-color: #8b5cf6;
+    background: rgba(255, 255, 255, 0.90);
+    box-shadow: 0 0 0 3.5px rgba(139, 92, 246, 0.22);
+    color: #0f172a;
+}
+
+.auth-panel .input-field input:focus + i,
+.auth-panel .input-field:focus-within i {
+    color: #4f46e5;
+    transform: scale(1.1);
+}
+
+.auth-panel .btn-primary {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+    color: #ffffff;
+    font-weight: 800;
+    padding: 11px 20px;
+    font-size: 13.5px;
+    letter-spacing: 0.3px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.auth-panel .btn-primary:hover {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
+    box-shadow: 0 12px 30px rgba(99, 102, 241, 0.50);
+    transform: translateY(-2px);
+}
+
+.auth-panel .btn-accent {
+    background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+}
+
+.auth-panel .feedback-msg {
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.auth-panel .feedback-msg.text-success,
+.auth-panel .feedback-msg:not(.text-danger):not(:empty) {
+    color: #059669;
+}
+
+.auth-panel .feedback-msg.text-danger {
+    color: #dc2626;
 }
 
 .auth-footer {
-    margin-top: 22px;
-    padding-top: 18px;
-    border-top: 1px solid rgba(241, 245, 249, 0.8);
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1.5px solid rgba(255, 255, 255, 0.6);
     font-size: 13px;
-    color: var(--text-secondary);
+    color: #475569;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 8px;
+    font-weight: 500;
+}
+
+.auth-footer .btn-link {
+    color: #7c3aed;
+    font-weight: 800;
+    text-decoration: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.auth-footer .btn-link:hover {
+    color: #db2777;
+    text-decoration: underline;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* ============================================================
@@ -651,13 +854,14 @@ body::before {
     text-align: center;
     position: relative;
     overflow: hidden;
-    transition: var(--transition);
-    border: 1px solid transparent;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 1.5px solid transparent;
+    cursor: pointer;
 }
 
 .summary-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07);
+    transform: translateY(-6px) scale(1.025);
+    box-shadow: 0 18px 36px rgba(37, 99, 235, 0.16), 0 0 24px rgba(124, 58, 237, 0.12);
 }
 
 /* 1. Pastel Sky Blue (Income) */
@@ -666,10 +870,18 @@ body::before {
     border-color: #bfdbfe;
 }
 
+.card-income:hover {
+    border-color: #60a5fa;
+}
+
 /* 2. Pastel Pink (Expenses) */
 .card-expense {
     background: #fce7f3;
     border-color: #fbcfe8;
+}
+
+.card-expense:hover {
+    border-color: #f472b6;
 }
 
 /* 3. Pastel Lavender (Balance) */
@@ -678,10 +890,19 @@ body::before {
     border-color: #ddd6fe;
 }
 
+.card-balance:hover {
+    border-color: #a78bfa;
+}
+
 .card-top-icon {
     font-size: 32px;
     line-height: 1;
     margin-bottom: 6px;
+    transition: transform 0.25s ease;
+}
+
+.summary-card:hover .card-top-icon {
+    transform: scale(1.15) rotate(5deg);
 }
 
 .card-icon-trend {
@@ -742,12 +963,13 @@ body::before {
     background: #ffffff;
     border-radius: var(--radius-lg);
     border: 1px solid var(--card-border);
-    transition: var(--transition);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .chart-card:hover {
-    border-color: #cbd5e1;
-    box-shadow: var(--shadow-md);
+    transform: translateY(-5px);
+    border-color: #93c5fd;
+    box-shadow: 0 16px 36px rgba(37, 99, 235, 0.12), 0 0 20px rgba(124, 58, 237, 0.08);
 }
 
 .chart-header {
