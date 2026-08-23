@@ -1,1943 +1,764 @@
-// ============================================================
-// API URLS
-// ============================================================
+/**
+ * Personal Finance Tracker - Main Application Logic
+ */
 
-const REGISTER_API_URL = "../backend/api/register.php";
-const LOGIN_API_URL = "../backend/api/login.php";
-const LOGOUT_API_URL = "../backend/api/logout.php";
-
-const CATEGORY_API_URL = "../backend/api/categories.php";
-const DASHBOARD_API_URL = "../backend/api/dashboard.php";
+// ============================================================
+// API ENDPOINTS
+// ============================================================
+const REGISTER_API_URL    = "../backend/api/register.php";
+const LOGIN_API_URL       = "../backend/api/login.php";
+const LOGOUT_API_URL      = "../backend/api/logout.php";
+const AUTH_STATUS_API_URL = "../backend/api/auth-status.php";
+const CATEGORY_API_URL    = "../backend/api/categories.php";
+const DASHBOARD_API_URL   = "../backend/api/dashboard.php";
 const TRANSACTION_API_URL = "../backend/api/transactions.php";
 
+// Global cache for categories (used for populating dropdowns)
+let userCategories = [];
 
 // ============================================================
-// PAGE LOAD
+// INITIALIZATION
 // ============================================================
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    showLogin();
-
+document.addEventListener("DOMContentLoaded", async () => {
     setupEventListeners();
-
+    await checkSession();
 });
 
+// ============================================================
+// SESSION MANAGEMENT (Check active login on page load)
+// ============================================================
+async function checkSession() {
+    try {
+        const response = await fetch(AUTH_STATUS_API_URL);
+        const data = await response.json();
+
+        if (data.success && data.authenticated && data.user) {
+            setUserLoggedIn(data.user);
+            await loadAllUserData();
+        } else {
+            showLogin();
+        }
+    } catch (error) {
+        console.error("Session check error:", error);
+        showLogin();
+    }
+}
+
+function setUserLoggedIn(user) {
+    const authSection = document.getElementById("authSection");
+    const financeSection = document.getElementById("financeSection");
+    const userProfileBar = document.getElementById("userProfileBar");
+    const userNameDisplay = document.getElementById("userNameDisplay");
+
+    if (authSection) authSection.style.display = "none";
+    if (financeSection) financeSection.style.display = "block";
+    if (userProfileBar) userProfileBar.style.display = "flex";
+    if (userNameDisplay) userNameDisplay.textContent = user.name || "User";
+
+    // Set today's date as default in transaction date picker
+    const dateInput = document.getElementById("transactionDate");
+    if (dateInput && !dateInput.value) {
+        dateInput.value = new Date().toISOString().split("T")[0];
+    }
+}
+
+async function loadAllUserData() {
+    await loadCategories();
+    await loadTransactions();
+    await loadDashboard();
+}
 
 // ============================================================
-// EVENT LISTENERS
+// EVENT LISTENERS SETUP
 // ============================================================
-
 function setupEventListeners() {
+    // 1. Auth Forms
+    const loginForm = document.getElementById("loginForm");
+    if (loginForm) loginForm.addEventListener("submit", handleLogin);
 
-    // LOGIN
+    const registerForm = document.getElementById("registerForm");
+    if (registerForm) registerForm.addEventListener("submit", handleRegister);
 
-    const loginForm =
-        document.getElementById("loginForm");
+    const showRegisterButton = document.getElementById("showRegisterButton");
+    if (showRegisterButton) showRegisterButton.addEventListener("click", showRegister);
 
-    if (loginForm) {
+    const showLoginButton = document.getElementById("showLoginButton");
+    if (showLoginButton) showLoginButton.addEventListener("click", showLogin);
 
-        loginForm.addEventListener(
-            "submit",
-            async (event) => {
+    const headerLogoutButton = document.getElementById("headerLogoutButton");
+    if (headerLogoutButton) headerLogoutButton.addEventListener("click", logout);
 
-                event.preventDefault();
+    // 2. Category & Transaction Forms
+    const categoryForm = document.getElementById("categoryForm");
+    if (categoryForm) categoryForm.addEventListener("submit", handleCreateCategory);
 
-                await login();
+    const transactionForm = document.getElementById("transactionForm");
+    if (transactionForm) transactionForm.addEventListener("submit", handleCreateTransaction);
 
-            }
-        );
+    // 3. Modal Controls - Category Edit
+    const closeCatBtn = document.getElementById("closeCategoryModalBtn");
+    const cancelCatBtn = document.getElementById("cancelCategoryModalBtn");
+    if (closeCatBtn) closeCatBtn.addEventListener("click", closeCategoryModal);
+    if (cancelCatBtn) cancelCatBtn.addEventListener("click", closeCategoryModal);
+
+    const editCategoryForm = document.getElementById("editCategoryForm");
+    if (editCategoryForm) editCategoryForm.addEventListener("submit", handleUpdateCategory);
+
+    // 4. Modal Controls - Transaction Edit
+    const closeTxBtn = document.getElementById("closeTransactionModalBtn");
+    const cancelTxBtn = document.getElementById("cancelTransactionModalBtn");
+    if (closeTxBtn) closeTxBtn.addEventListener("click", closeTransactionModal);
+    if (cancelTxBtn) cancelTxBtn.addEventListener("click", closeTransactionModal);
+
+    const editTransactionForm = document.getElementById("editTransactionForm");
+    if (editTransactionForm) editTransactionForm.addEventListener("submit", handleUpdateTransaction);
+
+    // 5. Close Modals on Escape Key or Backdrop Click
+    window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            closeCategoryModal();
+            closeTransactionModal();
+        }
+    });
+
+    const catModal = document.getElementById("editCategoryModal");
+    if (catModal) {
+        catModal.addEventListener("click", (e) => {
+            if (e.target === catModal) closeCategoryModal();
+        });
     }
 
-
-    // REGISTER
-
-    const registerForm =
-        document.getElementById("registerForm");
-
-    if (registerForm) {
-
-        registerForm.addEventListener(
-            "submit",
-            async (event) => {
-
-                event.preventDefault();
-
-                await register();
-
-            }
-        );
+    const txModal = document.getElementById("editTransactionModal");
+    if (txModal) {
+        txModal.addEventListener("click", (e) => {
+            if (e.target === txModal) closeTransactionModal();
+        });
     }
-
-
-    // SHOW REGISTER
-
-    const showRegisterButton =
-        document.getElementById("showRegisterButton");
-
-    if (showRegisterButton) {
-
-        showRegisterButton.addEventListener(
-            "click",
-            showRegister
-        );
-
-    }
-
-
-    // SHOW LOGIN
-
-    const showLoginButton =
-        document.getElementById("showLoginButton");
-
-    if (showLoginButton) {
-
-        showLoginButton.addEventListener(
-            "click",
-            showLogin
-        );
-
-    }
-
-
-    // CATEGORY
-
-    const categoryForm =
-        document.getElementById("categoryForm");
-
-    if (categoryForm) {
-
-        categoryForm.addEventListener(
-            "submit",
-            async (event) => {
-
-                event.preventDefault();
-
-                const input =
-                    document.getElementById("categoryName");
-
-                const name =
-                    input.value.trim();
-
-
-                if (!name) {
-
-                    showCategoryMessage(
-                        "Please enter a category name."
-                    );
-
-                    return;
-
-                }
-
-
-                await createCategory(name);
-
-            }
-        );
-
-    }
-
-
-    // TRANSACTION
-
-    const transactionForm =
-        document.getElementById("transactionForm");
-
-    if (transactionForm) {
-
-        transactionForm.addEventListener(
-            "submit",
-            async (event) => {
-
-                event.preventDefault();
-
-                await createTransaction();
-
-            }
-        );
-
-    }
-
-
-    // LOGOUT
-
-    const logoutButton =
-        document.getElementById("logoutButton");
-
-    if (logoutButton) {
-
-        logoutButton.addEventListener(
-            "click",
-            logout
-        );
-
-    }
-
 }
 
-
 // ============================================================
-// SHOW LOGIN
+// VIEW SWITCHING
 // ============================================================
-
 function showLogin() {
+    const authSection = document.getElementById("authSection");
+    const loginSection = document.getElementById("loginSection");
+    const registerSection = document.getElementById("registerSection");
+    const financeSection = document.getElementById("financeSection");
+    const userProfileBar = document.getElementById("userProfileBar");
 
-    const loginSection =
-        document.getElementById("loginSection");
+    if (authSection) authSection.style.display = "block";
+    if (loginSection) loginSection.style.display = "block";
+    if (registerSection) registerSection.style.display = "none";
+    if (financeSection) financeSection.style.display = "none";
+    if (userProfileBar) userProfileBar.style.display = "none";
 
-    const registerSection =
-        document.getElementById("registerSection");
-
-    const financeSection =
-        document.getElementById("financeSection");
-
-    const authSection =
-        document.getElementById("authSection");
-
-
-    if (authSection) {
-
-        authSection.style.display = "block";
-
-    }
-
-
-    if (loginSection) {
-
-        loginSection.style.display = "block";
-
-    }
-
-
-    if (registerSection) {
-
-        registerSection.style.display = "none";
-
-    }
-
-
-    if (financeSection) {
-
-        financeSection.style.display = "none";
-
-    }
-
-
-    clearMessages();
-
+    clearAuthMessages();
 }
-
-
-// ============================================================
-// SHOW REGISTER
-// ============================================================
 
 function showRegister() {
+    const loginSection = document.getElementById("loginSection");
+    const registerSection = document.getElementById("registerSection");
 
-    const loginSection =
-        document.getElementById("loginSection");
+    if (loginSection) loginSection.style.display = "none";
+    if (registerSection) registerSection.style.display = "block";
 
-    const registerSection =
-        document.getElementById("registerSection");
-
-    const financeSection =
-        document.getElementById("financeSection");
-
-
-    if (loginSection) {
-
-        loginSection.style.display = "none";
-
-    }
-
-
-    if (registerSection) {
-
-        registerSection.style.display = "block";
-
-    }
-
-
-    if (financeSection) {
-
-        financeSection.style.display = "none";
-
-    }
-
-
-    clearMessages();
-
+    clearAuthMessages();
 }
 
-
-// ============================================================
-// CLEAR AUTH MESSAGES
-// ============================================================
-
-function clearMessages() {
-
-    const loginMessage =
-        document.getElementById("loginMessage");
-
-    const registerMessage =
-        document.getElementById("registerMessage");
-
-
-    if (loginMessage) {
-
-        loginMessage.textContent = "";
-
-    }
-
-
-    if (registerMessage) {
-
-        registerMessage.textContent = "";
-
-    }
-
+function clearAuthMessages() {
+    const loginMsg = document.getElementById("loginMessage");
+    const regMsg = document.getElementById("registerMessage");
+    if (loginMsg) { loginMsg.textContent = ""; loginMsg.className = "feedback-message"; }
+    if (regMsg) { regMsg.textContent = ""; regMsg.className = "feedback-message"; }
 }
 
+function showFeedback(elementId, message, isSuccess = false) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    el.textContent = message;
+    el.className = `feedback-message ${isSuccess ? "msg-success" : "msg-error"}`;
+}
 
 // ============================================================
-// REGISTER
+// AUTHENTICATION
 // ============================================================
+async function handleRegister(e) {
+    e.preventDefault();
 
-async function register() {
+    const name = document.getElementById("registerName").value.trim();
+    const email = document.getElementById("registerEmail").value.trim();
+    const password = document.getElementById("registerPassword").value;
+    const confirmPassword = document.getElementById("registerConfirmPassword").value;
 
-    const name =
-        document
-            .getElementById("registerName")
-            .value
-            .trim();
-
-
-    const email =
-        document
-            .getElementById("registerEmail")
-            .value
-            .trim();
-
-
-    const password =
-        document
-            .getElementById("registerPassword")
-            .value;
-
-
-    const confirmPassword =
-        document
-            .getElementById("registerConfirmPassword")
-            .value;
-
-
-    const message =
-        document.getElementById("registerMessage");
-
-
-    if (
-        !name ||
-        !email ||
-        !password ||
-        !confirmPassword
-    ) {
-
-        message.textContent =
-            "Please fill in all fields.";
-
+    if (!name || !email || !password || !confirmPassword) {
+        showFeedback("registerMessage", "Please fill in all fields.");
         return;
-
     }
-
 
     if (password.length < 8) {
-
-        message.textContent =
-            "Password must be at least 8 characters.";
-
+        showFeedback("registerMessage", "Password must be at least 8 characters.");
         return;
-
     }
-
 
     if (password !== confirmPassword) {
-
-        message.textContent =
-            "Passwords do not match.";
-
+        showFeedback("registerMessage", "Passwords do not match.");
         return;
-
     }
 
-
     try {
+        const response = await fetch(REGISTER_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, password })
+        });
 
-        const response =
-            await fetch(
-                REGISTER_API_URL,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        name: name,
-                        email: email,
-                        password: password
-                    })
-                }
-            );
-
-
-        const data =
-            await response.json();
-
+        const data = await response.json();
 
         if (!data.success) {
-
-            message.textContent =
-                data.message ||
-                "Registration failed.";
-
+            showFeedback("registerMessage", data.message || "Registration failed.");
             return;
-
         }
 
-
-        message.textContent =
-            "Registration successful! Please login.";
-
-
-        document
-            .getElementById("registerForm")
-            .reset();
-
+        showFeedback("registerMessage", data.message, true);
+        document.getElementById("registerForm").reset();
 
         setTimeout(() => {
-
             showLogin();
-
-
-            const loginEmail =
-                document.getElementById("loginEmail");
-
-
-            if (loginEmail) {
-
-                loginEmail.value = email;
-
-            }
-
-        }, 1000);
-
+            const loginEmail = document.getElementById("loginEmail");
+            if (loginEmail) loginEmail.value = email;
+            showFeedback("loginMessage", "Account created! Please login.", true);
+        }, 1200);
 
     } catch (error) {
-
-        console.error(
-            "Registration error:",
-            error
-        );
-
-
-        message.textContent =
-            "Something went wrong during registration.";
-
+        console.error("Register error:", error);
+        showFeedback("registerMessage", "An unexpected error occurred.");
     }
-
 }
 
+async function handleLogin(e) {
+    e.preventDefault();
 
-// ============================================================
-// LOGIN
-// ============================================================
-
-async function login() {
-
-    const email =
-        document
-            .getElementById("loginEmail")
-            .value
-            .trim();
-
-
-    const password =
-        document
-            .getElementById("loginPassword")
-            .value;
-
-
-    const message =
-        document.getElementById("loginMessage");
-
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
 
     if (!email || !password) {
-
-        message.textContent =
-            "Email and password are required.";
-
+        showFeedback("loginMessage", "Email and password are required.");
         return;
-
     }
-
 
     try {
+        const response = await fetch(LOGIN_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        });
 
-        const response =
-            await fetch(
-                LOGIN_API_URL,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        email: email,
-                        password: password
-                    })
-                }
-            );
-
-
-        const data =
-            await response.json();
-
+        const data = await response.json();
 
         if (!data.success) {
-
-            message.textContent =
-                data.message ||
-                "Login failed.";
-
+            showFeedback("loginMessage", data.message || "Login failed.");
             return;
-
         }
 
-
-        message.textContent =
-            "Login successful.";
-
-
-        document
-            .getElementById("authSection")
-            .style.display = "none";
-
-
-        document
-            .getElementById("financeSection")
-            .style.display = "block";
-
-
-        document
-            .getElementById("loginForm")
-            .reset();
-
-
-        // Load all user data
-
-        await loadCategories();
-
-        await loadTransactions();
-
-        await loadDashboard();
+        document.getElementById("loginForm").reset();
+        setUserLoggedIn(data.user);
+        await loadAllUserData();
 
     } catch (error) {
-
-        console.error(
-            "Login error:",
-            error
-        );
-
-
-        message.textContent =
-            "Something went wrong during login.";
-
+        console.error("Login error:", error);
+        showFeedback("loginMessage", "An unexpected error occurred during login.");
     }
-
 }
-
-
-// ============================================================
-// LOGOUT
-// ============================================================
 
 async function logout() {
-
-    const logoutMessage =
-        document.getElementById("logoutMessage");
-
-
     try {
-
-        const response =
-            await fetch(
-                LOGOUT_API_URL,
-                {
-                    method: "POST"
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (!data.success) {
-
-            logoutMessage.textContent =
-                data.message ||
-                "Logout failed.";
-
-            return;
-
-        }
-
-
-        document
-            .getElementById("financeSection")
-            .style.display = "none";
-
-
-        document
-            .getElementById("authSection")
-            .style.display = "block";
-
-
-        showLogin();
-
-
-        document
-            .getElementById("loginForm")
-            .reset();
-
-
-        document
-            .getElementById("registerForm")
-            .reset();
-
-
-        // Clear categories
-
-        document
-            .getElementById("categoryList")
-            .innerHTML = "";
-
-
-        document
-            .getElementById("categoryMessage")
-            .textContent =
-            "No categories found.";
-
-
-        // Clear transactions
-
-        document
-            .getElementById("transactionList")
-            .innerHTML = "";
-
-
-        document
-            .getElementById("transactionMessage")
-            .textContent = "";
-
-
-        // Clear recent transactions
-
-        const recentList =
-            document.getElementById(
-                "recentTransactionsList"
-            );
-
-
-        const recentMessage =
-            document.getElementById(
-                "recentTransactionsMessage"
-            );
-
-
-        if (recentList) {
-
-            recentList.innerHTML = "";
-
-        }
-
-
-        if (recentMessage) {
-
-            recentMessage.textContent =
-                "No recent transactions found.";
-
-        }
-
-
-        // Reset dashboard
-
-        document
-            .getElementById("totalIncome")
-            .textContent =
-            "Rs. 0.00";
-
-
-        document
-            .getElementById("totalExpenses")
-            .textContent =
-            "Rs. 0.00";
-
-
-        document
-            .getElementById("balance")
-            .textContent =
-            "Rs. 0.00";
-
-
+        await fetch(LOGOUT_API_URL, { method: "POST" });
     } catch (error) {
-
-        console.error(
-            "Logout error:",
-            error
-        );
-
-
-        logoutMessage.textContent =
-            "Something went wrong during logout.";
-
+        console.error("Logout error:", error);
+    } finally {
+        userCategories = [];
+        showLogin();
+        showFeedback("loginMessage", "You have been logged out.", true);
     }
-
 }
 
-
 // ============================================================
-// LOAD CATEGORIES
+// CATEGORY MANAGEMENT
 // ============================================================
-
 async function loadCategories() {
-
-    const categoryList =
-        document.getElementById("categoryList");
-
-
-    const categorySelect =
-        document.getElementById(
-            "transactionCategory"
-        );
-
+    const categoryList = document.getElementById("categoryList");
+    const categorySelect = document.getElementById("transactionCategory");
+    const modalCategorySelect = document.getElementById("editTransactionCategory");
 
     try {
+        const response = await fetch(CATEGORY_API_URL);
+        const data = await response.json();
 
-        const response =
-            await fetch(
-                CATEGORY_API_URL
-            );
+        if (!data.success || !data.categories) {
+            userCategories = [];
+            showFeedback("categoryMessage", data.message || "Failed to load categories.");
+            return;
+        }
 
-
-        const data =
-            await response.json();
-
-
+        userCategories = data.categories;
         categoryList.innerHTML = "";
 
+        // Populate dropdowns
+        const defaultOption = '<option value="">Select Category</option>';
+        const optionsHtml = userCategories
+            .map(cat => `<option value="${cat.category_id}">${escapeHtml(cat.name)}</option>`)
+            .join("");
 
-        categorySelect.innerHTML = `
-            <option value="">
-                Select Category
-            </option>
-        `;
+        if (categorySelect) categorySelect.innerHTML = defaultOption + optionsHtml;
+        if (modalCategorySelect) modalCategorySelect.innerHTML = defaultOption + optionsHtml;
 
-
-        if (!data.success) {
-
-            showCategoryMessage(
-                data.message ||
-                "Failed to load categories."
-            );
-
+        if (userCategories.length === 0) {
+            showFeedback("categoryMessage", "No categories found. Add one above to get started!");
             return;
-
         }
 
+        document.getElementById("categoryMessage").textContent = "";
 
-        if (
-            !data.categories ||
-            data.categories.length === 0
-        ) {
+        userCategories.forEach(category => {
+            const li = document.createElement("li");
 
-            showCategoryMessage(
-                "No categories found."
-            );
+            const nameSpan = document.createElement("span");
+            nameSpan.className = "item-title";
+            nameSpan.textContent = category.name;
 
-            return;
+            const actionsDiv = document.createElement("div");
+            actionsDiv.className = "item-actions";
 
-        }
+            // Edit button
+            const editBtn = document.createElement("button");
+            editBtn.className = "btn-icon";
+            editBtn.title = "Edit Category";
+            editBtn.innerHTML = '<i class="fa-solid fa-pen"></i>';
+            editBtn.addEventListener("click", () => openCategoryModal(category.category_id, category.name));
 
+            // Delete button
+            const deleteBtn = document.createElement("button");
+            deleteBtn.className = "btn-icon btn-delete";
+            deleteBtn.title = "Delete Category";
+            deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+            deleteBtn.addEventListener("click", () => deleteCategory(category.category_id, category.name));
 
-        document
-            .getElementById("categoryMessage")
-            .textContent = "";
+            actionsDiv.appendChild(editBtn);
+            actionsDiv.appendChild(deleteBtn);
 
-
-        data.categories.forEach(
-            (category) => {
-
-                const li =
-                    document.createElement("li");
-
-
-                const nameSpan =
-                    document.createElement("span");
-
-
-                nameSpan.textContent =
-                    category.name;
-
-
-                // EDIT
-
-                const editButton =
-                    document.createElement("button");
-
-
-                editButton.textContent =
-                    "Edit";
-
-
-                editButton.type =
-                    "button";
-
-
-                editButton.addEventListener(
-                    "click",
-                    () => {
-
-                        editCategory(
-                            category.category_id,
-                            category.name
-                        );
-
-                    }
-                );
-
-
-                // DELETE
-
-                const deleteButton =
-                    document.createElement("button");
-
-
-                deleteButton.textContent =
-                    "Delete";
-
-
-                deleteButton.type =
-                    "button";
-
-
-                deleteButton.addEventListener(
-                    "click",
-                    () => {
-
-                        deleteCategory(
-                            category.category_id
-                        );
-
-                    }
-                );
-
-
-                li.appendChild(nameSpan);
-
-                li.appendChild(editButton);
-
-                li.appendChild(deleteButton);
-
-                categoryList.appendChild(li);
-
-
-                // DROPDOWN
-
-                const option =
-                    document.createElement("option");
-
-
-                option.value =
-                    category.category_id;
-
-
-                option.textContent =
-                    category.name;
-
-
-                categorySelect.appendChild(option);
-
-            }
-        );
-
+            li.appendChild(nameSpan);
+            li.appendChild(actionsDiv);
+            categoryList.appendChild(li);
+        });
 
     } catch (error) {
-
-        console.error(
-            "Category loading error:",
-            error
-        );
-
-
-        showCategoryMessage(
-            "Something went wrong while loading categories."
-        );
-
+        console.error("Categories loading error:", error);
+        showFeedback("categoryMessage", "Could not load categories.");
     }
-
 }
 
-
-// ============================================================
-// CREATE CATEGORY
-// ============================================================
-
-async function createCategory(name) {
-
-    try {
-
-        const response =
-            await fetch(
-                CATEGORY_API_URL,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        name: name
-                    })
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (!data.success) {
-
-            showCategoryMessage(
-                data.message ||
-                "Failed to create category."
-            );
-
-            return;
-
-        }
-
-
-        document
-            .getElementById("categoryName")
-            .value = "";
-
-
-        showCategoryMessage(
-            "Category created successfully."
-        );
-
-
-        await loadCategories();
-
-    } catch (error) {
-
-        console.error(
-            "Create category error:",
-            error
-        );
-
-
-        showCategoryMessage(
-            "Something went wrong while creating the category."
-        );
-
-    }
-
-}
-
-
-// ============================================================
-// EDIT CATEGORY
-// ============================================================
-
-async function editCategory(
-    categoryId,
-    currentName
-) {
-
-    const newName =
-        prompt(
-            "Enter the new category name:",
-            currentName
-        );
-
-
-    if (newName === null) {
-
-        return;
-
-    }
-
-
-    const name =
-        newName.trim();
-
+async function handleCreateCategory(e) {
+    e.preventDefault();
+    const input = document.getElementById("categoryName");
+    const name = input.value.trim();
 
     if (!name) {
-
-        showCategoryMessage(
-            "Category name is required."
-        );
-
+        showFeedback("categoryMessage", "Category name is required.");
         return;
-
     }
 
-
     try {
+        const response = await fetch(CATEGORY_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name })
+        });
 
-        const response =
-            await fetch(
-                CATEGORY_API_URL,
-                {
-                    method: "PUT",
-
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        category_id: categoryId,
-                        name: name
-                    })
-                }
-            );
-
-
-        const data =
-            await response.json();
-
+        const data = await response.json();
 
         if (!data.success) {
-
-            showCategoryMessage(
-                data.message ||
-                "Failed to update category."
-            );
-
+            showFeedback("categoryMessage", data.message || "Failed to create category.");
             return;
-
         }
 
-
-        showCategoryMessage(
-            "Category updated successfully."
-        );
-
-
+        input.value = "";
+        showFeedback("categoryMessage", "Category added successfully!", true);
         await loadCategories();
-
-        await loadTransactions();
-
 
     } catch (error) {
-
-        console.error(
-            "Edit category error:",
-            error
-        );
-
-
-        showCategoryMessage(
-            "Something went wrong while updating the category."
-        );
-
+        console.error("Create category error:", error);
+        showFeedback("categoryMessage", "Error adding category.");
     }
-
 }
 
+function openCategoryModal(categoryId, currentName) {
+    document.getElementById("editCategoryId").value = categoryId;
+    document.getElementById("editCategoryName").value = currentName;
+    const modal = document.getElementById("editCategoryModal");
+    if (modal) modal.style.display = "flex";
+}
 
-// ============================================================
-// DELETE CATEGORY
-// ============================================================
+function closeCategoryModal() {
+    const modal = document.getElementById("editCategoryModal");
+    if (modal) modal.style.display = "none";
+}
 
-async function deleteCategory(categoryId) {
+async function handleUpdateCategory(e) {
+    e.preventDefault();
+    const categoryId = parseInt(document.getElementById("editCategoryId").value);
+    const name = document.getElementById("editCategoryName").value.trim();
 
-    const confirmed =
-        confirm(
-            "Are you sure you want to delete this category?"
-        );
-
-
-    if (!confirmed) {
-
-        return;
-
-    }
-
+    if (!categoryId || !name) return;
 
     try {
+        const response = await fetch(CATEGORY_API_URL, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ category_id: categoryId, name })
+        });
 
-        const response =
-            await fetch(
-                CATEGORY_API_URL,
-                {
-                    method: "DELETE",
-
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        category_id: categoryId
-                    })
-                }
-            );
-
-
-        const data =
-            await response.json();
-
+        const data = await response.json();
 
         if (!data.success) {
-
-            showCategoryMessage(
-                data.message ||
-                "Failed to delete category."
-            );
-
+            alert(data.message || "Failed to update category.");
             return;
-
         }
 
-
-        showCategoryMessage(
-            "Category deleted successfully."
-        );
-
-
+        closeCategoryModal();
         await loadCategories();
+        await loadTransactions(); // Refresh transaction categories if name changed
 
+    } catch (error) {
+        console.error("Update category error:", error);
+        alert("Error updating category.");
+    }
+}
+
+async function deleteCategory(categoryId, categoryName) {
+    if (!confirm(`Are you sure you want to delete category "${categoryName}"?`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(CATEGORY_API_URL, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ category_id: categoryId })
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+            showFeedback("categoryMessage", data.message || "Failed to delete category.");
+            return;
+        }
+
+        showFeedback("categoryMessage", "Category deleted.", true);
+        await loadCategories();
         await loadTransactions();
-
         await loadDashboard();
 
-
     } catch (error) {
-
-        console.error(
-            "Delete category error:",
-            error
-        );
-
-
-        showCategoryMessage(
-            "Something went wrong while deleting the category."
-        );
-
+        console.error("Delete category error:", error);
+        showFeedback("categoryMessage", "Error deleting category.");
     }
-
 }
 
-
 // ============================================================
-// CATEGORY MESSAGE
+// TRANSACTION MANAGEMENT
 // ============================================================
-
-function showCategoryMessage(message) {
-
-    const element =
-        document.getElementById(
-            "categoryMessage"
-        );
-
-
-    if (element) {
-
-        element.textContent = message;
-
-    }
-
-}
-
-
-// ============================================================
-// LOAD TRANSACTIONS
-// ============================================================
-
 async function loadTransactions() {
-
-    const transactionList =
-        document.getElementById(
-            "transactionList"
-        );
-
-
-    const transactionMessage =
-        document.getElementById(
-            "transactionMessage"
-        );
-
+    const transactionList = document.getElementById("transactionList");
+    const transactionMessage = document.getElementById("transactionMessage");
 
     try {
-
-        const response =
-            await fetch(
-                TRANSACTION_API_URL
-            );
-
-
-        const data =
-            await response.json();
-
+        const response = await fetch(TRANSACTION_API_URL);
+        const data = await response.json();
 
         transactionList.innerHTML = "";
 
-
-        if (!data.success) {
-
-            transactionMessage.textContent =
-                data.message ||
-                "Failed to load transactions.";
-
-
-            updateRecentTransactions([]);
-
-
+        if (!data.success || !data.transactions || data.transactions.length === 0) {
+            transactionMessage.textContent = "No transactions found. Add your first transaction above!";
+            transactionMessage.className = "empty-state-message";
+            updateRecentTransactionsView([]);
             return;
-
         }
-
-
-        if (
-            !data.transactions ||
-            data.transactions.length === 0
-        ) {
-
-            transactionMessage.textContent =
-                "No transactions found.";
-
-
-            updateRecentTransactions([]);
-
-
-            return;
-
-        }
-
 
         transactionMessage.textContent = "";
 
+        data.transactions.forEach(transaction => {
+            const li = createTransactionListItem(transaction);
+            transactionList.appendChild(li);
+        });
 
-        // ----------------------------------------------------
-        // DISPLAY ALL TRANSACTIONS
-        // ----------------------------------------------------
-
-        data.transactions.forEach(
-            (transaction) => {
-
-                const li =
-                    document.createElement("li");
-
-
-                const details =
-                    document.createElement("span");
-
-
-                details.textContent =
-                    `${transaction.transaction_date} - ` +
-                    `${transaction.category_name} - ` +
-                    `${transaction.type} - ` +
-                    `Rs. ${transaction.amount} - ` +
-                    `${transaction.description || ""}`;
-
-
-                // EDIT BUTTON
-
-                const editButton =
-                    document.createElement("button");
-
-
-                editButton.textContent =
-                    "Edit";
-
-
-                editButton.type =
-                    "button";
-
-
-                editButton.addEventListener(
-                    "click",
-                    () => {
-
-                        editTransaction(
-                            transaction
-                        );
-
-                    }
-                );
-
-
-                // DELETE BUTTON
-
-                const deleteButton =
-                    document.createElement("button");
-
-
-                deleteButton.textContent =
-                    "Delete";
-
-
-                deleteButton.type =
-                    "button";
-
-
-                deleteButton.addEventListener(
-                    "click",
-                    () => {
-
-                        deleteTransaction(
-                            transaction.transaction_id
-                        );
-
-                    }
-                );
-
-
-                li.appendChild(details);
-
-                li.appendChild(editButton);
-
-                li.appendChild(deleteButton);
-
-                transactionList.appendChild(li);
-
-            }
-        );
-
-
-        // ----------------------------------------------------
-        // UPDATE RECENT TRANSACTIONS
-        // ----------------------------------------------------
-
-        updateRecentTransactions(
-            data.transactions
-        );
-
+        updateRecentTransactionsView(data.transactions);
 
     } catch (error) {
-
-        console.error(
-            "Transaction loading error:",
-            error
-        );
-
-
-        transactionMessage.textContent =
-            "Something went wrong while loading transactions.";
-
-
-        updateRecentTransactions([]);
-
+        console.error("Transactions loading error:", error);
+        showFeedback("transactionMessage", "Failed to load transactions.");
     }
-
 }
 
+function createTransactionListItem(tx) {
+    const li = document.createElement("li");
 
-// ============================================================
-// UPDATE RECENT TRANSACTIONS
-// ============================================================
+    const isIncome = tx.type === "income";
+    const amountFormatted = parseFloat(tx.amount || 0).toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
 
-function updateRecentTransactions(
-    transactions
-) {
+    li.innerHTML = `
+        <div class="item-main-info">
+            <span class="item-badge ${isIncome ? 'badge-income' : 'badge-expense'}">
+                ${isIncome ? 'Income' : 'Expense'}
+            </span>
+            <div class="item-details">
+                <span class="item-title">${escapeHtml(tx.description || tx.category_name || 'Transaction')}</span>
+                <span class="item-meta">
+                    <i class="fa-solid fa-folder"></i> ${escapeHtml(tx.category_name || 'Uncategorized')} &bull; 
+                    <i class="fa-regular fa-calendar"></i> ${escapeHtml(tx.transaction_date)}
+                </span>
+            </div>
+        </div>
+        <div class="item-actions">
+            <span class="item-amount ${isIncome ? 'amount-income' : 'amount-expense'}">
+                ${isIncome ? '+' : '-'} Rs. ${amountFormatted}
+            </span>
+            <button type="button" class="btn-icon edit-tx-btn" title="Edit Transaction">
+                <i class="fa-solid fa-pen"></i>
+            </button>
+            <button type="button" class="btn-icon btn-delete delete-tx-btn" title="Delete Transaction">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        </div>
+    `;
 
-    const recentList =
-        document.getElementById(
-            "recentTransactionsList"
-        );
+    li.querySelector(".edit-tx-btn").addEventListener("click", () => openTransactionModal(tx));
+    li.querySelector(".delete-tx-btn").addEventListener("click", () => deleteTransaction(tx.transaction_id));
 
+    return li;
+}
 
-    const recentMessage =
-        document.getElementById(
-            "recentTransactionsMessage"
-        );
+function updateRecentTransactionsView(transactions) {
+    const recentList = document.getElementById("recentTransactionsList");
+    const recentMsg = document.getElementById("recentTransactionsMessage");
 
-
-    if (
-        !recentList ||
-        !recentMessage
-    ) {
-
-        return;
-
-    }
-
-
+    if (!recentList) return;
     recentList.innerHTML = "";
 
-
-    if (
-        !transactions ||
-        transactions.length === 0
-    ) {
-
-        recentMessage.textContent =
-            "No recent transactions found.";
-
+    if (!transactions || transactions.length === 0) {
+        if (recentMsg) recentMsg.style.display = "block";
         return;
-
     }
 
+    if (recentMsg) recentMsg.style.display = "none";
 
-    recentMessage.textContent = "";
+    // Sort by date descending and take top 5
+    const top5 = [...transactions]
+        .sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date))
+        .slice(0, 5);
 
+    top5.forEach(tx => {
+        const isIncome = tx.type === "income";
+        const amountFormatted = parseFloat(tx.amount || 0).toLocaleString("en-IN", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
 
-    /*
-     * Sort transactions by date.
-     *
-     * Latest transaction comes first.
-     */
-
-    const sortedTransactions =
-        [...transactions].sort(
-            (a, b) => {
-
-                return new Date(
-                    b.transaction_date
-                ) -
-                new Date(
-                    a.transaction_date
-                );
-
-            }
-        );
-
-
-    /*
-     * Show only latest 5.
-     */
-
-    const recentTransactions =
-        sortedTransactions.slice(0, 5);
-
-
-    recentTransactions.forEach(
-        (transaction) => {
-
-            const li =
-                document.createElement("li");
-
-
-            const details =
-                document.createElement("span");
-
-
-            details.textContent =
-                `${transaction.transaction_date} - ` +
-                `${transaction.category_name} - ` +
-                `${transaction.type} - ` +
-                `Rs. ${parseFloat(
-                    transaction.amount || 0
-                ).toFixed(2)} - ` +
-                `${transaction.description || ""}`;
-
-
-            li.appendChild(details);
-
-
-            recentList.appendChild(li);
-
-        }
-    );
-
+        const li = document.createElement("li");
+        li.innerHTML = `
+            <div class="item-main-info">
+                <span class="item-badge ${isIncome ? 'badge-income' : 'badge-expense'}">
+                    ${isIncome ? 'Income' : 'Expense'}
+                </span>
+                <div class="item-details">
+                    <span class="item-title">${escapeHtml(tx.description || tx.category_name)}</span>
+                    <span class="item-meta">${escapeHtml(tx.category_name)} &bull; ${escapeHtml(tx.transaction_date)}</span>
+                </div>
+            </div>
+            <span class="item-amount ${isIncome ? 'amount-income' : 'amount-expense'}">
+                ${isIncome ? '+' : '-'} Rs. ${amountFormatted}
+            </span>
+        `;
+        recentList.appendChild(li);
+    });
 }
 
+async function handleCreateTransaction(e) {
+    e.preventDefault();
 
-// ============================================================
-// CREATE TRANSACTION
-// ============================================================
+    const amount = parseFloat(document.getElementById("transactionAmount").value);
+    const type = document.getElementById("transactionType").value;
+    const categoryId = parseInt(document.getElementById("transactionCategory").value);
+    const transactionDate = document.getElementById("transactionDate").value;
+    const description = document.getElementById("transactionDescription").value.trim();
 
-async function createTransaction() {
-
-    const amount =
-        parseFloat(
-            document
-                .getElementById(
-                    "transactionAmount"
-                )
-                .value
-        );
-
-
-    const type =
-        document
-            .getElementById(
-                "transactionType"
-            )
-            .value;
-
-
-    const categoryId =
-        parseInt(
-            document
-                .getElementById(
-                    "transactionCategory"
-                )
-                .value
-        );
-
-
-    const description =
-        document
-            .getElementById(
-                "transactionDescription"
-            )
-            .value
-            .trim();
-
-
-    const transactionDate =
-        document
-            .getElementById(
-                "transactionDate"
-            )
-            .value;
-
-
-    const message =
-        document.getElementById(
-            "transactionMessage"
-        );
-
-
-    if (
-        !amount ||
-        amount <= 0 ||
-        !type ||
-        !categoryId ||
-        !transactionDate
-    ) {
-
-        message.textContent =
-            "Please fill in all required fields.";
-
+    if (!amount || amount <= 0 || !type || !categoryId || !transactionDate) {
+        showFeedback("transactionMessage", "Please fill in all required fields.");
         return;
-
     }
-
 
     try {
+        const response = await fetch(TRANSACTION_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                category_id: categoryId,
+                amount: amount,
+                type: type,
+                description: description,
+                transaction_date: transactionDate
+            })
+        });
 
-        const response =
-            await fetch(
-                TRANSACTION_API_URL,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
-                    body: JSON.stringify({
-
-                        category_id: categoryId,
-
-                        amount: amount,
-
-                        type: type,
-
-                        description: description,
-
-                        transaction_date:
-                            transactionDate
-
-                    })
-                }
-            );
-
-
-        const data =
-            await response.json();
-
+        const data = await response.json();
 
         if (!data.success) {
-
-            message.textContent =
-                data.message ||
-                "Failed to create transaction.";
-
+            showFeedback("transactionMessage", data.message || "Failed to add transaction.");
             return;
-
         }
 
+        document.getElementById("transactionForm").reset();
+        document.getElementById("transactionDate").value = new Date().toISOString().split("T")[0];
 
-        message.textContent =
-            "Transaction created successfully.";
-
-
-        document
-            .getElementById(
-                "transactionForm"
-            )
-            .reset();
-
-
+        showFeedback("transactionMessage", "Transaction added successfully!", true);
         await loadTransactions();
-
         await loadDashboard();
 
-
     } catch (error) {
-
-        console.error(
-            "Create transaction error:",
-            error
-        );
-
-
-        message.textContent =
-            "Something went wrong while creating the transaction.";
-
+        console.error("Create transaction error:", error);
+        showFeedback("transactionMessage", "Error adding transaction.");
     }
-
 }
 
+function openTransactionModal(tx) {
+    document.getElementById("editTransactionId").value = tx.transaction_id;
+    document.getElementById("editTransactionAmount").value = tx.amount;
+    document.getElementById("editTransactionType").value = tx.type;
+    document.getElementById("editTransactionCategory").value = tx.category_id;
+    document.getElementById("editTransactionDate").value = tx.transaction_date;
+    document.getElementById("editTransactionDescription").value = tx.description || "";
 
-// ============================================================
-// EDIT TRANSACTION
-// ============================================================
+    const modal = document.getElementById("editTransactionModal");
+    if (modal) modal.style.display = "flex";
+}
 
-async function editTransaction(
-    transaction
-) {
+function closeTransactionModal() {
+    const modal = document.getElementById("editTransactionModal");
+    if (modal) modal.style.display = "none";
+}
 
-    const newAmount =
-        prompt(
-            "Enter new amount:",
-            transaction.amount
-        );
+async function handleUpdateTransaction(e) {
+    e.preventDefault();
 
+    const transactionId = parseInt(document.getElementById("editTransactionId").value);
+    const amount = parseFloat(document.getElementById("editTransactionAmount").value);
+    const type = document.getElementById("editTransactionType").value;
+    const categoryId = parseInt(document.getElementById("editTransactionCategory").value);
+    const transactionDate = document.getElementById("editTransactionDate").value;
+    const description = document.getElementById("editTransactionDescription").value.trim();
 
-    if (newAmount === null) {
-
+    if (!transactionId || !amount || amount <= 0 || !type || !categoryId || !transactionDate) {
+        alert("Please complete all required fields.");
         return;
-
     }
-
-
-    const amount =
-        parseFloat(newAmount);
-
-
-    if (
-        !amount ||
-        amount <= 0
-    ) {
-
-        showTransactionMessage(
-            "Amount must be greater than zero."
-        );
-
-        return;
-
-    }
-
-
-    const newDescription =
-        prompt(
-            "Enter new description:",
-            transaction.description || ""
-        );
-
-
-    if (newDescription === null) {
-
-        return;
-
-    }
-
 
     try {
+        const response = await fetch(TRANSACTION_API_URL, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                transaction_id: transactionId,
+                category_id: categoryId,
+                amount: amount,
+                type: type,
+                description: description,
+                transaction_date: transactionDate
+            })
+        });
 
-        const response =
-            await fetch(
-                TRANSACTION_API_URL,
-                {
-                    method: "PUT",
-
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
-                    body: JSON.stringify({
-
-                        transaction_id:
-                            transaction.transaction_id,
-
-                        category_id:
-                            transaction.category_id,
-
-                        amount:
-                            amount,
-
-                        type:
-                            transaction.type,
-
-                        description:
-                            newDescription.trim(),
-
-                        transaction_date:
-                            transaction.transaction_date
-
-                    })
-                }
-            );
-
-
-        const data =
-            await response.json();
-
+        const data = await response.json();
 
         if (!data.success) {
-
-            showTransactionMessage(
-                data.message ||
-                "Failed to update transaction."
-            );
-
+            alert(data.message || "Failed to update transaction.");
             return;
-
         }
 
-
-        showTransactionMessage(
-            "Transaction updated successfully."
-        );
-
-
+        closeTransactionModal();
         await loadTransactions();
-
         await loadDashboard();
 
-
     } catch (error) {
-
-        console.error(
-            "Edit transaction error:",
-            error
-        );
-
-
-        showTransactionMessage(
-            "Something went wrong while updating the transaction."
-        );
-
+        console.error("Update transaction error:", error);
+        alert("Error updating transaction.");
     }
-
 }
 
-
-// ============================================================
-// DELETE TRANSACTION
-// ============================================================
-
-async function deleteTransaction(
-    transactionId
-) {
-
-    const confirmed =
-        confirm(
-            "Are you sure you want to delete this transaction?"
-        );
-
-
-    if (!confirmed) {
-
+async function deleteTransaction(transactionId) {
+    if (!confirm("Are you sure you want to delete this transaction?")) {
         return;
-
     }
-
 
     try {
+        const response = await fetch(TRANSACTION_API_URL, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ transaction_id: transactionId })
+        });
 
-        const response =
-            await fetch(
-                TRANSACTION_API_URL,
-                {
-                    method: "DELETE",
-
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
-                    body: JSON.stringify({
-
-                        transaction_id:
-                            transactionId
-
-                    })
-                }
-            );
-
-
-        const data =
-            await response.json();
-
+        const data = await response.json();
 
         if (!data.success) {
-
-            showTransactionMessage(
-                data.message ||
-                "Failed to delete transaction."
-            );
-
+            showFeedback("transactionMessage", data.message || "Failed to delete transaction.");
             return;
-
         }
 
-
-        showTransactionMessage(
-            "Transaction deleted successfully."
-        );
-
-
         await loadTransactions();
-
         await loadDashboard();
 
-
     } catch (error) {
-
-        console.error(
-            "Delete transaction error:",
-            error
-        );
-
-
-        showTransactionMessage(
-            "Something went wrong while deleting the transaction."
-        );
-
+        console.error("Delete transaction error:", error);
+        showFeedback("transactionMessage", "Error deleting transaction.");
     }
-
 }
 
-
 // ============================================================
-// TRANSACTION MESSAGE
+// DASHBOARD
 // ============================================================
-
-function showTransactionMessage(
-    message
-) {
-
-    const element =
-        document.getElementById(
-            "transactionMessage"
-        );
-
-
-    if (element) {
-
-        element.textContent =
-            message;
-
-    }
-
-}
-
-
-// ============================================================
-// LOAD DASHBOARD
-// ============================================================
-
 async function loadDashboard() {
-
-    const dashboardMessage =
-        document.getElementById(
-            "dashboardMessage"
-        );
-
-
     try {
+        const response = await fetch(DASHBOARD_API_URL);
+        const data = await response.json();
 
-        const response =
-            await fetch(
-                DASHBOARD_API_URL
-            );
+        if (!data.success || !data.summary) return;
 
+        const summary = data.summary;
 
-        const data =
-            await response.json();
+        const formatCurrency = (val) =>
+            "Rs. " + parseFloat(val || 0).toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
 
-
-        if (!data.success) {
-
-            dashboardMessage.textContent =
-                data.message ||
-                "Failed to load dashboard.";
-
-            return;
-
-        }
-
-
-        const summary =
-            data.summary;
-
-
-        document
-            .getElementById(
-                "totalIncome"
-            )
-            .textContent =
-            `Rs. ${parseFloat(
-                summary.total_income || 0
-            ).toFixed(2)}`;
-
-
-        document
-            .getElementById(
-                "totalExpenses"
-            )
-            .textContent =
-            `Rs. ${parseFloat(
-                summary.total_expenses || 0
-            ).toFixed(2)}`;
-
-
-        document
-            .getElementById(
-                "balance"
-            )
-            .textContent =
-            `Rs. ${parseFloat(
-                summary.balance || 0
-            ).toFixed(2)}`;
-
-
-        dashboardMessage.textContent = "";
-
+        document.getElementById("totalIncome").textContent = formatCurrency(summary.total_income);
+        document.getElementById("totalExpenses").textContent = formatCurrency(summary.total_expenses);
+        document.getElementById("balance").textContent = formatCurrency(summary.balance);
 
     } catch (error) {
-
-        console.error(
-            "Dashboard loading error:",
-            error
-        );
-
-
-        dashboardMessage.textContent =
-            "Something went wrong while loading dashboard.";
-
+        console.error("Dashboard loading error:", error);
     }
+}
 
+// ============================================================
+// UTILITIES
+// ============================================================
+function escapeHtml(str) {
+    if (!str) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
