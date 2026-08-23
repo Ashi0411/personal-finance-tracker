@@ -1,5 +1,11 @@
 # 💰 Personal Finance Tracker
 
+[![Postman Collection](https://img.shields.io/badge/Postman-API_Collection-FF6C37?style=flat-square&logo=postman&logoColor=white)](https://savishkaashinshana-1620490.postman.co/workspace/Application~325fb167-eafe-4596-9dd2-af5f22a5adf0/request/47518337-9675184e-7ed0-495f-bbee-5b05309bab83?action=share&creator=47518337)
+[![PHP Version](https://img.shields.io/badge/PHP-7.4%20%7C%208.x-777BB4?style=flat-square&logo=php&logoColor=white)](https://www.php.net/)
+[![MySQL](https://img.shields.io/badge/MySQL-5.7%20%7C%208.0-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![Chart.js](https://img.shields.io/badge/Chart.js-4.4.1-FF6384?style=flat-square&logo=chartdotjs&logoColor=white)](https://www.chartjs.org/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
+
 A modern, comprehensive, full-stack personal finance management web application. Track income and expenses, set monthly category budgets, establish savings goals, generate analytical monthly & yearly reports, and visualize your financial health with interactive Chart.js dashboards.
 
 ---
@@ -78,9 +84,18 @@ A modern, comprehensive, full-stack personal finance management web application.
 
 ---
 
-## 🔌 API Reference
+## 🔌 API Reference & Postman Collection
 
 All API requests return standard JSON responses: `{"success": true|false, "data": ..., "message": "..."}`.
+
+### 📮 Postman Workspace & Collection
+You can test, inspect, and execute all API endpoints directly using the official Postman workspace collection:
+
+[![Postman Workspace](https://img.shields.io/badge/Postman-Open_Workspace_Collection-FF6C37?style=for-the-badge&logo=postman&logoColor=white)](https://savishkaashinshana-1620490.postman.co/workspace/Application~325fb167-eafe-4596-9dd2-af5f22a5adf0/request/47518337-9675184e-7ed0-495f-bbee-5b05309bab83?action=share&creator=47518337)
+
+🔗 **Direct Link:** [Personal Finance Tracker - Postman Workspace](https://savishkaashinshana-1620490.postman.co/workspace/Application~325fb167-eafe-4596-9dd2-af5f22a5adf0/request/47518337-9675184e-7ed0-495f-bbee-5b05309bab83?action=share&creator=47518337)
+
+### 📋 Available Endpoints
 
 | Endpoint | Method | Description |
 | :--- | :--- | :--- |
