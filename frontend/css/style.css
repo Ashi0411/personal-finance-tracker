@@ -84,14 +84,14 @@
 
 body {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: #1a1235;
+    background-color: #f7f5fd;
     background-image: 
-        linear-gradient(135deg, rgba(26, 18, 53, 0.90) 0%, rgba(55, 30, 105, 0.84) 35%, rgba(109, 40, 217, 0.74) 70%, rgba(219, 39, 119, 0.60) 100%),
-        url('../images/auth_finance_bg.jpg');
-    background-size: cover;
-    background-position: center top;
+        radial-gradient(circle at 10% 12%, rgba(139, 92, 246, 0.15) 0%, transparent 45%),
+        radial-gradient(circle at 90% 18%, rgba(56, 189, 248, 0.14) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(236, 72, 153, 0.14) 0%, transparent 45%),
+        radial-gradient(circle at 12% 85%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
+        linear-gradient(135deg, rgba(247, 245, 253, 0.94) 0%, rgba(237, 233, 254, 0.90) 100%);
     background-attachment: fixed;
-    background-blend-mode: overlay;
     color: var(--text-primary);
     line-height: 1.55;
     min-height: 100vh;
@@ -102,15 +102,34 @@ body {
 body::before {
     content: '';
     position: fixed;
-    inset: 0;
-    background: 
-        radial-gradient(circle at 12% 15%, rgba(168, 85, 247, 0.22) 0%, transparent 45%),
-        radial-gradient(circle at 88% 20%, rgba(56, 189, 248, 0.16) 0%, transparent 42%),
-        radial-gradient(circle at 85% 82%, rgba(236, 72, 153, 0.18) 0%, transparent 45%),
-        radial-gradient(circle at 15% 85%, rgba(99, 102, 241, 0.16) 0%, transparent 45%),
-        rgba(246, 243, 253, 0.91); /* transparent luminous wash over 3d image */
+    right: 2%;
+    bottom: 2%;
+    width: 620px;
+    height: 480px;
+    background-image: url('../images/finance_bg_illustration.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: right bottom;
+    opacity: 0.16; /* soft transparent watermark */
     pointer-events: none;
-    z-index: -1;
+    z-index: 0;
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    left: 2%;
+    top: 15%;
+    width: 450px;
+    height: 380px;
+    background-image: url('../images/finance_bg_illustration.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: left top;
+    opacity: 0.10; /* subtle ambient watermark */
+    filter: blur(1px);
+    pointer-events: none;
+    z-index: 0;
 }
 
 /* Base Card Style */
