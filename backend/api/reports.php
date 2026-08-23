@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Monthly Financial Reports API Endpoint
+ * Monthly & Yearly Financial Reports API Endpoint
  * Personal Finance Tracker
  */
 
@@ -17,8 +17,15 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 try {
     if ($method === 'GET') {
-        $monthYear = $_GET['month_year'] ?? date('Y-m');
-        $response = $controller->getMonthlyReport($userId, $monthYear);
+        $type = $_GET['type'] ?? 'monthly';
+
+        if ($type === 'yearly') {
+            $year = $_GET['year'] ?? date('Y');
+            $response = $controller->getYearlyReport($userId, $year);
+        } else {
+            $monthYear = $_GET['month_year'] ?? date('Y-m');
+            $response = $controller->getMonthlyReport($userId, $monthYear);
+        }
     } else {
         http_response_code(405);
         $response = ['success' => false, 'message' => 'Method not allowed.'];

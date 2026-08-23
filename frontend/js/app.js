@@ -232,18 +232,25 @@ function setupEventListeners() {
         nextOverviewMonthBtn.addEventListener("click", () => changeOverviewMonth(1));
     }
 
-    // Monthly Report Modal
+    // Financial Reports Modal (Monthly & Yearly)
     const openReportBtn = document.getElementById("openReportBtn");
     const closeReportBtn = document.getElementById("closeReportModalBtn");
     const printReportBtn = document.getElementById("printReportBtn");
     const downloadReportCsvBtn = document.getElementById("downloadReportCsvBtn");
     const reportMonthPicker = document.getElementById("reportMonthPicker");
+    const reportYearPicker = document.getElementById("reportYearPicker");
+    const scopeMonthlyBtn = document.getElementById("scopeMonthlyBtn");
+    const scopeYearlyBtn = document.getElementById("scopeYearlyBtn");
 
     if (openReportBtn) openReportBtn.addEventListener("click", openMonthlyReportModal);
     if (closeReportBtn) closeReportBtn.addEventListener("click", closeMonthlyReportModal);
     if (printReportBtn) printReportBtn.addEventListener("click", printMonthlyReport);
     if (downloadReportCsvBtn) downloadReportCsvBtn.addEventListener("click", downloadMonthlyReportCSV);
-    if (reportMonthPicker) reportMonthPicker.addEventListener("change", () => loadMonthlyReport(reportMonthPicker.value));
+    if (reportMonthPicker) reportMonthPicker.addEventListener("change", () => loadReportData());
+    if (reportYearPicker) reportYearPicker.addEventListener("change", () => loadReportData());
+
+    if (scopeMonthlyBtn) scopeMonthlyBtn.addEventListener("click", () => switchReportScope("monthly"));
+    if (scopeYearlyBtn) scopeYearlyBtn.addEventListener("click", () => switchReportScope("yearly"));
 
     // Close on Escape or Backdrop click
     window.addEventListener("keydown", (e) => {
@@ -1787,27 +1794,73 @@ async function deleteGoal(goalId) {
 }
 
 // ============================================================
-// MONTHLY FINANCIAL REPORT (PRINT & CSV EXPORTER)
+// FINANCIAL REPORTS (MONTHLY & YEARLY EXPORTER)
 // ============================================================
+let currentReportScope = "monthly"; // "monthly" or "yearly"
+
 async function openMonthlyReportModal() {
     const modal = document.getElementById("monthlyReportModal");
-    const picker = document.getElementById("reportMonthPicker");
+    const monthPicker = document.getElementById("reportMonthPicker");
+    const yearPicker = document.getElementById("reportYearPicker");
 
-    // Default to current month YYYY-MM
+    // Initialize defaults
     const currentMonth = new Date().toISOString().slice(0, 7);
-    if (picker && !picker.value) {
-        picker.value = currentMonth;
+    const currentYear = new Date().getFullYear().toString();
+
+    if (monthPicker && !monthPicker.value) {
+        monthPicker.value = currentMonth;
+    }
+    if (yearPicker && !yearPicker.value) {
+        yearPicker.value = currentYear;
     }
 
-    const selectedMonth = picker ? picker.value : currentMonth;
-
     if (modal) modal.style.display = "flex";
-    await loadMonthlyReport(selectedMonth);
+    await loadReportData();
 }
 
 function closeMonthlyReportModal() {
     const modal = document.getElementById("monthlyReportModal");
     if (modal) modal.style.display = "none";
+}
+
+function switchReportScope(scope) {
+    currentReportScope = scope;
+
+    const btnMonthly = document.getElementById("scopeMonthlyBtn");
+    const btnYearly = document.getElementById("scopeYearlyBtn");
+    const monthContainer = document.getElementById("rptMonthPickerContainer");
+    const yearContainer = document.getElementById("rptYearPickerContainer");
+    const budgetCard = document.getElementById("rptBudgetSectionCard");
+    const timelineSection = document.getElementById("rptYearlyTimelineSection");
+
+    if (btnMonthly) btnMonthly.classList.toggle("active", scope === "monthly");
+    if (btnYearly) btnYearly.classList.toggle("active", scope === "yearly");
+
+    if (scope === "yearly") {
+        if (monthContainer) monthContainer.style.display = "none";
+        if (yearContainer) yearContainer.style.display = "flex";
+        if (budgetCard) budgetCard.style.display = "none";
+        if (timelineSection) timelineSection.style.display = "block";
+    } else {
+        if (monthContainer) monthContainer.style.display = "flex";
+        if (yearContainer) yearContainer.style.display = "none";
+        if (budgetCard) budgetCard.style.display = "block";
+        if (timelineSection) timelineSection.style.display = "none";
+    }
+
+    loadReportData();
+}
+
+async function loadReportData() {
+    if (currentReportScope === "yearly") {
+        const yearPicker = document.getElementById("reportYearPicker");
+        const year = yearPicker ? yearPicker.value : new Date().getFullYear().toString();
+        await loadYearlyReport(year);
+    } else {
+        const monthPicker = document.getElementById("reportMonthPicker");
+        const monthYear = monthPicker ? monthPicker.value : new Date().toISOString().slice(0, 7);
+        await loadMonthlyReport(monthYear);
+    }
 }
 
 async function loadMonthlyReport(monthYear) {
@@ -1816,17 +1869,17 @@ async function loadMonthlyReport(monthYear) {
     }
 
     try {
-        const response = await fetch(`${REPORT_API_URL}?month_year=${monthYear}`);
+        const response = await fetch(`${REPORT_API_URL}?type=monthly&month_year=${monthYear}`);
         const data = await response.json();
 
         if (data.success && data.report) {
             currentMonthlyReport = data.report;
             renderMonthlyReport(currentMonthlyReport);
         } else {
-            console.error("Failed to load report:", data.message);
+            console.error("Failed to load monthly report:", data.message);
         }
     } catch (error) {
-        console.error("Report fetch error:", error);
+        console.error("Monthly report fetch error:", error);
     }
 }
 
@@ -1835,61 +1888,24 @@ function renderMonthlyReport(report) {
 
     // 1. Period & Meta
     const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    const [year, monthNum] = report.month_year.split("-");
+    const [year, monthNum] = (report.month_year || "2026-08").split("-");
     const monthName = monthNames[parseInt(monthNum, 10) - 1] || report.month_year;
 
+    const rptDocType = document.getElementById("rptStatementDocType");
     const rptPeriodText = document.getElementById("rptPeriodText");
     const rptGeneratedText = document.getElementById("rptGeneratedText");
     const rptAccountHolder = document.getElementById("rptAccountHolder");
 
+    if (rptDocType) rptDocType.textContent = "MONTHLY STATEMENT";
     if (rptPeriodText) rptPeriodText.textContent = `${monthName} ${year}`;
     if (rptGeneratedText) rptGeneratedText.textContent = report.generated_at || new Date().toLocaleString();
     if (rptAccountHolder) rptAccountHolder.textContent = report.user?.name || "Account Holder";
 
     // 2. Executive Summary Metrics
-    const sum = report.summary || {};
-    const totalInc = parseFloat(sum.total_income || 0);
-    const totalExp = parseFloat(sum.total_expenses || 0);
-    const netSav = parseFloat(sum.net_savings || 0);
-    const savRate = parseFloat(sum.savings_rate || 0);
-
-    const rptTotalIncome = document.getElementById("rptTotalIncome");
-    const rptTotalExpenses = document.getElementById("rptTotalExpenses");
-    const rptNetSavings = document.getElementById("rptNetSavings");
-    const rptSavingsRate = document.getElementById("rptSavingsRate");
-
-    if (rptTotalIncome) rptTotalIncome.textContent = `Rs. ${totalInc.toLocaleString("en-IN", {minimumFractionDigits: 2})}`;
-    if (rptTotalExpenses) rptTotalExpenses.textContent = `Rs. ${totalExp.toLocaleString("en-IN", {minimumFractionDigits: 2})}`;
-    if (rptNetSavings) {
-        rptNetSavings.textContent = `Rs. ${netSav.toLocaleString("en-IN", {minimumFractionDigits: 2})}`;
-        rptNetSavings.style.color = netSav >= 0 ? "#1e40af" : "#be185d";
-    }
-    if (rptSavingsRate) {
-        rptSavingsRate.textContent = `${savRate}%`;
-        rptSavingsRate.style.color = savRate >= 0 ? "#15803d" : "#be185d";
-    }
+    renderReportSummaryCards(report.summary, "Monthly");
 
     // 3. Category Expenses Breakdown Table
-    const catExpBody = document.getElementById("rptExpenseCategoryBody");
-    if (catExpBody) {
-        catExpBody.innerHTML = "";
-        const expCategories = report.expense_categories || [];
-
-        if (expCategories.length === 0) {
-            catExpBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-muted); font-style: italic;">No expenses recorded this month.</td></tr>';
-        } else {
-            expCategories.forEach(cat => {
-                const tr = document.createElement("tr");
-                const emoji = getCategoryEmoji(cat.category_name);
-                tr.innerHTML = `
-                    <td>${emoji} <strong>${escapeHtml(cat.category_name)}</strong></td>
-                    <td style="text-align: right; font-weight: 700; color: #be185d;">Rs. ${parseFloat(cat.total_amount).toLocaleString("en-IN", {minimumFractionDigits: 2})}</td>
-                    <td style="text-align: right;"><span class="rpt-pct-badge">${cat.percentage}%</span></td>
-                `;
-                catExpBody.appendChild(tr);
-            });
-        }
-    }
+    renderReportExpenseCategories(report.expense_categories, "month");
 
     // 4. Budget Adherence Table
     const budgetBody = document.getElementById("rptBudgetBody");
@@ -1919,33 +1935,156 @@ function renderMonthlyReport(report) {
     }
 
     // 5. Itemized Transactions Ledger
-    const txBody = document.getElementById("rptTransactionsBody");
-    if (txBody) {
-        txBody.innerHTML = "";
-        const transactions = report.transactions || [];
+    renderReportTransactions(report.transactions, "month");
+}
 
-        if (transactions.length === 0) {
-            txBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); font-style: italic;">No transactions recorded this month.</td></tr>';
+async function loadYearlyReport(year) {
+    if (!year) {
+        year = new Date().getFullYear().toString();
+    }
+
+    try {
+        const response = await fetch(`${REPORT_API_URL}?type=yearly&year=${year}`);
+        const data = await response.json();
+
+        if (data.success && data.report) {
+            currentMonthlyReport = data.report;
+            renderYearlyReport(currentMonthlyReport);
         } else {
-            transactions.forEach(t => {
-                const tr = document.createElement("tr");
-                const isInc = t.type === "income";
-                tr.innerHTML = `
-                    <td>${escapeHtml(t.transaction_date)}</td>
-                    <td>${escapeHtml(t.description || '-')}</td>
-                    <td>${escapeHtml(t.category_name || 'Uncategorized')}</td>
-                    <td>
-                        <span class="type-pill ${isInc ? 'pill-income' : 'pill-expense'}">
-                            ${isInc ? 'Income' : 'Expense'}
-                        </span>
-                    </td>
-                    <td style="text-align: right; font-weight: 700; color: ${isInc ? '#1d4ed8' : '#be185d'};">
-                        ${isInc ? '+' : '-'} Rs. ${parseFloat(t.amount).toLocaleString("en-IN", {minimumFractionDigits: 2})}
-                    </td>
-                `;
-                txBody.appendChild(tr);
-            });
+            console.error("Failed to load yearly report:", data.message);
         }
+    } catch (error) {
+        console.error("Yearly report fetch error:", error);
+    }
+}
+
+function renderYearlyReport(report) {
+    if (!report) return;
+
+    // 1. Period & Meta
+    const rptDocType = document.getElementById("rptStatementDocType");
+    const rptPeriodText = document.getElementById("rptPeriodText");
+    const rptGeneratedText = document.getElementById("rptGeneratedText");
+    const rptAccountHolder = document.getElementById("rptAccountHolder");
+
+    if (rptDocType) rptDocType.textContent = "ANNUAL STATEMENT";
+    if (rptPeriodText) rptPeriodText.textContent = `Full Year ${report.year}`;
+    if (rptGeneratedText) rptGeneratedText.textContent = report.generated_at || new Date().toLocaleString();
+    if (rptAccountHolder) rptAccountHolder.textContent = report.user?.name || "Account Holder";
+
+    // 2. Executive Summary Metrics
+    renderReportSummaryCards(report.summary, "Annual");
+
+    // 3. 12-Month Progression Table
+    const timelineBody = document.getElementById("rptYearlyTimelineBody");
+    if (timelineBody) {
+        timelineBody.innerHTML = "";
+        const timeline = report.monthly_timeline || [];
+
+        timeline.forEach(m => {
+            const tr = document.createElement("tr");
+            const net = parseFloat(m.net_savings || 0);
+            tr.innerHTML = `
+                <td><strong>${escapeHtml(m.month_name)}</strong></td>
+                <td style="text-align: right; font-weight: 700; color: #1d4ed8;">Rs. ${parseFloat(m.income || 0).toLocaleString("en-IN", {minimumFractionDigits: 2})}</td>
+                <td style="text-align: right; font-weight: 700; color: #be185d;">Rs. ${parseFloat(m.expenses || 0).toLocaleString("en-IN", {minimumFractionDigits: 2})}</td>
+                <td style="text-align: right; font-weight: 700; color: ${net >= 0 ? '#15803d' : '#be185d'};">
+                    ${net >= 0 ? '+' : ''} Rs. ${net.toLocaleString("en-IN", {minimumFractionDigits: 2})}
+                </td>
+                <td style="text-align: center;"><span class="rpt-pct-badge">${m.tx_count} entries</span></td>
+            `;
+            timelineBody.appendChild(tr);
+        });
+    }
+
+    // 4. Category Expenses Breakdown Table
+    renderReportExpenseCategories(report.expense_categories, "year");
+
+    // 5. Itemized Transactions Ledger
+    renderReportTransactions(report.transactions, "year");
+}
+
+function renderReportSummaryCards(sum, periodLabel) {
+    const totalInc = parseFloat(sum?.total_income || 0);
+    const totalExp = parseFloat(sum?.total_expenses || 0);
+    const netSav = parseFloat(sum?.net_savings || 0);
+    const savRate = parseFloat(sum?.savings_rate || 0);
+
+    const rptLblIncome = document.getElementById("rptLblIncome");
+    const rptLblExpenses = document.getElementById("rptLblExpenses");
+    const rptLblSavings = document.getElementById("rptLblSavings");
+
+    if (rptLblIncome) rptLblIncome.textContent = `${periodLabel} Income`;
+    if (rptLblExpenses) rptLblExpenses.textContent = `${periodLabel} Expenses`;
+    if (rptLblSavings) rptLblSavings.textContent = `${periodLabel} Net Savings`;
+
+    const rptTotalIncome = document.getElementById("rptTotalIncome");
+    const rptTotalExpenses = document.getElementById("rptTotalExpenses");
+    const rptNetSavings = document.getElementById("rptNetSavings");
+    const rptSavingsRate = document.getElementById("rptSavingsRate");
+
+    if (rptTotalIncome) rptTotalIncome.textContent = `Rs. ${totalInc.toLocaleString("en-IN", {minimumFractionDigits: 2})}`;
+    if (rptTotalExpenses) rptTotalExpenses.textContent = `Rs. ${totalExp.toLocaleString("en-IN", {minimumFractionDigits: 2})}`;
+    if (rptNetSavings) {
+        rptNetSavings.textContent = `Rs. ${netSav.toLocaleString("en-IN", {minimumFractionDigits: 2})}`;
+        rptNetSavings.style.color = netSav >= 0 ? "#1e40af" : "#be185d";
+    }
+    if (rptSavingsRate) {
+        rptSavingsRate.textContent = `${savRate}%`;
+        rptSavingsRate.style.color = savRate >= 0 ? "#15803d" : "#be185d";
+    }
+}
+
+function renderReportExpenseCategories(expCategories, periodWord) {
+    const catExpBody = document.getElementById("rptExpenseCategoryBody");
+    if (!catExpBody) return;
+    catExpBody.innerHTML = "";
+
+    const categories = expCategories || [];
+    if (categories.length === 0) {
+        catExpBody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--text-muted); font-style: italic;">No expenses recorded for this ${periodWord}.</td></tr>`;
+    } else {
+        categories.forEach(cat => {
+            const tr = document.createElement("tr");
+            const emoji = getCategoryEmoji(cat.category_name);
+            tr.innerHTML = `
+                <td>${emoji} <strong>${escapeHtml(cat.category_name)}</strong></td>
+                <td style="text-align: right; font-weight: 700; color: #be185d;">Rs. ${parseFloat(cat.total_amount).toLocaleString("en-IN", {minimumFractionDigits: 2})}</td>
+                <td style="text-align: right;"><span class="rpt-pct-badge">${cat.percentage}%</span></td>
+            `;
+            catExpBody.appendChild(tr);
+        });
+    }
+}
+
+function renderReportTransactions(transactions, periodWord) {
+    const txBody = document.getElementById("rptTransactionsBody");
+    if (!txBody) return;
+    txBody.innerHTML = "";
+
+    const txList = transactions || [];
+    if (txList.length === 0) {
+        txBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); font-style: italic;">No transactions recorded for this ${periodWord}.</td></tr>`;
+    } else {
+        txList.forEach(t => {
+            const tr = document.createElement("tr");
+            const isInc = t.type === "income";
+            tr.innerHTML = `
+                <td>${escapeHtml(t.transaction_date)}</td>
+                <td>${escapeHtml(t.description || '-')}</td>
+                <td>${escapeHtml(t.category_name || 'Uncategorized')}</td>
+                <td>
+                    <span class="type-pill ${isInc ? 'pill-income' : 'pill-expense'}">
+                        <i class="fa-solid ${isInc ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'}"></i>
+                        ${isInc ? 'Income' : 'Expense'}
+                    </span>
+                </td>
+                <td style="text-align: right; font-weight: 700; color: ${isInc ? '#1d4ed8' : '#be185d'};">
+                    ${isInc ? '+' : '-'} Rs. ${parseFloat(t.amount).toLocaleString("en-IN", {minimumFractionDigits: 2})}
+                </td>
+            `;
+            txBody.appendChild(tr);
+        });
     }
 }
 
@@ -1960,13 +2099,14 @@ function downloadMonthlyReportCSV() {
     }
 
     const r = currentMonthlyReport;
+    const isYearly = r.type === "yearly";
     const sum = r.summary || {};
 
     let csvContent = "";
 
     // 1. Title & Executive Summary
-    csvContent += `PERSONAL FINANCE TRACKER - MONTHLY STATEMENT\n`;
-    csvContent += `Statement Period,${r.month_year}\n`;
+    csvContent += `PERSONAL FINANCE TRACKER - ${isYearly ? 'ANNUAL' : 'MONTHLY'} STATEMENT\n`;
+    csvContent += `Statement Period,${isYearly ? 'Full Year ' + r.year : r.month_year}\n`;
     csvContent += `Generated On,${r.generated_at}\n`;
     csvContent += `Account Holder,"${r.user?.name || 'User'}"\n\n`;
 
@@ -1977,7 +2117,17 @@ function downloadMonthlyReportCSV() {
     csvContent += `Savings Rate (%),${sum.savings_rate}%\n`;
     csvContent += `Total Transactions,${sum.transaction_count}\n\n`;
 
-    // 2. Category Expenses Breakdown
+    // 2. Yearly Timeline (if yearly)
+    if (isYearly && r.monthly_timeline) {
+        csvContent += `12-MONTH ANNUAL PROGRESSION\n`;
+        csvContent += `Month,Income (Rs.),Expenses (Rs.),Net Savings (Rs.),Transactions\n`;
+        r.monthly_timeline.forEach(m => {
+            csvContent += `"${m.month_name}",${m.income},${m.expenses},${m.net_savings},${m.tx_count}\n`;
+        });
+        csvContent += `\n`;
+    }
+
+    // 3. Category Expenses Breakdown
     csvContent += `EXPENSE BREAKDOWN BY CATEGORY\n`;
     csvContent += `Category,Amount (Rs.),Percentage (%)\n`;
     (r.expense_categories || []).forEach(cat => {
@@ -1985,15 +2135,17 @@ function downloadMonthlyReportCSV() {
     });
     csvContent += `\n`;
 
-    // 3. Budget Performance
-    csvContent += `BUDGET PERFORMANCE\n`;
-    csvContent += `Category,Budget Limit (Rs.),Total Spent (Rs.),Usage (%),Status\n`;
-    (r.budget_adherence || []).forEach(b => {
-        csvContent += `"${b.category_name}",${b.budget_limit},${b.total_spent},${b.percentage_used}%,${b.status}\n`;
-    });
-    csvContent += `\n`;
+    // 4. Budget Performance (if monthly)
+    if (!isYearly && r.budget_adherence) {
+        csvContent += `BUDGET PERFORMANCE\n`;
+        csvContent += `Category,Budget Limit (Rs.),Total Spent (Rs.),Usage (%),Status\n`;
+        r.budget_adherence.forEach(b => {
+            csvContent += `"${b.category_name}",${b.budget_limit},${b.total_spent},${b.percentage_used}%,${b.status}\n`;
+        });
+        csvContent += `\n`;
+    }
 
-    // 4. Itemized Ledger
+    // 5. Itemized Ledger
     csvContent += `ITEMIZED TRANSACTIONS\n`;
     csvContent += `Date,Description,Category,Type,Amount (Rs.)\n`;
     (r.transactions || []).forEach(t => {
@@ -2007,7 +2159,8 @@ function downloadMonthlyReportCSV() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `Financial_Report_${r.month_year}.csv`);
+    const filename = isYearly ? `Annual_Financial_Report_${r.year}.csv` : `Monthly_Financial_Report_${r.month_year}.csv`;
+    link.setAttribute("download", filename);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

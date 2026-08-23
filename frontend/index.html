@@ -705,7 +705,7 @@
     </div>
 
     <!-- ======================================================
-         MONTHLY FINANCIAL REPORT MODAL (PRINT & CSV EXPORTER)
+         FINANCIAL REPORTS MODAL (MONTHLY & YEARLY EXPORTER)
     ======================================================= -->
     <div id="monthlyReportModal" class="modal-overlay report-modal-overlay" style="display: none;">
         <div class="modal-card report-modal-card">
@@ -713,10 +713,34 @@
             <!-- Modal Control Toolbar (Non-printed) -->
             <div class="report-modal-header no-print">
                 <div class="report-header-left">
-                    <h3><i class="fa-solid fa-file-invoice-dollar"></i> Monthly Financial Statement</h3>
-                    <div class="report-month-selector">
+                    <h3><i class="fa-solid fa-file-invoice-dollar"></i> Financial Statement</h3>
+                    
+                    <!-- Report Scope Switcher (Monthly vs Yearly) -->
+                    <div class="report-scope-toggle">
+                        <button type="button" class="report-scope-btn active" id="scopeMonthlyBtn">
+                            <i class="fa-regular fa-calendar"></i> Monthly
+                        </button>
+                        <button type="button" class="report-scope-btn" id="scopeYearlyBtn">
+                            <i class="fa-solid fa-calendar-days"></i> Yearly
+                        </button>
+                    </div>
+
+                    <!-- Month Selector (For Monthly Scope) -->
+                    <div class="report-period-selector" id="rptMonthPickerContainer">
                         <label for="reportMonthPicker">Select Month:</label>
                         <input type="month" id="reportMonthPicker" class="compact-input">
+                    </div>
+
+                    <!-- Year Selector (For Yearly Scope) -->
+                    <div class="report-period-selector" id="rptYearPickerContainer" style="display: none;">
+                        <label for="reportYearPicker">Select Year:</label>
+                        <select id="reportYearPicker" class="compact-input">
+                            <option value="2027">2027</option>
+                            <option value="2026" selected>2026</option>
+                            <option value="2025">2025</option>
+                            <option value="2024">2024</option>
+                            <option value="2023">2023</option>
+                        </select>
                     </div>
                 </div>
                 <div class="report-header-actions">
@@ -746,7 +770,7 @@
                             </div>
                         </div>
                         <div class="statement-meta">
-                            <h2 class="statement-doc-type">MONTHLY STATEMENT</h2>
+                            <h2 class="statement-doc-type" id="rptStatementDocType">MONTHLY STATEMENT</h2>
                             <p><strong>Period:</strong> <span id="rptPeriodText">August 2026</span></p>
                             <p><strong>Generated:</strong> <span id="rptGeneratedText">2026-08-23</span></p>
                             <p><strong>Account Holder:</strong> <span id="rptAccountHolder">User</span></p>
@@ -756,20 +780,39 @@
                     <!-- Executive Summary Cards -->
                     <div class="report-summary-grid">
                         <div class="rpt-summary-card rpt-inc">
-                            <span class="rpt-card-lbl">Total Income</span>
+                            <span class="rpt-card-lbl" id="rptLblIncome">Total Income</span>
                             <h3 class="rpt-card-val" id="rptTotalIncome">Rs. 0.00</h3>
                         </div>
                         <div class="rpt-summary-card rpt-exp">
-                            <span class="rpt-card-lbl">Total Expenses</span>
+                            <span class="rpt-card-lbl" id="rptLblExpenses">Total Expenses</span>
                             <h3 class="rpt-card-val" id="rptTotalExpenses">Rs. 0.00</h3>
                         </div>
                         <div class="rpt-summary-card rpt-bal">
-                            <span class="rpt-card-lbl">Net Savings</span>
+                            <span class="rpt-card-lbl" id="rptLblSavings">Net Savings</span>
                             <h3 class="rpt-card-val" id="rptNetSavings">Rs. 0.00</h3>
                         </div>
                         <div class="rpt-summary-card rpt-rate">
                             <span class="rpt-card-lbl">Savings Rate</span>
                             <h3 class="rpt-card-val" id="rptSavingsRate">0.0%</h3>
+                        </div>
+                    </div>
+
+                    <!-- 12-Month Annual Timeline Breakdown (Only shown in Yearly Mode) -->
+                    <div id="rptYearlyTimelineSection" class="report-section-card full-width" style="display: none;">
+                        <h4 class="report-section-title"><i class="fa-solid fa-timeline"></i> 12-Month Annual Progression</h4>
+                        <div class="table-responsive">
+                            <table class="report-table">
+                                <thead>
+                                    <tr>
+                                        <th>Month</th>
+                                        <th style="text-align: right;">Income (Rs.)</th>
+                                        <th style="text-align: right;">Expenses (Rs.)</th>
+                                        <th style="text-align: right;">Net Savings (Rs.)</th>
+                                        <th style="text-align: center;">Transactions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rptYearlyTimelineBody"></tbody>
+                            </table>
                         </div>
                     </div>
 
@@ -793,7 +836,7 @@
                         </div>
 
                         <!-- Budget Performance -->
-                        <div class="report-section-card">
+                        <div class="report-section-card" id="rptBudgetSectionCard">
                             <h4 class="report-section-title"><i class="fa-solid fa-bullseye"></i> Budget Performance & Adherence</h4>
                             <div class="table-responsive">
                                 <table class="report-table">

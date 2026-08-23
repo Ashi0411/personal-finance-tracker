@@ -1592,7 +1592,7 @@ body::before {
 .report-header-left {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
     flex-wrap: wrap;
 }
 
@@ -1605,7 +1605,36 @@ body::before {
     gap: 8px;
 }
 
-.report-month-selector {
+.report-scope-toggle {
+    display: inline-flex;
+    background: #e2e8f0;
+    padding: 3px;
+    border-radius: var(--radius-full);
+    gap: 2px;
+}
+
+.report-scope-btn {
+    border: none;
+    background: transparent;
+    padding: 5px 12px;
+    border-radius: var(--radius-full);
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: var(--transition);
+}
+
+.report-scope-btn.active {
+    background: #ffffff;
+    color: var(--color-purple-deep);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.report-period-selector {
     display: flex;
     align-items: center;
     gap: 8px;
