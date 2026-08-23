@@ -1,14 +1,22 @@
 <?php
 
+/**
+ * Transaction Controller
+ * Personal Finance Tracker
+ */
+
 require_once __DIR__ . '/../models/Transaction.php';
+require_once __DIR__ . '/../models/Category.php';
 
 class TransactionController
 {
     private Transaction $transaction;
+    private Category $category;
 
     public function __construct(PDO $db)
     {
         $this->transaction = new Transaction($db);
+        $this->category    = new Category($db);
     }
 
     public function create(
@@ -19,11 +27,18 @@ class TransactionController
         string $description,
         string $transactionDate
     ): array {
-
         if ($categoryId <= 0) {
             return [
                 'success' => false,
                 'message' => 'Valid category is required.'
+            ];
+        }
+
+        // Verify category ownership (Prevent IDOR)
+        if (!$this->category->findById($categoryId, $userId)) {
+            return [
+                'success' => false,
+                'message' => 'Selected category does not exist.'
             ];
         }
 
@@ -41,10 +56,11 @@ class TransactionController
             ];
         }
 
-        if (trim($transactionDate) === '') {
+        $transactionDate = trim($transactionDate);
+        if ($transactionDate === '' || !strtotime($transactionDate)) {
             return [
                 'success' => false,
-                'message' => 'Transaction date is required.'
+                'message' => 'A valid transaction date (YYYY-MM-DD) is required.'
             ];
         }
 
@@ -68,20 +84,14 @@ class TransactionController
     public function getAll(int $userId): array
     {
         return [
-            'success' => true,
+            'success'      => true,
             'transactions' => $this->transaction->getAllByUser($userId)
         ];
     }
 
-    public function getOne(
-        int $transactionId,
-        int $userId
-    ): array {
-
-        $transaction = $this->transaction->findById(
-            $transactionId,
-            $userId
-        );
+    public function getOne(int $transactionId, int $userId): array
+    {
+        $transaction = $this->transaction->findById($transactionId, $userId);
 
         if (!$transaction) {
             return [
@@ -91,7 +101,7 @@ class TransactionController
         }
 
         return [
-            'success' => true,
+            'success'     => true,
             'transaction' => $transaction
         ];
     }
@@ -105,7 +115,6 @@ class TransactionController
         string $description,
         string $transactionDate
     ): array {
-
         if ($transactionId <= 0) {
             return [
                 'success' => false,
@@ -117,6 +126,14 @@ class TransactionController
             return [
                 'success' => false,
                 'message' => 'Valid category is required.'
+            ];
+        }
+
+        // Verify category ownership (Prevent IDOR)
+        if (!$this->category->findById($categoryId, $userId)) {
+            return [
+                'success' => false,
+                'message' => 'Selected category does not exist.'
             ];
         }
 
@@ -134,10 +151,11 @@ class TransactionController
             ];
         }
 
-        if (trim($transactionDate) === '') {
+        $transactionDate = trim($transactionDate);
+        if ($transactionDate === '' || !strtotime($transactionDate)) {
             return [
                 'success' => false,
-                'message' => 'Transaction date is required.'
+                'message' => 'A valid transaction date (YYYY-MM-DD) is required.'
             ];
         }
 
@@ -159,11 +177,8 @@ class TransactionController
         ];
     }
 
-    public function delete(
-        int $transactionId,
-        int $userId
-    ): array {
-
+    public function delete(int $transactionId, int $userId): array
+    {
         if ($transactionId <= 0) {
             return [
                 'success' => false,
@@ -171,10 +186,7 @@ class TransactionController
             ];
         }
 
-        $deleted = $this->transaction->delete(
-            $transactionId,
-            $userId
-        );
+        $deleted = $this->transaction->delete($transactionId, $userId);
 
         return [
             'success' => $deleted,

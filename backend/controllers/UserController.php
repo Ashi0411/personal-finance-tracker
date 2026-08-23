@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * User Controller
+ * Personal Finance Tracker
+ */
+
 require_once __DIR__ . '/../models/User.php';
 
 class UserController
@@ -11,239 +16,77 @@ class UserController
         $this->user = new User($db);
     }
 
-
-    // ========================================================
-    // REGISTER
-    // ========================================================
-
     public function register(): void
     {
-        $data = json_decode(
-            file_get_contents("php://input"),
-            true
-        );
+        $data = json_decode(file_get_contents("php://input"), true);
 
-        $name = trim($data['name'] ?? '');
-        $email = trim($data['email'] ?? '');
+        $name     = trim($data['name'] ?? '');
+        $email    = trim($data['email'] ?? '');
         $password = $data['password'] ?? '';
 
-
-        // Required fields
-        if (
-            $name === '' ||
-            $email === '' ||
-            $password === ''
-        ) {
+        // Required fields validation
+        if ($name === '' || $email === '' || $password === '') {
             http_response_code(400);
-
             echo json_encode([
                 'success' => false,
-                'message' =>
-                    'Name, email and password are required.'
+                'message' => 'Name, email, and password are required.'
             ]);
-
             return;
         }
 
-
-        // Validate email
-        if (!filter_var(
-            $email,
-            FILTER_VALIDATE_EMAIL
-        )) {
+        // Validate email format
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             http_response_code(400);
-
             echo json_encode([
                 'success' => false,
-                'message' =>
-                    'Invalid email address.'
+                'message' => 'Please provide a valid email address.'
             ]);
-
             return;
         }
 
-
-        // Validate password
+        // Validate password length
         if (strlen($password) < 8) {
             http_response_code(400);
-
             echo json_encode([
                 'success' => false,
-                'message' =>
-                    'Password must be at least 8 characters.'
+                'message' => 'Password must be at least 8 characters.'
             ]);
-
             return;
         }
 
-
-        // Check existing email
+        // Check if email already exists
         if ($this->user->findByEmail($email)) {
-
             http_response_code(409);
-
             echo json_encode([
                 'success' => false,
-                'message' =>
-                    'Email already registered.'
+                'message' => 'An account with this email already exists.'
             ]);
-
             return;
         }
 
-
-        // Create user
         try {
+            $created = $this->user->create($name, $email, $password);
 
-            $this->user->create(
-                $name,
-                $email,
-                $password
-            );
-
-            http_response_code(201);
-
-            echo json_encode([
-                'success' => true,
-                'message' =>
-                    'User registered successfully.'
-            ]);
-
+            if ($created) {
+                http_response_code(201);
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'User registered successfully. You can now login.'
+                ]);
+            } else {
+                http_response_code(500);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Registration failed. Please try again.'
+                ]);
+            }
         } catch (PDOException $e) {
-
+            error_log("Registration error: " . $e->getMessage());
             http_response_code(500);
-
             echo json_encode([
                 'success' => false,
-                'message' =>
-                    'Registration failed.'
+                'message' => 'Registration failed due to a server error.'
             ]);
         }
-    }
-
-
-    // ========================================================
-    // LOGIN
-    // ========================================================
-
-    public function login(): void
-    {
-        $data = json_decode(
-            file_get_contents("php://input"),
-            true
-        );
-
-        $email =
-            trim($data['email'] ?? '');
-
-        $password =
-            $data['password'] ?? '';
-
-
-        // Required fields
-        if (
-            $email === '' ||
-            $password === ''
-        ) {
-            http_response_code(400);
-
-            echo json_encode([
-                'success' => false,
-                'message' =>
-                    'Email and password are required.'
-            ]);
-
-            return;
-        }
-
-
-        // Validate email
-        if (!filter_var(
-            $email,
-            FILTER_VALIDATE_EMAIL
-        )) {
-            http_response_code(400);
-
-            echo json_encode([
-                'success' => false,
-                'message' =>
-                    'Invalid email address.'
-            ]);
-
-            return;
-        }
-
-
-        // Find user
-        $user =
-            $this->user->findByEmail($email);
-
-
-        if (!$user) {
-
-            http_response_code(401);
-
-            echo json_encode([
-                'success' => false,
-                'message' =>
-                    'Invalid email or password.'
-            ]);
-
-            return;
-        }
-
-
-        // Verify password
-        if (!password_verify(
-            $password,
-            $user['password_hash']
-        )) {
-
-            http_response_code(401);
-
-            echo json_encode([
-                'success' => false,
-                'message' =>
-                    'Invalid email or password.'
-            ]);
-
-            return;
-        }
-
-
-        // Start session
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
-
-        // Store logged-in user
-        $_SESSION['user_id'] =
-            $user['user_id'];
-
-        $_SESSION['user_name'] =
-            $user['name'];
-
-        $_SESSION['user_email'] =
-            $user['email'];
-
-
-        // Login success
-        echo json_encode([
-            'success' => true,
-            'message' =>
-                'Login successful.',
-
-            'user' => [
-                'user_id' =>
-                    $user['user_id'],
-
-                'name' =>
-                    $user['name'],
-
-                'email' =>
-                    $user['email']
-            ]
-        ]);
     }
 }

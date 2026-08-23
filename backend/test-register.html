@@ -4,13 +4,11 @@
     <meta charset="UTF-8">
     <title>Test Registration</title>
 </head>
-
 <body>
 
     <h2>Test User Registration</h2>
 
     <form id="registerForm">
-
         <label>Name:</label><br>
         <input type="text" id="name" required>
         <br><br>
@@ -24,60 +22,40 @@
         <br><br>
 
         <button type="submit">Register</button>
-
     </form>
 
     <div id="result"></div>
 
     <script>
+        document.getElementById("registerForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
 
-        document
-            .getElementById("registerForm")
-            .addEventListener("submit", async function(event) {
+            const result = document.getElementById("result");
+            result.textContent = "Registering...";
 
-                event.preventDefault();
+            const data = {
+                name: document.getElementById("name").value,
+                email: document.getElementById("email").value,
+                password: document.getElementById("password").value
+            };
 
-                const result = document.getElementById("result");
+            try {
+                const response = await fetch("api/register.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                });
 
-                result.textContent = "Registering...";
-
-                const data = {
-                    name: document.getElementById("name").value,
-                    email: document.getElementById("email").value,
-                    password: document.getElementById("password").value
-                };
-
-                try {
-
-                    const response = await fetch(
-                        "http://localhost/personal-finance-tracker/backend/index.php?action=register",
-                        {
-                            method: "POST",
-
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-
-                            body: JSON.stringify(data)
-                        }
-                    );
-
-                    const text = await response.text();
-
-                    console.log("Server response:", text);
-
-                    result.textContent = text;
-
-                } catch (error) {
-
-                    console.error(error);
-
-                    result.textContent =
-                        "ERROR: " + error.message;
-                }
-
-            });
-
+                const json = await response.json();
+                console.log("Server response:", json);
+                result.textContent = json.message;
+            } catch (error) {
+                console.error(error);
+                result.textContent = "ERROR: " + error.message;
+            }
+        });
     </script>
 
 </body>
