@@ -492,18 +492,65 @@ body::before {
     letter-spacing: -0.3px;
 }
 
-.summary-period-badge {
+.overview-month-control {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    padding: 6px 14px;
-    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    gap: 6px;
+    background: #ffffff;
     border: 1.5px solid #bfdbfe;
+    padding: 4px 8px;
     border-radius: var(--radius-full);
-    font-size: 12.5px;
-    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+}
+
+.month-nav-arrow {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: #eff6ff;
     color: #1e40af;
-    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.08);
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.month-nav-arrow:hover {
+    background: #1e40af;
+    color: #ffffff;
+    transform: scale(1.08);
+}
+
+.month-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 4px;
+}
+
+.month-cal-icon {
+    font-size: 13px;
+    color: #3b82f6;
+}
+
+.overview-month-input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e3a8a;
+    cursor: pointer;
+    padding: 2px 4px;
+}
+
+.overview-month-input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(30%) sepia(80%) saturate(800%) hue-rotate(200deg);
 }
 
 .summary-cards-grid {

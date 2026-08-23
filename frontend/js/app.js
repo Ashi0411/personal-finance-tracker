@@ -23,6 +23,7 @@ let allTransactions = [];
 let userBudgets = [];
 let userGoals = [];
 let currentMonthlyReport = null;
+let activeOverviewMonth = new Date().toISOString().slice(0, 7);
 let activeTab = "overview";
 let categoryExpenseChartInstance = null;
 let categoryIncomeChartInstance = null;
@@ -61,8 +62,8 @@ function setUserLoggedIn(user) {
     const financeSection = document.getElementById("financeSection");
     const userProfileBar = document.getElementById("userProfileBar");
     const appNav = document.getElementById("appNav");
-    const userNameDisplay = document.getElementById("userNameDisplay");
     const heroBanner = document.getElementById("heroBanner");
+    const userNameDisplay = document.getElementById("userNameDisplay");
 
     if (authSection) authSection.style.display = "none";
     if (financeSection) financeSection.style.display = "block";
@@ -77,19 +78,23 @@ function setUserLoggedIn(user) {
         dateInput.value = new Date().toISOString().split("T")[0];
     }
 
+    // Set active month in overview month picker
+    const overviewPicker = document.getElementById("overviewMonthPicker");
+    if (overviewPicker) {
+        overviewPicker.value = activeOverviewMonth;
+    }
+
     // Set current month in budget month picker
     const monthPicker = document.getElementById("budgetMonthPicker");
     if (monthPicker && !monthPicker.value) {
-        const now = new Date();
-        const yearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-        monthPicker.value = yearMonth;
+        monthPicker.value = activeOverviewMonth;
     }
 }
 
 async function loadAllUserData() {
     await loadCategories();
     await loadTransactions();
-    await loadDashboard();
+    await loadDashboard(activeOverviewMonth);
     await loadBudgets();
     await loadGoals();
 }
@@ -206,6 +211,27 @@ function setupEventListeners() {
     const editGoalForm = document.getElementById("editGoalForm");
     if (editGoalForm) editGoalForm.addEventListener("submit", handleUpdateGoal);
 
+    // Overview Month Switcher
+    const overviewMonthPicker = document.getElementById("overviewMonthPicker");
+    const prevOverviewMonthBtn = document.getElementById("prevOverviewMonthBtn");
+    const nextOverviewMonthBtn = document.getElementById("nextOverviewMonthBtn");
+
+    if (overviewMonthPicker) {
+        overviewMonthPicker.value = activeOverviewMonth;
+        overviewMonthPicker.addEventListener("change", (e) => {
+            activeOverviewMonth = e.target.value || new Date().toISOString().slice(0, 7);
+            refreshOverviewForMonth(activeOverviewMonth);
+        });
+    }
+
+    if (prevOverviewMonthBtn) {
+        prevOverviewMonthBtn.addEventListener("click", () => changeOverviewMonth(-1));
+    }
+
+    if (nextOverviewMonthBtn) {
+        nextOverviewMonthBtn.addEventListener("click", () => changeOverviewMonth(1));
+    }
+
     // Monthly Report Modal
     const openReportBtn = document.getElementById("openReportBtn");
     const closeReportBtn = document.getElementById("closeReportModalBtn");
@@ -246,6 +272,43 @@ function setupEventListeners() {
             });
         }
     });
+}
+
+// ============================================================
+// DYNAMIC MONTH SWITCHER LOGIC (OVERVIEW)
+// ============================================================
+function changeOverviewMonth(delta) {
+    if (!activeOverviewMonth) {
+        activeOverviewMonth = new Date().toISOString().slice(0, 7);
+    }
+
+    const [yearStr, monthStr] = activeOverviewMonth.split("-");
+    let year = parseInt(yearStr, 10);
+    let month = parseInt(monthStr, 10) + delta;
+
+    if (month < 1) {
+        month = 12;
+        year -= 1;
+    } else if (month > 12) {
+        month = 1;
+        year += 1;
+    }
+
+    activeOverviewMonth = `${year}-${String(month).padStart(2, '0')}`;
+    
+    const picker = document.getElementById("overviewMonthPicker");
+    if (picker) picker.value = activeOverviewMonth;
+
+    refreshOverviewForMonth(activeOverviewMonth);
+}
+
+async function refreshOverviewForMonth(monthYear) {
+    if (!monthYear) {
+        monthYear = activeOverviewMonth;
+    }
+    await loadDashboard(monthYear);
+    updateVisualCharts(monthYear);
+    renderRecentTransactions(allTransactions, monthYear);
 }
 
 // ============================================================
@@ -624,7 +687,7 @@ async function deleteCategory(categoryId, categoryName) {
     }
 }
 
-// ============================================================
+/// ============================================================
 // TRANSACTION MANAGEMENT
 // ============================================================
 async function loadTransactions() {
@@ -638,30 +701,39 @@ async function loadTransactions() {
             allTransactions = data.transactions;
         }
 
-        renderRecentTransactions(allTransactions);
+        renderRecentTransactions(allTransactions, activeOverviewMonth);
         applyTransactionFilters();
-        updateVisualCharts();
+        updateVisualCharts(activeOverviewMonth);
 
     } catch (error) {
         console.error("Transactions loading error:", error);
     }
 }
 
-function renderRecentTransactions(transactions) {
+function renderRecentTransactions(transactions, monthYear) {
     const recentList = document.getElementById("recentTransactionsList");
     const recentMsg = document.getElementById("recentTransactionsMessage");
 
     if (!recentList) return;
     recentList.innerHTML = "";
 
-    if (!transactions || transactions.length === 0) {
-        if (recentMsg) recentMsg.style.display = "block";
+    const targetMonth = monthYear || activeOverviewMonth || new Date().toISOString().slice(0, 7);
+
+    // Filter transactions for target month
+    let monthlyTx = (transactions || []).filter(tx => (tx.transaction_date || '').startsWith(targetMonth));
+
+    // If no transactions in this month, display informative message
+    if (monthlyTx.length === 0) {
+        if (recentMsg) {
+            recentMsg.style.display = "block";
+            recentMsg.textContent = "No transactions recorded for this month.";
+        }
         return;
     }
 
     if (recentMsg) recentMsg.style.display = "none";
 
-    const top5 = [...transactions]
+    const top5 = [...monthlyTx]
         .sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date))
         .slice(0, 6);
 
@@ -761,14 +833,14 @@ function buildTransactionLi(tx) {
                 ${isIncome ? '+' : '-'} Rs. ${amountFormatted}
             </span>
             <div class="item-btns">
-                <button type="button" class="btn-mini edit-btn" title="Edit"><i class="fa-solid fa-pen"></i></button>
-                <button type="button" class="btn-mini del delete-btn" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                <button type="button" class="btn-mini edit-tx-btn" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                <button type="button" class="btn-mini del delete-tx-btn" title="Delete"><i class="fa-solid fa-trash"></i></button>
             </div>
         </div>
     `;
 
-    li.querySelector(".edit-btn").addEventListener("click", () => openTransactionModal(tx));
-    li.querySelector(".delete-btn").addEventListener("click", () => deleteTransaction(tx.transaction_id));
+    li.querySelector(".edit-tx-btn").addEventListener("click", () => openTransactionModal(tx));
+    li.querySelector(".delete-tx-btn").addEventListener("click", () => deleteTransaction(tx.transaction_id));
 
     return li;
 }
@@ -812,7 +884,7 @@ async function handleCreateTransaction(e) {
 
         showFeedback("quickTransactionMessage", "Entry recorded!", true);
         await loadTransactions();
-        await loadDashboard();
+        await refreshOverviewForMonth(activeOverviewMonth);
 
     } catch (error) {
         console.error("Create transaction error:", error);
@@ -875,7 +947,7 @@ async function handleUpdateTransaction(e) {
 
         closeTransactionModal();
         await loadTransactions();
-        await loadDashboard();
+        await refreshOverviewForMonth(activeOverviewMonth);
 
     } catch (error) {
         console.error("Update transaction error:", error);
@@ -903,7 +975,7 @@ async function deleteTransaction(transactionId) {
         }
 
         await loadTransactions();
-        await loadDashboard();
+        await refreshOverviewForMonth(activeOverviewMonth);
 
     } catch (error) {
         console.error("Delete transaction error:", error);
@@ -913,9 +985,11 @@ async function deleteTransaction(transactionId) {
 // ============================================================
 // DASHBOARD
 // ============================================================
-async function loadDashboard() {
+async function loadDashboard(monthYear) {
+    const targetMonth = monthYear || activeOverviewMonth || new Date().toISOString().slice(0, 7);
+
     try {
-        const response = await fetch(DASHBOARD_API_URL);
+        const response = await fetch(`${DASHBOARD_API_URL}?month_year=${targetMonth}`);
         const data = await response.json();
 
         if (!data.success || !data.summary) return;
@@ -928,9 +1002,9 @@ async function loadDashboard() {
                 maximumFractionDigits: 2
             });
 
-        const monthDisplay = document.getElementById("currentMonthNameDisplay");
-        if (monthDisplay && summary.month_label) {
-            monthDisplay.textContent = summary.month_label;
+        const picker = document.getElementById("overviewMonthPicker");
+        if (picker && picker.value !== summary.month_year) {
+            picker.value = summary.month_year;
         }
 
         document.getElementById("totalIncome").textContent = formatCurrency(summary.total_income);
@@ -945,32 +1019,29 @@ async function loadDashboard() {
 // ============================================================
 // VISUAL ANALYTICS & CHARTS (Chart.js)
 // ============================================================
-function updateVisualCharts() {
+function updateVisualCharts(monthYear) {
     if (typeof Chart === "undefined") {
         console.warn("Chart.js not loaded.");
         return;
     }
 
-    renderCategoryExpenseChart();
-    renderCategoryIncomeChart();
+    const targetMonth = monthYear || activeOverviewMonth || new Date().toISOString().slice(0, 7);
+
+    renderCategoryExpenseChart(targetMonth);
+    renderCategoryIncomeChart(targetMonth);
     renderCashFlowChart();
 }
 
-// 1. EXPENSE BY CATEGORY (PIE / DOUGHNUT - CURRENT MONTH)
-function renderCategoryExpenseChart() {
+// 1. EXPENSE BY CATEGORY (PIE / DOUGHNUT - SELECTED MONTH)
+function renderCategoryExpenseChart(monthYear) {
     const canvas = document.getElementById("categoryExpenseChart");
     const emptyState = document.getElementById("categoryChartEmpty");
     if (!canvas) return;
 
-    const currentMonth = new Date().toISOString().slice(0, 7);
+    const targetMonth = monthYear || activeOverviewMonth || new Date().toISOString().slice(0, 7);
     
-    // Filter for current month's expenses
-    let expenses = allTransactions.filter(t => t.type === "expense" && (t.transaction_date || '').startsWith(currentMonth));
-    
-    // Fallback to all expenses if no transactions logged yet this month
-    if (expenses.length === 0) {
-        expenses = allTransactions.filter(t => t.type === "expense");
-    }
+    // Filter for selected month's expenses
+    let expenses = allTransactions.filter(t => t.type === "expense" && (t.transaction_date || '').startsWith(targetMonth));
 
     if (expenses.length === 0) {
         if (emptyState) emptyState.style.display = "flex";
@@ -1053,21 +1124,16 @@ function renderCategoryExpenseChart() {
     });
 }
 
-// 2. INCOME BY CATEGORY (PIE / DOUGHNUT - CURRENT MONTH)
-function renderCategoryIncomeChart() {
+// 2. INCOME BY CATEGORY (PIE / DOUGHNUT - SELECTED MONTH)
+function renderCategoryIncomeChart(monthYear) {
     const canvas = document.getElementById("categoryIncomeChart");
     const emptyState = document.getElementById("categoryIncomeChartEmpty");
     if (!canvas) return;
 
-    const currentMonth = new Date().toISOString().slice(0, 7);
+    const targetMonth = monthYear || activeOverviewMonth || new Date().toISOString().slice(0, 7);
     
-    // Filter for current month's income
-    let incomes = allTransactions.filter(t => t.type === "income" && (t.transaction_date || '').startsWith(currentMonth));
-    
-    // Fallback to all income if none in current month yet
-    if (incomes.length === 0) {
-        incomes = allTransactions.filter(t => t.type === "income");
-    }
+    // Filter for selected month's income
+    let incomes = allTransactions.filter(t => t.type === "income" && (t.transaction_date || '').startsWith(targetMonth));
 
     if (incomes.length === 0) {
         if (emptyState) emptyState.style.display = "flex";

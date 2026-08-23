@@ -177,7 +177,7 @@
         <div id="financeSection" class="dashboard-wrapper" style="display: none;">
 
             <!-- ==============================================
-                 TIER 1: FINANCIAL SUMMARY CONTAINER (CURRENT MONTH)
+                 TIER 1: FINANCIAL SUMMARY CONTAINER (MONTHLY OVERVIEW)
             =============================================== -->
             <div class="card financial-summary-container">
                 <div class="summary-container-header">
@@ -185,8 +185,19 @@
                         <span class="header-decor-icons">💎 <i class="fa-solid fa-chart-pie"></i></span>
                         <h2>Monthly Overview</h2>
                     </div>
-                    <div class="summary-period-badge" id="currentMonthBadge">
-                        <i class="fa-regular fa-calendar-check"></i> <span id="currentMonthNameDisplay">Current Month</span>
+                    
+                    <!-- Dynamic Month Switcher with Month Picker & Arrows -->
+                    <div class="overview-month-control">
+                        <button type="button" class="month-nav-arrow" id="prevOverviewMonthBtn" title="Previous Month">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <div class="month-input-wrapper">
+                            <i class="fa-regular fa-calendar-check month-cal-icon"></i>
+                            <input type="month" id="overviewMonthPicker" class="overview-month-input" title="Click to select any month and year">
+                        </div>
+                        <button type="button" class="month-nav-arrow" id="nextOverviewMonthBtn" title="Next Month">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
                     </div>
                 </div>
 
