@@ -54,8 +54,11 @@
                 </button>
             </nav>
 
-            <!-- User Profile & Logout -->
+            <!-- User Profile & Report & Logout -->
             <div id="userProfileBar" class="user-profile" style="display: none;">
+                <button type="button" id="openReportBtn" class="btn-report-nav" title="Generate Monthly Financial Report">
+                    <i class="fa-solid fa-file-invoice-dollar"></i> <span>Monthly Report</span>
+                </button>
                 <div class="user-avatar">
                     <i class="fa-solid fa-user"></i>
                 </div>
@@ -682,6 +685,143 @@
                     <button type="submit" class="btn-primary">Update Goal</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- ======================================================
+         MONTHLY FINANCIAL REPORT MODAL (PRINT & CSV EXPORTER)
+    ======================================================= -->
+    <div id="monthlyReportModal" class="modal-overlay report-modal-overlay" style="display: none;">
+        <div class="modal-card report-modal-card">
+            
+            <!-- Modal Control Toolbar (Non-printed) -->
+            <div class="report-modal-header no-print">
+                <div class="report-header-left">
+                    <h3><i class="fa-solid fa-file-invoice-dollar"></i> Monthly Financial Statement</h3>
+                    <div class="report-month-selector">
+                        <label for="reportMonthPicker">Select Month:</label>
+                        <input type="month" id="reportMonthPicker" class="compact-input">
+                    </div>
+                </div>
+                <div class="report-header-actions">
+                    <button type="button" class="btn-secondary btn-sm" id="downloadReportCsvBtn">
+                        <i class="fa-solid fa-file-csv"></i> Download CSV
+                    </button>
+                    <button type="button" class="btn-primary btn-sm" id="printReportBtn">
+                        <i class="fa-solid fa-print"></i> Print / Save PDF
+                    </button>
+                    <button type="button" class="modal-close-btn" id="closeReportModalBtn">&times;</button>
+                </div>
+            </div>
+
+            <!-- Printable Statement Content -->
+            <div id="printableReportArea" class="report-body-scrollable">
+                <div class="report-print-container">
+
+                    <!-- Statement Letterhead -->
+                    <div class="statement-letterhead">
+                        <div class="statement-brand">
+                            <div class="brand-icon">
+                                <i class="fa-solid fa-wallet"></i>
+                            </div>
+                            <div>
+                                <h1 class="statement-brand-title">FinanceTracker</h1>
+                                <p class="statement-brand-sub">Personal Wealth & Cash Flow Management</p>
+                            </div>
+                        </div>
+                        <div class="statement-meta">
+                            <h2 class="statement-doc-type">MONTHLY STATEMENT</h2>
+                            <p><strong>Period:</strong> <span id="rptPeriodText">August 2026</span></p>
+                            <p><strong>Generated:</strong> <span id="rptGeneratedText">2026-08-23</span></p>
+                            <p><strong>Account Holder:</strong> <span id="rptAccountHolder">User</span></p>
+                        </div>
+                    </div>
+
+                    <!-- Executive Summary Cards -->
+                    <div class="report-summary-grid">
+                        <div class="rpt-summary-card rpt-inc">
+                            <span class="rpt-card-lbl">Total Income</span>
+                            <h3 class="rpt-card-val" id="rptTotalIncome">Rs. 0.00</h3>
+                        </div>
+                        <div class="rpt-summary-card rpt-exp">
+                            <span class="rpt-card-lbl">Total Expenses</span>
+                            <h3 class="rpt-card-val" id="rptTotalExpenses">Rs. 0.00</h3>
+                        </div>
+                        <div class="rpt-summary-card rpt-bal">
+                            <span class="rpt-card-lbl">Net Savings</span>
+                            <h3 class="rpt-card-val" id="rptNetSavings">Rs. 0.00</h3>
+                        </div>
+                        <div class="rpt-summary-card rpt-rate">
+                            <span class="rpt-card-lbl">Savings Rate</span>
+                            <h3 class="rpt-card-val" id="rptSavingsRate">0.0%</h3>
+                        </div>
+                    </div>
+
+                    <!-- 2-Column Breakdowns Section -->
+                    <div class="report-breakdowns-grid">
+                        <!-- Category Spending Breakdown -->
+                        <div class="report-section-card">
+                            <h4 class="report-section-title"><i class="fa-solid fa-chart-pie"></i> Expense Breakdown by Category</h4>
+                            <div class="table-responsive">
+                                <table class="report-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Category</th>
+                                            <th style="text-align: right;">Amount (Rs.)</th>
+                                            <th style="text-align: right;">% of Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="rptExpenseCategoryBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Budget Performance -->
+                        <div class="report-section-card">
+                            <h4 class="report-section-title"><i class="fa-solid fa-bullseye"></i> Budget Performance & Adherence</h4>
+                            <div class="table-responsive">
+                                <table class="report-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Category</th>
+                                            <th style="text-align: right;">Budget</th>
+                                            <th style="text-align: right;">Spent</th>
+                                            <th style="text-align: center;">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="rptBudgetBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Itemized Ledger Statement -->
+                    <div class="report-section-card full-width" style="margin-top: 20px;">
+                        <h4 class="report-section-title"><i class="fa-solid fa-list-check"></i> Itemized Transaction Statement</h4>
+                        <div class="table-responsive">
+                            <table class="report-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Description</th>
+                                        <th>Category</th>
+                                        <th>Type</th>
+                                        <th style="text-align: right;">Amount (Rs.)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rptTransactionsBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Statement Footer Notice -->
+                    <div class="statement-footer-notice">
+                        <p>This automated financial statement was prepared by Personal Finance Tracker. Keep this document for your personal accounting and tax records.</p>
+                    </div>
+
+                </div>
+            </div>
+
         </div>
     </div>
 

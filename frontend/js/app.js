@@ -15,12 +15,14 @@ const DASHBOARD_API_URL   = "../backend/api/dashboard.php";
 const TRANSACTION_API_URL = "../backend/api/transactions.php";
 const BUDGET_API_URL      = "../backend/api/budgets.php";
 const GOAL_API_URL        = "../backend/api/goals.php";
+const REPORT_API_URL      = "../backend/api/reports.php";
 
 // App State
 let userCategories = [];
 let allTransactions = [];
 let userBudgets = [];
 let userGoals = [];
+let currentMonthlyReport = null;
 let activeTab = "overview";
 let categoryExpenseChartInstance = null;
 let categoryIncomeChartInstance = null;
@@ -204,6 +206,19 @@ function setupEventListeners() {
     const editGoalForm = document.getElementById("editGoalForm");
     if (editGoalForm) editGoalForm.addEventListener("submit", handleUpdateGoal);
 
+    // Monthly Report Modal
+    const openReportBtn = document.getElementById("openReportBtn");
+    const closeReportBtn = document.getElementById("closeReportModalBtn");
+    const printReportBtn = document.getElementById("printReportBtn");
+    const downloadReportCsvBtn = document.getElementById("downloadReportCsvBtn");
+    const reportMonthPicker = document.getElementById("reportMonthPicker");
+
+    if (openReportBtn) openReportBtn.addEventListener("click", openMonthlyReportModal);
+    if (closeReportBtn) closeReportBtn.addEventListener("click", closeMonthlyReportModal);
+    if (printReportBtn) printReportBtn.addEventListener("click", printMonthlyReport);
+    if (downloadReportCsvBtn) downloadReportCsvBtn.addEventListener("click", downloadMonthlyReportCSV);
+    if (reportMonthPicker) reportMonthPicker.addEventListener("change", () => loadMonthlyReport(reportMonthPicker.value));
+
     // Close on Escape or Backdrop click
     window.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
@@ -212,10 +227,11 @@ function setupEventListeners() {
             closeBudgetModal();
             closeDepositModal();
             closeGoalModal();
+            closeMonthlyReportModal();
         }
     });
 
-    ["editCategoryModal", "editTransactionModal", "editBudgetModal", "depositGoalModal", "editGoalModal"].forEach(id => {
+    ["editCategoryModal", "editTransactionModal", "editBudgetModal", "depositGoalModal", "editGoalModal", "monthlyReportModal"].forEach(id => {
         const m = document.getElementById(id);
         if (m) {
             m.addEventListener("click", (e) => {
@@ -225,6 +241,7 @@ function setupEventListeners() {
                     closeBudgetModal();
                     closeDepositModal();
                     closeGoalModal();
+                    closeMonthlyReportModal();
                 }
             });
         }
@@ -1680,6 +1697,233 @@ async function deleteGoal(goalId) {
     } catch (error) {
         console.error("Delete goal error:", error);
     }
+}
+
+// ============================================================
+// MONTHLY FINANCIAL REPORT (PRINT & CSV EXPORTER)
+// ============================================================
+async function openMonthlyReportModal() {
+    const modal = document.getElementById("monthlyReportModal");
+    const picker = document.getElementById("reportMonthPicker");
+
+    // Default to current month YYYY-MM
+    const currentMonth = new Date().toISOString().slice(0, 7);
+    if (picker && !picker.value) {
+        picker.value = currentMonth;
+    }
+
+    const selectedMonth = picker ? picker.value : currentMonth;
+
+    if (modal) modal.style.display = "flex";
+    await loadMonthlyReport(selectedMonth);
+}
+
+function closeMonthlyReportModal() {
+    const modal = document.getElementById("monthlyReportModal");
+    if (modal) modal.style.display = "none";
+}
+
+async function loadMonthlyReport(monthYear) {
+    if (!monthYear) {
+        monthYear = new Date().toISOString().slice(0, 7);
+    }
+
+    try {
+        const response = await fetch(`${REPORT_API_URL}?month_year=${monthYear}`);
+        const data = await response.json();
+
+        if (data.success && data.report) {
+            currentMonthlyReport = data.report;
+            renderMonthlyReport(currentMonthlyReport);
+        } else {
+            console.error("Failed to load report:", data.message);
+        }
+    } catch (error) {
+        console.error("Report fetch error:", error);
+    }
+}
+
+function renderMonthlyReport(report) {
+    if (!report) return;
+
+    // 1. Period & Meta
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const [year, monthNum] = report.month_year.split("-");
+    const monthName = monthNames[parseInt(monthNum, 10) - 1] || report.month_year;
+
+    const rptPeriodText = document.getElementById("rptPeriodText");
+    const rptGeneratedText = document.getElementById("rptGeneratedText");
+    const rptAccountHolder = document.getElementById("rptAccountHolder");
+
+    if (rptPeriodText) rptPeriodText.textContent = `${monthName} ${year}`;
+    if (rptGeneratedText) rptGeneratedText.textContent = report.generated_at || new Date().toLocaleString();
+    if (rptAccountHolder) rptAccountHolder.textContent = report.user?.name || "Account Holder";
+
+    // 2. Executive Summary Metrics
+    const sum = report.summary || {};
+    const totalInc = parseFloat(sum.total_income || 0);
+    const totalExp = parseFloat(sum.total_expenses || 0);
+    const netSav = parseFloat(sum.net_savings || 0);
+    const savRate = parseFloat(sum.savings_rate || 0);
+
+    const rptTotalIncome = document.getElementById("rptTotalIncome");
+    const rptTotalExpenses = document.getElementById("rptTotalExpenses");
+    const rptNetSavings = document.getElementById("rptNetSavings");
+    const rptSavingsRate = document.getElementById("rptSavingsRate");
+
+    if (rptTotalIncome) rptTotalIncome.textContent = `Rs. ${totalInc.toLocaleString("en-IN", {minimumFractionDigits: 2})}`;
+    if (rptTotalExpenses) rptTotalExpenses.textContent = `Rs. ${totalExp.toLocaleString("en-IN", {minimumFractionDigits: 2})}`;
+    if (rptNetSavings) {
+        rptNetSavings.textContent = `Rs. ${netSav.toLocaleString("en-IN", {minimumFractionDigits: 2})}`;
+        rptNetSavings.style.color = netSav >= 0 ? "#1e40af" : "#be185d";
+    }
+    if (rptSavingsRate) {
+        rptSavingsRate.textContent = `${savRate}%`;
+        rptSavingsRate.style.color = savRate >= 0 ? "#15803d" : "#be185d";
+    }
+
+    // 3. Category Expenses Breakdown Table
+    const catExpBody = document.getElementById("rptExpenseCategoryBody");
+    if (catExpBody) {
+        catExpBody.innerHTML = "";
+        const expCategories = report.expense_categories || [];
+
+        if (expCategories.length === 0) {
+            catExpBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-muted); font-style: italic;">No expenses recorded this month.</td></tr>';
+        } else {
+            expCategories.forEach(cat => {
+                const tr = document.createElement("tr");
+                const emoji = getCategoryEmoji(cat.category_name);
+                tr.innerHTML = `
+                    <td>${emoji} <strong>${escapeHtml(cat.category_name)}</strong></td>
+                    <td style="text-align: right; font-weight: 700; color: #be185d;">Rs. ${parseFloat(cat.total_amount).toLocaleString("en-IN", {minimumFractionDigits: 2})}</td>
+                    <td style="text-align: right;"><span class="rpt-pct-badge">${cat.percentage}%</span></td>
+                `;
+                catExpBody.appendChild(tr);
+            });
+        }
+    }
+
+    // 4. Budget Adherence Table
+    const budgetBody = document.getElementById("rptBudgetBody");
+    if (budgetBody) {
+        budgetBody.innerHTML = "";
+        const budgets = report.budget_adherence || [];
+
+        if (budgets.length === 0) {
+            budgetBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted); font-style: italic;">No budgets configured for this month.</td></tr>';
+        } else {
+            budgets.forEach(b => {
+                const tr = document.createElement("tr");
+                const isOver = b.status === "over_budget";
+                tr.innerHTML = `
+                    <td><strong>${escapeHtml(b.category_name)}</strong></td>
+                    <td style="text-align: right;">Rs. ${parseFloat(b.budget_limit).toLocaleString("en-IN", {minimumFractionDigits: 2})}</td>
+                    <td style="text-align: right; font-weight: 700; color: ${isOver ? '#be185d' : '#1e40af'};">Rs. ${parseFloat(b.total_spent).toLocaleString("en-IN", {minimumFractionDigits: 2})}</td>
+                    <td style="text-align: center;">
+                        <span class="status-badge ${isOver ? 'rpt-badge-over' : 'status-completed'}">
+                            ${isOver ? 'Over Budget' : 'Within Limit'} (${b.percentage_used}%)
+                        </span>
+                    </td>
+                `;
+                budgetBody.appendChild(tr);
+            });
+        }
+    }
+
+    // 5. Itemized Transactions Ledger
+    const txBody = document.getElementById("rptTransactionsBody");
+    if (txBody) {
+        txBody.innerHTML = "";
+        const transactions = report.transactions || [];
+
+        if (transactions.length === 0) {
+            txBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); font-style: italic;">No transactions recorded this month.</td></tr>';
+        } else {
+            transactions.forEach(t => {
+                const tr = document.createElement("tr");
+                const isInc = t.type === "income";
+                tr.innerHTML = `
+                    <td>${escapeHtml(t.transaction_date)}</td>
+                    <td>${escapeHtml(t.description || '-')}</td>
+                    <td>${escapeHtml(t.category_name || 'Uncategorized')}</td>
+                    <td>
+                        <span class="type-pill ${isInc ? 'pill-income' : 'pill-expense'}">
+                            ${isInc ? 'Income' : 'Expense'}
+                        </span>
+                    </td>
+                    <td style="text-align: right; font-weight: 700; color: ${isInc ? '#1d4ed8' : '#be185d'};">
+                        ${isInc ? '+' : '-'} Rs. ${parseFloat(t.amount).toLocaleString("en-IN", {minimumFractionDigits: 2})}
+                    </td>
+                `;
+                txBody.appendChild(tr);
+            });
+        }
+    }
+}
+
+function printMonthlyReport() {
+    window.print();
+}
+
+function downloadMonthlyReportCSV() {
+    if (!currentMonthlyReport) {
+        alert("No report data loaded to export.");
+        return;
+    }
+
+    const r = currentMonthlyReport;
+    const sum = r.summary || {};
+
+    let csvContent = "";
+
+    // 1. Title & Executive Summary
+    csvContent += `PERSONAL FINANCE TRACKER - MONTHLY STATEMENT\n`;
+    csvContent += `Statement Period,${r.month_year}\n`;
+    csvContent += `Generated On,${r.generated_at}\n`;
+    csvContent += `Account Holder,"${r.user?.name || 'User'}"\n\n`;
+
+    csvContent += `EXECUTIVE SUMMARY\n`;
+    csvContent += `Total Income (Rs.),${sum.total_income}\n`;
+    csvContent += `Total Expenses (Rs.),${sum.total_expenses}\n`;
+    csvContent += `Net Savings (Rs.),${sum.net_savings}\n`;
+    csvContent += `Savings Rate (%),${sum.savings_rate}%\n`;
+    csvContent += `Total Transactions,${sum.transaction_count}\n\n`;
+
+    // 2. Category Expenses Breakdown
+    csvContent += `EXPENSE BREAKDOWN BY CATEGORY\n`;
+    csvContent += `Category,Amount (Rs.),Percentage (%)\n`;
+    (r.expense_categories || []).forEach(cat => {
+        csvContent += `"${cat.category_name}",${cat.total_amount},${cat.percentage}%\n`;
+    });
+    csvContent += `\n`;
+
+    // 3. Budget Performance
+    csvContent += `BUDGET PERFORMANCE\n`;
+    csvContent += `Category,Budget Limit (Rs.),Total Spent (Rs.),Usage (%),Status\n`;
+    (r.budget_adherence || []).forEach(b => {
+        csvContent += `"${b.category_name}",${b.budget_limit},${b.total_spent},${b.percentage_used}%,${b.status}\n`;
+    });
+    csvContent += `\n`;
+
+    // 4. Itemized Ledger
+    csvContent += `ITEMIZED TRANSACTIONS\n`;
+    csvContent += `Date,Description,Category,Type,Amount (Rs.)\n`;
+    (r.transactions || []).forEach(t => {
+        const desc = (t.description || '').replace(/"/g, '""');
+        const cat = (t.category_name || '').replace(/"/g, '""');
+        csvContent += `"${t.transaction_date}","${desc}","${cat}","${t.type}",${t.amount}\n`;
+    });
+
+    // Create Download Blob
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Financial_Report_${r.month_year}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 // ============================================================
