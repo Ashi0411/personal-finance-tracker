@@ -224,6 +224,16 @@ function setupEventListeners() {
         });
     }
 
+    const prevOverviewYearBtn = document.getElementById("prevOverviewYearBtn");
+    const nextOverviewYearBtn = document.getElementById("nextOverviewYearBtn");
+
+    if (prevOverviewYearBtn) {
+        prevOverviewYearBtn.addEventListener("click", () => changeOverviewYear(-1));
+    }
+    if (nextOverviewYearBtn) {
+        nextOverviewYearBtn.addEventListener("click", () => changeOverviewYear(1));
+    }
+
     if (prevOverviewMonthBtn) {
         prevOverviewMonthBtn.addEventListener("click", () => changeOverviewMonth(-1));
     }
@@ -238,12 +248,13 @@ function setupEventListeners() {
     const printReportBtn = document.getElementById("printReportBtn");
     const downloadReportCsvBtn = document.getElementById("downloadReportCsvBtn");
     const reportMonthPicker = document.getElementById("reportMonthPicker");
-    const reportYearPicker = document.getElementById("reportYearPicker");
     const scopeMonthlyBtn = document.getElementById("scopeMonthlyBtn");
     const scopeYearlyBtn = document.getElementById("scopeYearlyBtn");
 
     const prevReportMonthBtn = document.getElementById("prevReportMonthBtn");
     const nextReportMonthBtn = document.getElementById("nextReportMonthBtn");
+    const prevReportMonthYearBtn = document.getElementById("prevReportMonthYearBtn");
+    const nextReportMonthYearBtn = document.getElementById("nextReportMonthYearBtn");
     const prevReportYearBtn = document.getElementById("prevReportYearBtn");
     const nextReportYearBtn = document.getElementById("nextReportYearBtn");
 
@@ -252,8 +263,9 @@ function setupEventListeners() {
     if (printReportBtn) printReportBtn.addEventListener("click", printMonthlyReport);
     if (downloadReportCsvBtn) downloadReportCsvBtn.addEventListener("click", downloadMonthlyReportCSV);
     if (reportMonthPicker) reportMonthPicker.addEventListener("change", () => loadReportData());
-    if (reportYearPicker) reportYearPicker.addEventListener("change", () => loadReportData());
 
+    if (prevReportMonthYearBtn) prevReportMonthYearBtn.addEventListener("click", () => changeReportMonthYear(-1));
+    if (nextReportMonthYearBtn) nextReportMonthYearBtn.addEventListener("click", () => changeReportMonthYear(1));
     if (prevReportMonthBtn) prevReportMonthBtn.addEventListener("click", () => changeReportMonth(-1));
     if (nextReportMonthBtn) nextReportMonthBtn.addEventListener("click", () => changeReportMonth(1));
     if (prevReportYearBtn) prevReportYearBtn.addEventListener("click", () => changeReportYear(-1));
@@ -292,8 +304,23 @@ function setupEventListeners() {
 }
 
 // ============================================================
-// DYNAMIC MONTH SWITCHER LOGIC (OVERVIEW)
+// DYNAMIC MONTH & YEAR SWITCHER LOGIC (OVERVIEW)
 // ============================================================
+function changeOverviewYear(delta) {
+    if (!activeOverviewMonth) {
+        activeOverviewMonth = new Date().toISOString().slice(0, 7);
+    }
+
+    const [yearStr, monthStr] = activeOverviewMonth.split("-");
+    let year = parseInt(yearStr, 10) + delta;
+    activeOverviewMonth = `${year}-${monthStr}`;
+
+    const picker = document.getElementById("overviewMonthPicker");
+    if (picker) picker.value = activeOverviewMonth;
+
+    refreshOverviewForMonth(activeOverviewMonth);
+}
+
 function changeOverviewMonth(delta) {
     if (!activeOverviewMonth) {
         activeOverviewMonth = new Date().toISOString().slice(0, 7);
@@ -1807,21 +1834,22 @@ async function deleteGoal(goalId) {
 // FINANCIAL REPORTS (MONTHLY & YEARLY EXPORTER)
 // ============================================================
 let currentReportScope = "monthly"; // "monthly" or "yearly"
+let activeReportYear = parseInt(new Date().getFullYear(), 10);
 
 async function openMonthlyReportModal() {
     const modal = document.getElementById("monthlyReportModal");
     const monthPicker = document.getElementById("reportMonthPicker");
-    const yearPicker = document.getElementById("reportYearPicker");
+    const yearDisplay = document.getElementById("reportYearDisplay");
 
     // Initialize defaults
     const currentMonth = new Date().toISOString().slice(0, 7);
-    const currentYear = new Date().getFullYear().toString();
+    activeReportYear = parseInt(new Date().getFullYear(), 10);
 
     if (monthPicker && !monthPicker.value) {
         monthPicker.value = currentMonth;
     }
-    if (yearPicker && !yearPicker.value) {
-        yearPicker.value = currentYear;
+    if (yearDisplay) {
+        yearDisplay.textContent = activeReportYear;
     }
 
     if (modal) modal.style.display = "flex";
@@ -1842,6 +1870,7 @@ function switchReportScope(scope) {
     const yearContainer = document.getElementById("rptYearPickerContainer");
     const budgetCard = document.getElementById("rptBudgetSectionCard");
     const timelineSection = document.getElementById("rptYearlyTimelineSection");
+    const yearDisplay = document.getElementById("reportYearDisplay");
 
     if (btnMonthly) btnMonthly.classList.toggle("active", scope === "monthly");
     if (btnYearly) btnYearly.classList.toggle("active", scope === "yearly");
@@ -1851,6 +1880,7 @@ function switchReportScope(scope) {
         if (yearContainer) yearContainer.style.display = "flex";
         if (budgetCard) budgetCard.style.display = "none";
         if (timelineSection) timelineSection.style.display = "block";
+        if (yearDisplay) yearDisplay.textContent = activeReportYear;
     } else {
         if (monthContainer) monthContainer.style.display = "flex";
         if (yearContainer) yearContainer.style.display = "none";
@@ -1859,6 +1889,19 @@ function switchReportScope(scope) {
     }
 
     loadReportData();
+}
+
+function changeReportMonthYear(delta) {
+    const monthPicker = document.getElementById("reportMonthPicker");
+    let currentVal = monthPicker?.value || new Date().toISOString().slice(0, 7);
+
+    const [yearStr, monthStr] = currentVal.split("-");
+    let year = parseInt(yearStr, 10) + delta;
+
+    const newVal = `${year}-${monthStr}`;
+    if (monthPicker) monthPicker.value = newVal;
+
+    loadMonthlyReport(newVal);
 }
 
 function changeReportMonth(delta) {
@@ -1884,29 +1927,18 @@ function changeReportMonth(delta) {
 }
 
 function changeReportYear(delta) {
-    const yearPicker = document.getElementById("reportYearPicker");
-    let currentYear = parseInt(yearPicker?.value || new Date().getFullYear().toString(), 10);
-    currentYear += delta;
-
-    if (yearPicker) {
-        let optExists = Array.from(yearPicker.options).some(o => o.value == currentYear);
-        if (!optExists) {
-            const opt = document.createElement("option");
-            opt.value = currentYear;
-            opt.textContent = currentYear;
-            yearPicker.appendChild(opt);
-        }
-        yearPicker.value = currentYear;
+    activeReportYear += delta;
+    const yearDisplay = document.getElementById("reportYearDisplay");
+    if (yearDisplay) {
+        yearDisplay.textContent = activeReportYear;
     }
 
-    loadYearlyReport(currentYear.toString());
+    loadYearlyReport(activeReportYear.toString());
 }
 
 async function loadReportData() {
     if (currentReportScope === "yearly") {
-        const yearPicker = document.getElementById("reportYearPicker");
-        const year = yearPicker ? yearPicker.value : new Date().getFullYear().toString();
-        await loadYearlyReport(year);
+        await loadYearlyReport(activeReportYear.toString());
     } else {
         const monthPicker = document.getElementById("reportMonthPicker");
         const monthYear = monthPicker ? monthPicker.value : new Date().toISOString().slice(0, 7);

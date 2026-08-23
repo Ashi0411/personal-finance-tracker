@@ -186,17 +186,23 @@
                         <h2>Monthly Overview</h2>
                     </div>
                     
-                    <!-- Dynamic Month Switcher with Month Picker & Arrows -->
+                    <!-- Dynamic Month & Year Switcher with Arrows -->
                     <div class="overview-month-control">
-                        <button type="button" class="month-nav-arrow" id="prevOverviewMonthBtn" title="Previous Month">
+                        <button type="button" class="month-nav-arrow arrow-double" id="prevOverviewYearBtn" title="Previous Year (<<)">
+                            <i class="fa-solid fa-angles-left"></i>
+                        </button>
+                        <button type="button" class="month-nav-arrow" id="prevOverviewMonthBtn" title="Previous Month (<)">
                             <i class="fa-solid fa-chevron-left"></i>
                         </button>
                         <div class="month-input-wrapper">
                             <i class="fa-regular fa-calendar-check month-cal-icon"></i>
                             <input type="month" id="overviewMonthPicker" class="overview-month-input" title="Click to select any month and year">
                         </div>
-                        <button type="button" class="month-nav-arrow" id="nextOverviewMonthBtn" title="Next Month">
+                        <button type="button" class="month-nav-arrow" id="nextOverviewMonthBtn" title="Next Month (>)">
                             <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                        <button type="button" class="month-nav-arrow arrow-double" id="nextOverviewYearBtn" title="Next Year (>>)">
+                            <i class="fa-solid fa-angles-right"></i>
                         </button>
                     </div>
                 </div>
@@ -725,23 +731,29 @@
                         </button>
                     </div>
 
-                    <!-- Month Selector with Arrows (For Monthly Scope) -->
+                    <!-- Month & Year Selector with Arrows (For Monthly Scope) -->
                     <div class="report-period-selector" id="rptMonthPickerContainer">
                         <div class="overview-month-control report-month-control">
-                            <button type="button" class="month-nav-arrow" id="prevReportMonthBtn" title="Previous Month">
+                            <button type="button" class="month-nav-arrow arrow-double" id="prevReportMonthYearBtn" title="Previous Year (<<)">
+                                <i class="fa-solid fa-angles-left"></i>
+                            </button>
+                            <button type="button" class="month-nav-arrow" id="prevReportMonthBtn" title="Previous Month (<)">
                                 <i class="fa-solid fa-chevron-left"></i>
                             </button>
                             <div class="month-input-wrapper">
                                 <i class="fa-regular fa-calendar-check month-cal-icon"></i>
                                 <input type="month" id="reportMonthPicker" class="overview-month-input" title="Click to select month and year">
                             </div>
-                            <button type="button" class="month-nav-arrow" id="nextReportMonthBtn" title="Next Month">
+                            <button type="button" class="month-nav-arrow" id="nextReportMonthBtn" title="Next Month (>)">
                                 <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                            <button type="button" class="month-nav-arrow arrow-double" id="nextReportMonthYearBtn" title="Next Year (>>)">
+                                <i class="fa-solid fa-angles-right"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Year Selector with Arrows (For Yearly Scope) -->
+                    <!-- Year Selector with Left/Right Arrows Only (For Yearly Scope) -->
                     <div class="report-period-selector" id="rptYearPickerContainer" style="display: none;">
                         <div class="overview-month-control report-month-control">
                             <button type="button" class="month-nav-arrow" id="prevReportYearBtn" title="Previous Year">
@@ -749,19 +761,7 @@
                             </button>
                             <div class="month-input-wrapper">
                                 <i class="fa-regular fa-calendar-days month-cal-icon"></i>
-                                <select id="reportYearPicker" class="overview-month-input report-year-select" title="Click to select year">
-                                    <option value="2030">2030</option>
-                                    <option value="2029">2029</option>
-                                    <option value="2028">2028</option>
-                                    <option value="2027">2027</option>
-                                    <option value="2026" selected>2026</option>
-                                    <option value="2025">2025</option>
-                                    <option value="2024">2024</option>
-                                    <option value="2023">2023</option>
-                                    <option value="2022">2022</option>
-                                    <option value="2021">2021</option>
-                                    <option value="2020">2020</option>
-                                </select>
+                                <span id="reportYearDisplay" class="overview-year-display">2026</span>
                             </div>
                             <button type="button" class="month-nav-arrow" id="nextReportYearBtn" title="Next Year">
                                 <i class="fa-solid fa-chevron-right"></i>
@@ -776,8 +776,9 @@
                     <button type="button" class="btn-primary btn-sm" id="printReportBtn">
                         <i class="fa-solid fa-print"></i> Print / Save PDF
                     </button>
-                    <button type="button" class="modal-close-btn" id="closeReportModalBtn">&times;</button>
                 </div>
+                <!-- Fixed Top-Right Corner Close Button -->
+                <button type="button" class="report-modal-close-corner no-print" id="closeReportModalBtn" title="Close Statement">&times;</button>
             </div>
 
             <!-- Printable Statement Content -->
