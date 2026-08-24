@@ -6,7 +6,7 @@
 [![Chart.js](https://img.shields.io/badge/Chart.js-4.4.1-FF6384?style=flat-square&logo=chartdotjs&logoColor=white)](https://www.chartjs.org/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 
-A modern, comprehensive, full-stack personal finance management web application. Track income and expenses, set monthly category budgets, establish savings goals, generate analytical monthly & yearly reports, and visualize your financial health with interactive Chart.js dashboards.
+A modern, comprehensive, full-stack personal finance management web application. Track income and expenses, set monthly category budgets, establish savings goals with live progress meters, generate analytical monthly & yearly reports, and visualize your financial health with interactive Chart.js dashboards.
 
 ---
 
@@ -16,7 +16,9 @@ A modern, comprehensive, full-stack personal finance management web application.
 - 📊 **Visual Analytics**: Interactive Category Breakdown Doughnut Charts and Monthly Cash Flow Bar Charts powered by Chart.js.
 - 💸 **Transaction Tracking**: Add, edit, delete, search, and filter income and expense records with customizable dates, notes, and category tags.
 - 🎯 **Category Budgets**: Set monthly spending limits per category with dynamic progress meters and visual alerts (Normal `< 75%`, Warning `75% - 99%`, Exceeded `≥ 100%`).
-- 🏆 **Savings Goals**: Establish financial targets, specify target completion dates, and track savings progress with deposit contributions.
+- 🏆 **Savings Goals**: Establish financial targets, specify target completion dates, and track savings progress with deposit contributions and vibrant gradient progress meters.
+- 📅 **Custom Floating Calendar & Month Pickers**: Custom-built, glassmorphic 12-month selector tiles and 7-day date grid popups with smart viewport-relative positioning.
+- 🏷️ **Custom Curved Dropdowns**: Modern floating dropdown menus with category emojis (🍔, 💰, 🚗, 🛍️, etc.), checkmarks, and smooth micro-animations.
 - 📈 **Monthly & Yearly Reports**: Comprehensive breakdown of income, expenses, net savings rate, and category distribution over time.
 - 👤 **User Profile & Security**: Secure registration, bcrypt password hashing, session management, IDOR protection, and profile management with avatar uploads.
 
@@ -24,7 +26,7 @@ A modern, comprehensive, full-stack personal finance management web application.
 
 ## 🎨 UI/UX & Design System
 
-- **Aesthetic**: Modern glassmorphism, layered ambient background glows, smooth micro-interactions, responsive modal workflows, and dynamic category emojis (🍔, 💰, 🚗, 🛍️, ⚡, ✈️, etc.).
+- **Aesthetic**: Modern glassmorphism, layered ambient background glows, smooth micro-interactions, responsive modal workflows, custom floating select menus, and dynamic category emojis.
 - **Color Palette**:
   - Primary / Net Balance: Lavender & Violet (`#ede9fe` / `#8b5cf6`)
   - Income Accent: Sky Blue & Emerald (`#dbeafe` / `#10b981`)
@@ -39,7 +41,7 @@ A modern, comprehensive, full-stack personal finance management web application.
 
 | Layer | Technology | Details |
 | :--- | :--- | :--- |
-| **Frontend** | Vanilla JavaScript (ES6+), HTML5, CSS3 | Single-Page Application (SPA) experience with custom design system |
+| **Frontend** | Vanilla JavaScript (ES6+), HTML5, CSS3 | Single-Page Application (SPA) with custom dropdowns, calendars, & design system |
 | **Data Visualization** | [Chart.js 4.4.1](https://www.chartjs.org/) | Responsive Doughnut & Bar charts for financial breakdown |
 | **Backend** | PHP 7.4+ / 8.x | Modular MVC-inspired architecture, PDO, RESTful JSON endpoints |
 | **Database** | MySQL 5.7+ / 8.0+ or MariaDB | Relational schema with Foreign Keys, Cascades, and Indexes |
@@ -72,12 +74,16 @@ A modern, comprehensive, full-stack personal finance management web application.
   - 🟡 **Warning** (`75% - 99%`): Amber indicator.
   - 🔴 **Exceeded** (`≥ 100%`): Pink/Red alert badge.
 
-### 5. 🏆 Savings Goals
-- Define goals with target amounts, current savings balance, and target target completion dates.
+### 5. 🏆 Savings Goals & Live Progress Bars
+- Define goals with target amounts, current savings balance, and target completion dates.
 - Quick deposit modal to log increments toward individual savings milestones.
-- Visual completion percentage rings and progress bars.
+- Custom gradient progress bars (Indigo/Violet in progress, Emerald Green when 100% completed).
 
-### 6. 📑 Analytical Financial Reports
+### 6. 📅 Custom Form Controls & Components
+- **Custom Select Component**: Floating curved dropdowns with smooth fade/slide transitions and automatic category emojis.
+- **Custom Calendar & Month Picker**: Viewport-anchored floating date/month pickers with pill tiles and day cells.
+
+### 7. 📑 Analytical Financial Reports
 - Detailed monthly and annual balance sheets.
 - Savings rate calculation: `(Total Income - Total Expenses) / Total Income * 100%`.
 - High-level summaries of highest spending categories and monthly averages.
@@ -145,7 +151,7 @@ cd personal-finance-tracker
    mysql -u root -p personal_finance_tracker < database/schema.sql
    mysql -u root -p personal_finance_tracker < database/seed.sql
    ```
-3. *(Optional)* If your MySQL password or host differs from the default (`root` with no password on `localhost`), adjust credentials in [backend/config/database.php](file:///d:/Projects/Personal%20Finance%20Tracker/backend/config/database.php).
+3. *(Optional)* If your MySQL password or host differs from the default (`root` with no password on `localhost`), adjust credentials in [backend/config/database.php](backend/config/database.php).
 
 ### 4. Running the Application
 
@@ -215,10 +221,10 @@ personal-finance-tracker/
 │   └── requirements.md      # Specification & requirements document
 └── frontend/
     ├── css/
-    │   └── style.css        # Design system, glassmorphism & animations
+    │   └── style.css        # Design system, custom dropdowns/calendars & glassmorphism
     ├── images/              # Static assets & icons
     ├── js/
-    │   └── app.js           # Client-side SPA routing, Chart.js & AJAX controllers
+    │   └── app.js           # Client-side SPA routing, custom UI components & Chart.js
     └── index.html           # Unified responsive UI layout & modal views
 ```
 
