@@ -72,7 +72,7 @@ function setUserLoggedIn(user) {
     if (financeSection) financeSection.style.display = "block";
     if (userProfileBar) userProfileBar.style.display = "flex";
     if (appNav) appNav.style.display = "flex";
-    if (heroBanner) heroBanner.style.display = "flex";
+    if (heroBanner) heroBanner.style.display = "none";
     if (userNameDisplay) userNameDisplay.textContent = user.name || "User";
 
     // Update Avatar UI in header
@@ -401,6 +401,9 @@ function switchTab(tabName) {
     if (tabTransactions) tabTransactions.style.display = tabName === "transactions" ? "block" : "none";
     if (tabBudgets) tabBudgets.style.display = tabName === "budgets" ? "block" : "none";
     if (tabCategories) tabCategories.style.display = tabName === "categories" ? "block" : "none";
+
+    const heroBanner = document.getElementById("heroBanner");
+    if (heroBanner) heroBanner.style.display = "none";
 
     if (tabName === "budgets") {
         loadBudgets();
@@ -1655,8 +1658,8 @@ function renderGoalsList(goals) {
                 <span style="color: var(--text-muted);">Saved: <strong style="color: var(--text-primary);">Rs. ${current.toLocaleString("en-IN", {minimumFractionDigits: 2})}</strong></span>
                 <span class="goal-target-val">Target: Rs. ${target.toLocaleString("en-IN", {minimumFractionDigits: 2})}</span>
             </div>
-            <div class="budget-progress-track">
-                <div class="budget-progress-fill ${isCompleted ? '' : 'warn'}" style="width: ${pct}%; background: ${isCompleted ? 'var(--success)' : 'var(--accent)'};"></div>
+            <div class="goal-progress-track">
+                <div class="goal-progress-fill ${isCompleted ? 'completed' : ''}" style="width: ${pct}%;"></div>
             </div>
             <div style="display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-muted);">
                 <span>${pct}% achieved</span>

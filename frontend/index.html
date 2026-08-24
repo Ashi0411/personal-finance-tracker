@@ -218,79 +218,77 @@
         <div id="financeSection" class="dashboard-wrapper" style="display: none;">
 
             <!-- ==============================================
-                 TIER 1: FINANCIAL SUMMARY CONTAINER (MONTHLY OVERVIEW)
-            =============================================== -->
-            <div class="card financial-summary-container">
-                <div class="summary-container-header">
-                    <div class="summary-header-left">
-                        <span class="header-decor-icons">💎 <i class="fa-solid fa-chart-pie"></i></span>
-                        <h2>Monthly Overview</h2>
-                    </div>
-                    
-                    <!-- Dynamic Month & Year Switcher with Arrows -->
-                    <div class="overview-month-control">
-                        <button type="button" class="month-nav-arrow arrow-double" id="prevOverviewYearBtn" title="Previous Year (<<)">
-                            <i class="fa-solid fa-angles-left"></i>
-                        </button>
-                        <button type="button" class="month-nav-arrow" id="prevOverviewMonthBtn" title="Previous Month (<)">
-                            <i class="fa-solid fa-chevron-left"></i>
-                        </button>
-                        <div class="month-input-wrapper">
-                            <i class="fa-regular fa-calendar-check month-cal-icon"></i>
-                            <input type="month" id="overviewMonthPicker" class="overview-month-input" title="Click to select any month and year">
-                        </div>
-                        <button type="button" class="month-nav-arrow" id="nextOverviewMonthBtn" title="Next Month (>)">
-                            <i class="fa-solid fa-chevron-right"></i>
-                        </button>
-                        <button type="button" class="month-nav-arrow arrow-double" id="nextOverviewYearBtn" title="Next Year (>>)">
-                            <i class="fa-solid fa-angles-right"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="summary-cards-grid">
-                    <!-- Total Income Card (Pastel Blue) -->
-                    <div class="summary-card card-income">
-                        <div class="card-top-icon">💰</div>
-                        <div class="card-icon-trend">
-                            <i class="fa-solid fa-arrow-trend-up"></i>
-                        </div>
-                        <span class="card-label">Monthly Income</span>
-                        <h2 class="card-value" id="totalIncome">Rs. 0.00</h2>
-                        <div class="card-corner-watermark"></div>
-                    </div>
-
-                    <!-- Total Expenses Card (Pastel Pink) -->
-                    <div class="summary-card card-expense">
-                        <div class="card-top-icon">💸</div>
-                        <div class="card-icon-trend">
-                            <i class="fa-solid fa-arrow-trend-down"></i>
-                        </div>
-                        <span class="card-label">Monthly Expenses</span>
-                        <h2 class="card-value" id="totalExpenses">Rs. 0.00</h2>
-                        <div class="card-corner-watermark"></div>
-                    </div>
-
-                    <!-- Net Balance Card (Pastel Purple) -->
-                    <div class="summary-card card-balance">
-                        <div class="card-top-icon">💎</div>
-                        <div class="card-icon-trend">
-                            <i class="fa-solid fa-wallet"></i>
-                        </div>
-                        <span class="card-label">Monthly Net Savings</span>
-                        <h2 class="card-value" id="balance">Rs. 0.00</h2>
-                        <div class="card-corner-watermark"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ==============================================
-                 TIER 2: WORKSPACE TABS CONTAINER
+                 WORKSPACE TABS CONTAINER
             =============================================== -->
             <div class="dashboard-views-container">
 
                 <!-- TAB 1: OVERVIEW (MAIN DASHBOARD) -->
                 <div id="tabOverview" class="tab-pane active">
+
+                    <!-- FINANCIAL SUMMARY CONTAINER (MONTHLY OVERVIEW) -->
+                    <div class="card financial-summary-container">
+                        <div class="summary-container-header">
+                            <div class="summary-header-left">
+                                <span class="header-decor-icons">💎 <i class="fa-solid fa-chart-pie"></i></span>
+                                <h2>Monthly Overview</h2>
+                            </div>
+                            
+                            <!-- Dynamic Month & Year Switcher with Arrows -->
+                            <div class="overview-month-control">
+                                <button type="button" class="month-nav-arrow arrow-double" id="prevOverviewYearBtn" title="Previous Year (<<)">
+                                    <i class="fa-solid fa-angles-left"></i>
+                                </button>
+                                <button type="button" class="month-nav-arrow" id="prevOverviewMonthBtn" title="Previous Month (<)">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </button>
+                                <div class="month-input-wrapper">
+                                    <i class="fa-regular fa-calendar-check month-cal-icon"></i>
+                                    <input type="month" id="overviewMonthPicker" class="overview-month-input" title="Click to select any month and year">
+                                </div>
+                                <button type="button" class="month-nav-arrow" id="nextOverviewMonthBtn" title="Next Month (>)">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                                <button type="button" class="month-nav-arrow arrow-double" id="nextOverviewYearBtn" title="Next Year (>>)">
+                                    <i class="fa-solid fa-angles-right"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="summary-cards-grid">
+                            <!-- Total Income Card (Pastel Blue) -->
+                            <div class="summary-card card-income">
+                                <div class="card-top-icon">💰</div>
+                                <div class="card-icon-trend">
+                                    <i class="fa-solid fa-arrow-trend-up"></i>
+                                </div>
+                                <span class="card-label">Monthly Income</span>
+                                <h2 class="card-value" id="totalIncome">Rs. 0.00</h2>
+                                <div class="card-corner-watermark"></div>
+                            </div>
+
+                            <!-- Total Expenses Card (Pastel Pink) -->
+                            <div class="summary-card card-expense">
+                                <div class="card-top-icon">💸</div>
+                                <div class="card-icon-trend">
+                                    <i class="fa-solid fa-arrow-trend-down"></i>
+                                </div>
+                                <span class="card-label">Monthly Expenses</span>
+                                <h2 class="card-value" id="totalExpenses">Rs. 0.00</h2>
+                                <div class="card-corner-watermark"></div>
+                            </div>
+
+                            <!-- Net Balance Card (Pastel Purple) -->
+                            <div class="summary-card card-balance">
+                                <div class="card-top-icon">💎</div>
+                                <div class="card-icon-trend">
+                                    <i class="fa-solid fa-wallet"></i>
+                                </div>
+                                <span class="card-label">Monthly Net Savings</span>
+                                <h2 class="card-value" id="balance">Rs. 0.00</h2>
+                                <div class="card-corner-watermark"></div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- A. FINANCIAL ANALYTICS (3 CHARTS GRID) -->
                     <div class="analytics-charts-grid">
