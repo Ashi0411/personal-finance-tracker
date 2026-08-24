@@ -326,6 +326,31 @@ function setupEventListeners() {
             });
         }
     });
+
+    // Initialize custom select UI & custom calendars
+    initAllCustomSelects();
+    attachCustomCalendars();
+
+    // Close custom dropdowns & calendars on outside click or Escape
+    document.addEventListener("click", (e) => {
+        if (!e.target.closest(".custom-select-container")) {
+            closeAllCustomDropdowns();
+        }
+        if (!e.target.closest("#customCalendarPopup") &&
+            !e.target.closest('input[type="month"]') &&
+            !e.target.closest('input[type="date"]') &&
+            !e.target.closest('.month-input-wrapper') &&
+            !e.target.closest('.month-selector-group')) {
+            closeCustomCalendar();
+        }
+    });
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            closeAllCustomDropdowns();
+            closeCustomCalendar();
+        }
+    });
 }
 
 // ============================================================
@@ -601,6 +626,8 @@ async function loadCategories() {
         if (budgetCatSelect) budgetCatSelect.innerHTML = defaultOption + optionsHtml;
         if (editBudgetCatSelect) editBudgetCatSelect.innerHTML = defaultOption + optionsHtml;
 
+        initAllCustomSelects();
+
         // 2. Populate Quick Chips (Bottom Left Card)
         if (categoryChips) {
             categoryChips.innerHTML = "";
@@ -875,6 +902,418 @@ function getCategoryEmoji(name) {
     return "🏷️";
 }
 
+// ============================================================
+// CUSTOM FLOATING DROPDOWN COMPONENT ENHANCER
+// ============================================================
+function getOptionEmoji(text, value) {
+    if (!text) return "🏷️";
+    const lower = text.toLowerCase();
+    if (lower.includes("all types") || lower.includes("all categories")) return "✨";
+    if (lower.includes("expense")) return "💸";
+    if (lower.includes("income")) return "💰";
+    if (lower.includes("progress")) return "⏳";
+    if (lower.includes("completed")) return "✅";
+    if (lower.includes("select")) return "🏷️";
+    return getCategoryEmoji(text);
+}
+
+function enhanceCustomSelect(select) {
+    if (!select) return;
+
+    let wrapper = select.nextElementSibling;
+    if (!wrapper || !wrapper.classList.contains("custom-select-container")) {
+        wrapper = document.createElement("div");
+        wrapper.className = "custom-select-container";
+        select.style.display = "none";
+        select.parentNode.insertBefore(wrapper, select.nextSibling);
+    }
+
+    const options = Array.from(select.options);
+    const selectedOption = select.options[select.selectedIndex] || options[0];
+    const selectedText = selectedOption ? selectedOption.text : "";
+    const selectedEmoji = getOptionEmoji(selectedText, selectedOption ? selectedOption.value : "");
+
+    wrapper.innerHTML = `
+        <button type="button" class="custom-select-trigger" aria-haspopup="listbox">
+            <span class="custom-select-text">
+                <span>${selectedEmoji}</span>
+                <span>${escapeHtml(selectedText)}</span>
+            </span>
+            <i class="fa-solid fa-chevron-down custom-select-arrow"></i>
+        </button>
+        <div class="custom-select-dropdown">
+            <div class="custom-select-options-list" role="listbox">
+                ${options.map(opt => {
+                    const isSelected = opt.value == select.value;
+                    const emoji = getOptionEmoji(opt.text, opt.value);
+                    return `
+                        <div class="custom-select-option ${isSelected ? 'selected' : ''}" data-value="${escapeHtml(opt.value)}" role="option" aria-selected="${isSelected}">
+                            <span class="custom-option-label">
+                                <span>${emoji}</span>
+                                <span>${escapeHtml(opt.text)}</span>
+                            </span>
+                            <i class="fa-solid fa-check option-check"></i>
+                        </div>
+                    `;
+                }).join("")}
+            </div>
+        </div>
+    `;
+
+    const trigger = wrapper.querySelector(".custom-select-trigger");
+    if (trigger) {
+        trigger.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const wasOpen = wrapper.classList.contains("open");
+            closeAllCustomDropdowns();
+            if (!wasOpen) {
+                wrapper.classList.add("open");
+            }
+        });
+    }
+
+    wrapper.querySelectorAll(".custom-select-option").forEach(optItem => {
+        optItem.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const val = optItem.dataset.value;
+            select.value = val;
+            select.dispatchEvent(new Event("change", { bubbles: true }));
+            enhanceCustomSelect(select);
+            closeAllCustomDropdowns();
+        });
+    });
+}
+
+function closeAllCustomDropdowns() {
+    document.querySelectorAll(".custom-select-container.open").forEach(el => {
+        el.classList.remove("open");
+    });
+}
+
+function initAllCustomSelects() {
+    document.querySelectorAll("select:not(.no-custom)").forEach(select => {
+        enhanceCustomSelect(select);
+    });
+}
+
+// ============================================================
+// CUSTOM FLOATING CALENDAR & MONTH PICKER
+// ============================================================
+let activeCalInput = null;
+let calCurrentYear = new Date().getFullYear();
+let calCurrentMonth = new Date().getMonth();
+
+function getOrCreateCalendarPopup() {
+    let popup = document.getElementById("customCalendarPopup");
+    if (!popup) {
+        popup = document.createElement("div");
+        popup.id = "customCalendarPopup";
+        popup.className = "custom-calendar-popup";
+        document.body.appendChild(popup);
+    }
+    return popup;
+}
+
+function positionCalendarPopup(targetElement) {
+    const popup = getOrCreateCalendarPopup();
+    const rect = targetElement.getBoundingClientRect();
+    const popupWidth = 300;
+    const popupHeight = popup.offsetHeight || 330;
+    const padding = 12;
+
+    let top = rect.bottom + 8;
+    let left = rect.left;
+
+    // If bottom overflow, display above target element
+    if (top + popupHeight > window.innerHeight - padding && rect.top - popupHeight - 8 > padding) {
+        top = rect.top - popupHeight - 8;
+    }
+
+    if (top < padding) top = padding;
+
+    if (left + popupWidth > window.innerWidth - padding) {
+        left = window.innerWidth - popupWidth - padding;
+    }
+    if (left < padding) left = padding;
+
+    popup.style.top = `${top}px`;
+    popup.style.left = `${left}px`;
+}
+
+function closeCustomCalendar() {
+    const popup = document.getElementById("customCalendarPopup");
+    if (popup) {
+        popup.classList.remove("open");
+    }
+    activeCalInput = null;
+}
+
+function openCustomMonthPicker(input) {
+    activeCalInput = input;
+    closeAllCustomDropdowns();
+
+    const popup = getOrCreateCalendarPopup();
+    const val = input.value || new Date().toISOString().slice(0, 7);
+    const [y, m] = val.split("-").map(Number);
+    calCurrentYear = isNaN(y) ? new Date().getFullYear() : y;
+    const selectedMonth = isNaN(m) ? new Date().getMonth() + 1 : m;
+
+    renderMonthPickerPopup(selectedMonth);
+    const targetAnchor = input.closest(".month-input-wrapper") || input.closest(".month-selector-group") || input;
+    positionCalendarPopup(targetAnchor);
+    popup.classList.add("open");
+}
+
+function renderMonthPickerPopup(selectedMonth) {
+    const popup = getOrCreateCalendarPopup();
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+
+    popup.innerHTML = `
+        <div class="cal-header">
+            <button type="button" class="cal-nav-btn" id="calPrevYearBtn" title="Previous Year"><i class="fa-solid fa-chevron-left"></i></button>
+            <span class="cal-title-btn">${calCurrentYear}</span>
+            <button type="button" class="cal-nav-btn" id="calNextYearBtn" title="Next Year"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        <div class="cal-months-grid">
+            ${monthNames.map((name, idx) => {
+                const monthNum = idx + 1;
+                const isSelected = activeCalInput && activeCalInput.value === `${calCurrentYear}-${String(monthNum).padStart(2, '0')}`;
+                return `
+                    <button type="button" class="cal-month-cell ${isSelected ? 'selected' : ''}" data-month="${monthNum}">
+                        ${name}
+                    </button>
+                `;
+            }).join("")}
+        </div>
+        <div class="cal-footer">
+            <button type="button" class="cal-btn-text" id="calThisMonthBtn">This Month</button>
+            <button type="button" class="cal-btn-text" id="calCloseBtn" style="color: #64748b;">Close</button>
+        </div>
+    `;
+
+    popup.querySelector("#calPrevYearBtn").addEventListener("click", (e) => {
+        e.stopPropagation();
+        calCurrentYear -= 1;
+        renderMonthPickerPopup(selectedMonth);
+    });
+
+    popup.querySelector("#calNextYearBtn").addEventListener("click", (e) => {
+        e.stopPropagation();
+        calCurrentYear += 1;
+        renderMonthPickerPopup(selectedMonth);
+    });
+
+    popup.querySelector("#calThisMonthBtn").addEventListener("click", (e) => {
+        e.stopPropagation();
+        selectMonthValue(currentYear, currentMonth);
+    });
+
+    popup.querySelector("#calCloseBtn").addEventListener("click", (e) => {
+        e.stopPropagation();
+        closeCustomCalendar();
+    });
+
+    popup.querySelectorAll(".cal-month-cell").forEach(cell => {
+        cell.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const monthNum = parseInt(cell.dataset.month, 10);
+            selectMonthValue(calCurrentYear, monthNum);
+        });
+    });
+}
+
+function selectMonthValue(year, month) {
+    if (activeCalInput) {
+        const val = `${year}-${String(month).padStart(2, '0')}`;
+        activeCalInput.value = val;
+        activeCalInput.dispatchEvent(new Event("change", { bubbles: true }));
+        activeCalInput.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+    closeCustomCalendar();
+}
+
+function openCustomDatePicker(input) {
+    activeCalInput = input;
+    closeAllCustomDropdowns();
+
+    const popup = getOrCreateCalendarPopup();
+    const val = input.value || new Date().toISOString().slice(0, 10);
+    const parts = val.split("-").map(Number);
+    if (parts.length === 3 && !isNaN(parts[0])) {
+        calCurrentYear = parts[0];
+        calCurrentMonth = parts[1] - 1;
+    } else {
+        const d = new Date();
+        calCurrentYear = d.getFullYear();
+        calCurrentMonth = d.getMonth();
+    }
+
+    renderDatePickerPopup();
+    positionCalendarPopup(input);
+    popup.classList.add("open");
+}
+
+function renderDatePickerPopup() {
+    const popup = getOrCreateCalendarPopup();
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+    const weekdays = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+
+    const firstDay = new Date(calCurrentYear, calCurrentMonth, 1).getDay();
+    const daysInMonth = new Date(calCurrentYear, calCurrentMonth + 1, 0).getDate();
+    const daysInPrevMonth = new Date(calCurrentYear, calCurrentMonth, 0).getDate();
+
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const selectedVal = activeCalInput ? activeCalInput.value : "";
+
+    let daysHtml = "";
+
+    for (let i = firstDay - 1; i >= 0; i--) {
+        const day = daysInPrevMonth - i;
+        daysHtml += `<span class="cal-day-cell other-month empty">${day}</span>`;
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${calCurrentYear}-${String(calCurrentMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const isToday = dateStr === todayStr;
+        const isSelected = dateStr === selectedVal;
+
+        daysHtml += `
+            <button type="button" class="cal-day-cell ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}" data-date="${dateStr}">
+                ${d}
+            </button>
+        `;
+    }
+
+    const totalCells = firstDay + daysInMonth;
+    const nextMonthDays = (7 - (totalCells % 7)) % 7;
+    for (let j = 1; j <= nextMonthDays; j++) {
+        daysHtml += `<span class="cal-day-cell other-month empty">${j}</span>`;
+    }
+
+    popup.innerHTML = `
+        <div class="cal-header">
+            <button type="button" class="cal-nav-btn" id="calPrevMonthBtn" title="Previous Month"><i class="fa-solid fa-chevron-left"></i></button>
+            <span class="cal-title-btn">${monthNames[calCurrentMonth]} ${calCurrentYear}</span>
+            <button type="button" class="cal-nav-btn" id="calNextMonthBtn" title="Next Month"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        <div class="cal-weekdays">
+            ${weekdays.map(w => `<span class="cal-weekday">${w}</span>`).join("")}
+        </div>
+        <div class="cal-days-grid">
+            ${daysHtml}
+        </div>
+        <div class="cal-footer">
+            <button type="button" class="cal-btn-text" id="calTodayBtn">Today</button>
+            <button type="button" class="cal-btn-text" id="calCloseBtn" style="color: #64748b;">Close</button>
+        </div>
+    `;
+
+    popup.querySelector("#calPrevMonthBtn").addEventListener("click", (e) => {
+        e.stopPropagation();
+        calCurrentMonth -= 1;
+        if (calCurrentMonth < 0) {
+            calCurrentMonth = 11;
+            calCurrentYear -= 1;
+        }
+        renderDatePickerPopup();
+    });
+
+    popup.querySelector("#calNextMonthBtn").addEventListener("click", (e) => {
+        e.stopPropagation();
+        calCurrentMonth += 1;
+        if (calCurrentMonth > 11) {
+            calCurrentMonth = 0;
+            calCurrentYear += 1;
+        }
+        renderDatePickerPopup();
+    });
+
+    popup.querySelector("#calTodayBtn").addEventListener("click", (e) => {
+        e.stopPropagation();
+        selectDateValue(todayStr);
+    });
+
+    popup.querySelector("#calCloseBtn").addEventListener("click", (e) => {
+        e.stopPropagation();
+        closeCustomCalendar();
+    });
+
+    popup.querySelectorAll(".cal-day-cell:not(.empty)").forEach(cell => {
+        cell.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const dateVal = cell.dataset.date;
+            selectDateValue(dateVal);
+        });
+    });
+}
+
+function selectDateValue(dateStr) {
+    if (activeCalInput) {
+        activeCalInput.value = dateStr;
+        activeCalInput.dispatchEvent(new Event("change", { bubbles: true }));
+        activeCalInput.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+    closeCustomCalendar();
+}
+
+function attachCustomCalendars() {
+    document.querySelectorAll('input[type="month"]').forEach(input => {
+        input.readOnly = true;
+        input.style.cursor = "pointer";
+        const handler = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openCustomMonthPicker(input);
+        };
+        input.addEventListener("click", handler);
+        input.addEventListener("mousedown", handler);
+        input.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                openCustomMonthPicker(input);
+            }
+        });
+    });
+
+    document.querySelectorAll('.month-input-wrapper, .month-selector-group').forEach(wrap => {
+        wrap.style.cursor = "pointer";
+        wrap.addEventListener("click", (e) => {
+            const input = wrap.querySelector('input[type="month"]');
+            if (input) {
+                e.preventDefault();
+                e.stopPropagation();
+                openCustomMonthPicker(input);
+            }
+        });
+    });
+
+    document.querySelectorAll('input[type="date"]').forEach(input => {
+        input.readOnly = true;
+        input.style.cursor = "pointer";
+        const handler = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openCustomDatePicker(input);
+        };
+        input.addEventListener("click", handler);
+        input.addEventListener("mousedown", handler);
+        input.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                openCustomDatePicker(input);
+            }
+        });
+    });
+}
+
 function buildTransactionLi(tx) {
     const isIncome = tx.type === "income";
     const amountFormatted = parseFloat(tx.amount || 0).toLocaleString("en-IN", {
@@ -978,6 +1417,7 @@ function openTransactionModal(tx) {
 
     const modal = document.getElementById("editTransactionModal");
     if (modal) modal.style.display = "flex";
+    initAllCustomSelects();
 }
 
 function closeTransactionModal() {
@@ -1537,6 +1977,7 @@ function openEditBudgetModal(b) {
 
     const modal = document.getElementById("editBudgetModal");
     if (modal) modal.style.display = "flex";
+    initAllCustomSelects();
 }
 
 function closeBudgetModal() {
@@ -1784,6 +2225,7 @@ function openEditGoalModal(g) {
 
     const modal = document.getElementById("editGoalModal");
     if (modal) modal.style.display = "flex";
+    initAllCustomSelects();
 }
 
 function closeGoalModal() {
